@@ -73,8 +73,8 @@ def generate_weekly_report(base_url, product, output_dir):
     period_from = period_to = None
     for slo in report_data['service_level_objectives']:
         if len(slo['days']):
-            period_from = min(report_data['service_level_objectives'][0]['days'].keys())[:10]
-            period_to = max(report_data['service_level_objectives'][0]['days'].keys())[:10]
+            period_from = min(slo['days'].keys())[:10]
+            period_to = max(slo['days'].keys())[:10]
             break
 
     if not all([period_from, period_to]):
