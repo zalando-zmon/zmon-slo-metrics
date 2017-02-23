@@ -72,12 +72,12 @@ def generate_weekly_report(base_url, product, output_dir):
 
     period_from = period_to = None
     for slo in report_data['service_level_objectives']:
-        if len(slo['days']):
+        if slo['days']:
             period_from = min(slo['days'].keys())[:10]
             period_to = max(slo['days'].keys())[:10]
             break
 
-    if not all([period_from, period_to]):
+    if not period_from or not period_to:
         print('Can not determine "period_from" and "period_to" for the report. Terminating!')
         sys.exit(1)
 
