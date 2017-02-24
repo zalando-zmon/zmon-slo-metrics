@@ -61,9 +61,9 @@ definitions:
       name:
         type: string
         description: The actual name for the product group.
-      team:
+      department:
         type: string
-        description: The owning team of the product group.
+        description: The department of the product group.
       uri:
         type: string
         readOnly: true
