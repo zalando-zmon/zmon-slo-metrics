@@ -24,6 +24,21 @@ security:
   - oauth2: [uid]
 
 definitions:
+  Meta:
+    properties:
+      next_uri:
+        type: string
+        readOnly: true
+        description: Pagination next URI
+      previous_uri:
+        type: string
+        readOnly: true
+        description: Pagination previous URI
+      count:
+        type: number
+        readOnly: true
+        description: Total number of resources
+
   APIRoot:
     properties:
       health_uri:
@@ -41,6 +56,8 @@ definitions:
 
   ProductGroup:
     properties:
+      _meta:
+        $ref: '#/definitions/Meta'
       name:
         type: string
         description: The actual name for the product group.
@@ -54,6 +71,8 @@ definitions:
 
   Product:
     properties:
+      _meta:
+        $ref: '#/definitions/Meta'
       name:
         type: string
         description: Product name.
@@ -83,6 +102,8 @@ definitions:
 
   SLI:
     properties:
+      _meta:
+        $ref: '#/definitions/Meta'
       name:
         type: string
         description: SLI name.
@@ -114,6 +135,8 @@ definitions:
 
   SLO:
     properties:
+      _meta:
+        $ref: '#/definitions/Meta'
       title:
         type: string
         description: SLO title.
@@ -138,6 +161,8 @@ definitions:
 
   Target:
     properties:
+      _meta:
+        $ref: '#/definitions/Meta'
       from:
         type: number
         description: SLO target lower bound.
@@ -161,6 +186,8 @@ definitions:
 
   Report:
     properties:
+      _meta:
+        $ref: '#/definitions/Meta'
       product_name:
         type: string
         description: Product name
