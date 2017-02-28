@@ -25,28 +25,6 @@ def get_slo_report(product, relative_from, relative_to):
 
         for slo in service_level_objectives:
             days = collections.defaultdict(dict)
-            statements = '''
-                SELECT
-                    date_trunc(\'day\', sli_timestamp) AS day,
-                    sli_name AS name,
-                    MIN(sli_value) AS min,
-                    AVG(sli_value),
-                    MAX(sli_value),
-                    COUNT(sli_value),
-                    (SELECT SUM(CASE b WHEN TRUE THEN 0 ELSE 1 END) FROM UNNEST(array_agg(sli_value BETWEEN
-                        COALESCE(slit_from, \'-Infinity\') AND COALESCE(slit_to, \'Infinity\'))) AS dt(b)
-                    ) AS agg
-                FROM zsm_data.service_level_indicator
-                JOIN zsm_data.service_level_indicator_target ON slit_sli_name = sli_name
-                JOIN zsm_data.service_level_objective ON slo_id = slit_slo_id AND slo_id = %s
-                JOIN zsm_data.product ON p_id = slo_product_id AND p_slug = %s
-                WHERE
-                    sli_timestamp > DATE '%s' AND
-                    sli_timestamp <= DATE '%s' AND
-                    sli_product_id = %s
-                GROUP BY date_trunc(\'day\', sli_timestamp), sli_name
-                '''
-            complete_statement = statements % (slo['id'], product, relative_from, relative_to, product_data['id'],)
             cur.execute(
                 '''
                 SELECT
