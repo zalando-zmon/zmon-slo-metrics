@@ -5,7 +5,7 @@ from app.handler.slo import get as get_service_level_objectives
 from app.utils import strip_column_prefix
 
 
-def get_service_level_objective_report(product, report_type):
+def get_slo_report(product, relative_from, relative_to):
     with dbconn() as conn:
         cur = conn.cursor()
         cur.execute('''SELECT p.*, pg_name AS pg_product_group_name, pg_slug AS pg_product_group_slug, pg_department
@@ -39,11 +39,12 @@ def get_service_level_objective_report(product, report_type):
                 JOIN zsm_data.service_level_objective ON slo_id = slit_slo_id AND slo_id = %s
                 JOIN zsm_data.product ON p_id = slo_product_id AND p_slug = %s
                 WHERE
-                    sli_timestamp >= date_trunc(\'day\', \'now\'::TIMESTAMP - INTERVAL \'7 days\') AND
+                    sli_timestamp >= %d AND
+                    sli_timestamp <= %d AND
                     sli_product_id = %s
                 GROUP BY date_trunc(\'day\', sli_timestamp), sli_name
                 ''',
-                (slo['id'], product, product_data['id'],))
+                (slo['id'], product, relative_from, relative_to, product_data['id'],))
 
             rows = cur.fetchall()
             for row in rows:
@@ -52,3 +53,6 @@ def get_service_level_objective_report(product, report_type):
             slo['days'] = days
 
     return {'product': product_data, 'service_level_objectives': service_level_objectives}
+
+def get_slo_weekly(product, report_type):
+    
