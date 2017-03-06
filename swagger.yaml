@@ -614,7 +614,7 @@ paths:
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/ResourceId'
-        - name: product
+        - name: sli
           in: body
           required: true
           schema:
@@ -791,7 +791,7 @@ paths:
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/ResourceId'
-        - name: product
+        - name: slo
           in: body
           required: true
           schema:
