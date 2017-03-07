@@ -18,7 +18,7 @@ def run_sli_update():
     while True:
         time.sleep(int(os.getenv('UPDATE_INTERVAL_SECONDS', 600)))
         try:
-            for product in get_products():
+            for product in get_products(None):
                 try:
                     update_service_level_objectives(product['slug'])
                 except:

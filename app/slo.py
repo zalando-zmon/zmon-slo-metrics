@@ -118,12 +118,13 @@ def process_sli(product_name, sli_name, sli_def, kairosdb_url, start, end, time_
             raise Exception('Product {} not found'.format(product_name))
         product_id, = row
         logger.info('Inserting %s SLI values..', len(res2))
+
         for minute, val in res2.items():
             cur.execute('INSERT INTO zsm_data.service_level_indicator '
                         '(sli_product_id, sli_name, sli_timestamp, sli_value) VALUES '
                         '(%s, %s, TIMESTAMP \'epoch\' + %s * INTERVAL \'1 second\', %s) ON CONFLICT ON CONSTRAINT '
                         'service_level_indicator_pkey DO UPDATE SET sli_value = EXCLUDED.sli_value',
-                        (product_id, sli_name, minute, val))
+                        (product_id, sli_name, minute, round(val, 6)))
         conn.commit()
 
     return len(res2)
