@@ -165,15 +165,29 @@ def generate_weekly_report(base_url, product, output_dir):
     template = env.get_template('slr-weekly.html')
     template.stream(**data).dump(os.path.join(report_dir, 'index.html'))
 
-    generate_directory_index(output_dir)
-
 
 @click.command()
 @click.argument('base_url')
-@click.argument('product')
+@click.option('-p', '--product')
+@click.option('-pg', '--product_group')
 @click.option('--output-dir', '-o', help='Output directory', default='output')
-def cli(base_url, product, output_dir):
-    generate_weekly_report(base_url, product, output_dir)
+def cli(base_url, product, product_group, output_dir):
+    if not product and not product_group:
+        raise click.UsageError(message='Either product or product group option must be specified')
+    if product:
+        generate_weekly_report(base_url, product, output_dir)
+    else:
+        url = '{}/products'.format(base_url, product)
+        resp = requests.get(url, headers={'Authorization': 'Bearer {}'.format(zign.api.get_token('zmon', ['uid']))}, params={'pg': product_group})
+        resp.raise_for_status()
+        products_list = resp.json()
+        for p in products_list:
+            print('Generating report for {}'.format(p['slug']))
+            try:
+                generate_weekly_report(base_url, p['slug'], output_dir)
+            except:
+                pass
+    generate_directory_index(output_dir)
 
 
 if __name__ == '__main__':
