@@ -64,4 +64,4 @@ def get_slo_weekly(product, report_type):
         last_week = yesterday - timedelta(days=6)
         return get_slo_report(product, last_week.strftime('%Y-%m-%d'), yesterday.strftime('%Y-%m-%d'))
     else:
-        return connexion.problem(status=403, detail='Not implemented for this range.')
+        return connexion.problem(status=404, detail='Not implemented for this range.')
