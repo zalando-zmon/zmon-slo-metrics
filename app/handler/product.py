@@ -34,7 +34,8 @@ def get_product(product):
             FROM zsm_data.product WHERE p_slug = %s''', (product,))
         rows = cur.fetchall()
         if len(rows) < 1:
-            return NoContent, 404
+            return connexion.problem(status=404, title='Product not found',
+                                     detail='Product with id {} does not exist'.format(product))
         else:
             return strip_column_prefix(rows[0]._asdict())
 
