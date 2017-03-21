@@ -178,7 +178,8 @@ def cli(base_url, product, product_group, output_dir):
         generate_weekly_report(base_url, product, output_dir)
     else:
         url = '{}/products'.format(base_url, product)
-        resp = requests.get(url, headers={'Authorization': 'Bearer {}'.format(zign.api.get_token('zmon', ['uid']))}, params={'pg': product_group})
+        resp = requests.get(url, headers={'Authorization': 'Bearer {}'.format(zign.api.get_token('zmon', ['uid']))},
+                            params={'pg': product_group})
         resp.raise_for_status()
         products_list = resp.json()
         for p in products_list:
