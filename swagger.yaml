@@ -247,7 +247,8 @@ definitions:
         description: |
           {
             "2017-02-16T00:00:00": {
-              "sli-name": {"min": 10, "max": 100, "avg": 88.9, "count": 19000, "breaches": 1}
+              "sli-name-1": {"min": 10, "max": 100, "avg": 88.9, "count": 19000, "breaches": 1, "unit": "ms"},
+              "sli-name-2": {"min": 19090, "max": 20110, "avg": 15558, "count": 19000, "breaches": 0, "unit": ""}
             }
           }
       title:
