@@ -446,6 +446,10 @@ paths:
           type: string
           in: query
           description: Filter products by name.
+        - name: product_group
+          type: string
+          in: query
+          description: Filter by product group name.
         - $ref: '#/parameters/Limit'
         - $ref: '#/parameters/Offset'
       responses:
