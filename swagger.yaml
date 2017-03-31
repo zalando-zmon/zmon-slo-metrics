@@ -228,9 +228,6 @@ definitions:
       product_name:
         type: string
         description: Product name
-      team:
-        type: string
-        description: Product team
       product_group_name:
         type: string
         description: Product Group name
@@ -300,6 +297,18 @@ parameters:
     in: query
     description: Relative end minutes
 
+  Offset:
+    name: offset
+    type: integer
+    in: query
+    description: Pagination offset.
+
+  Limit:
+    name: limit
+    type: integer
+    in: query
+    description: Pagination limit.
+
 
 paths:
   /:
@@ -333,6 +342,8 @@ paths:
           type: string
           in: query
           description: Filter product groups by name.
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
       responses:
         200:
           description: List of Product Groups
@@ -345,7 +356,7 @@ paths:
       tags: [Product Group]
       operationId: app.handler.product_groups.create
       summary: Create a Product Group
-      description: Create a product group for a team
+      description: Create a product group.
       parameters:
         - name: product_group
           in: body
@@ -435,6 +446,8 @@ paths:
           type: string
           in: query
           description: Filter products by name.
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
       responses:
         200:
           description: List of Products
@@ -538,6 +551,8 @@ paths:
       operationId: app.handler.sli.get_list
       parameters:
         - $ref: '#/parameters/ProductId'
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
       responses:
         200:
           description: List of Product SLIs
@@ -652,10 +667,12 @@ paths:
       description: Get list of Product SLIs values
       operationId: app.handler.sli.get_values
       parameters:
-        - $ref: '#/parameters/From'
-        - $ref: '#/parameters/To'
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/ResourceId'
+        - $ref: '#/parameters/From'
+        - $ref: '#/parameters/To'
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
       responses:
         200:
           description: List of SLI values
@@ -726,6 +743,8 @@ paths:
       operationId: app.handler.slo.get_list
       parameters:
         - $ref: '#/parameters/ProductId'
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
       responses:
         200:
           description: List of Product SLOs
@@ -831,6 +850,8 @@ paths:
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/SLOId'
+        - $ref: '#/parameters/Limit'
+        - $ref: '#/parameters/Offset'
       responses:
         200:
           description: List of Product SLO targets
