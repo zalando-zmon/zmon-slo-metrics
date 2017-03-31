@@ -141,6 +141,9 @@ definitions:
             "keys": ["latency.p99", "requests_count"],
             "tags": {"application_id": ["app-1"]}
           }
+      unit:
+        type: string
+        description: SLI unit (s, ms, %).
       uri:
         type: string
         readOnly: true
@@ -208,9 +211,6 @@ definitions:
       to:
         type: number
         description: SLO target upper bound.
-      unit:
-        type: string
-        description: SLO target unit (s, ms, %).
       sli_uri:
         type: string
         description: Product SLI URI (e.g /products/3/sli/33)
@@ -583,8 +583,11 @@ paths:
                 type: string
                 description: The SLI name
                 example: latency_p99
-              source:
+              unit:
                 type: string
+                description: SLI unit (s, ms, %).
+              source:
+                type: object
                 description: SLI data source
                 example: |
                   {
@@ -890,9 +893,6 @@ paths:
                 type: number
                 description: SLO target upper bound.
                 default: 0.0
-              unit:
-                type: string
-                description: SLO target unit (s, ms, %).
             required:
               - sli_uri
       responses:
