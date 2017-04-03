@@ -619,6 +619,10 @@ paths:
       operationId: app.handler.sli.get_list
       parameters:
         - $ref: '#/parameters/ProductId'
+        - name: name
+          type: string
+          in: query
+          description: Filter SLI by name.
         - $ref: '#/parameters/Limit'
         - $ref: '#/parameters/Offset'
       responses:
