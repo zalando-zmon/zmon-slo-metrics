@@ -71,6 +71,18 @@ definitions:
       department:
         type: string
         description: The department of the product group.
+      username:
+        type: string
+        readOnly: true
+        description: User name created the resource.
+      created:
+        type: string
+        readOnly: true
+        description: Created datetime.
+      updated:
+        type: string
+        readOnly: true
+        description: Updated datetime.
       uri:
         type: string
         readOnly: true
@@ -96,7 +108,19 @@ definitions:
       product_group_name:
         type: string
         readOnly: true
-        description: Product Group name
+        description: Product Group name.
+      username:
+        type: string
+        readOnly: true
+        description: User name created the resource.
+      created:
+        type: string
+        readOnly: true
+        description: Created datetime.
+      updated:
+        type: string
+        readOnly: true
+        description: Updated datetime.
       uri:
         type: string
         readOnly: true
@@ -144,6 +168,18 @@ definitions:
       unit:
         type: string
         description: SLI unit (s, ms, %).
+      username:
+        type: string
+        readOnly: true
+        description: User name created the resource.
+      created:
+        type: string
+        readOnly: true
+        description: Created datetime.
+      updated:
+        type: string
+        readOnly: true
+        description: Updated datetime.
       uri:
         type: string
         readOnly: true
@@ -175,6 +211,21 @@ definitions:
       title:
         type: string
         description: SLO title.
+      description:
+        type: string
+        description: SLO description.
+      username:
+        type: string
+        readOnly: true
+        description: User name created the resource.
+      created:
+        type: string
+        readOnly: true
+        description: Created datetime.
+      updated:
+        type: string
+        readOnly: true
+        description: Updated datetime.
       uri:
         type: string
         readOnly: true
@@ -211,13 +262,25 @@ definitions:
       to:
         type: number
         description: SLO target upper bound.
+      username:
+        type: string
+        readOnly: true
+        description: User name created the resource.
+      created:
+        type: string
+        readOnly: true
+        description: Created datetime.
+      updated:
+        type: string
+        readOnly: true
+        description: Updated datetime.
       sli_uri:
         type: string
-        description: Product SLI URI (e.g /products/3/sli/33)
+        description: Product SLI URI (e.g /products/3/sli/33).
       uri:
         type: string
         readOnly: true
-        description: Self reference URI (e.g /products/3/slo/333/targets/3333)
+        description: Self reference URI (e.g /products/3/slo/333/targets/3333).
       sli_name:
         type: string
         readOnly: true
