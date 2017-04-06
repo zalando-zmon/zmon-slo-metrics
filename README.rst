@@ -37,10 +37,19 @@ Configuration parameters:
 Generating Reports
 ==================
 
-You will need to install ``gnuplot`` as a system dependency. Running the following command will generate a report for the specified project in ``output`` directory.
+You will need to install ``gnuplot`` as a system dependency and the python dependencies. 
 
 .. code-block:: bash
 
+    $ brew install gnuplot # Mac OS
+    $ apt-get install gnuplot # Ubuntu etc.
+    $ virtualenv -p python3 venv
+    $ activate venv/bin/active
+    $ pip3 install -r requirements.txt
+    
+Running the following command will generate a report for the specified project in ``output`` directory.
+
+.. code-block:: bash
     $ ./generate-slr.py http://localhost:8080 myproduct
 
 
