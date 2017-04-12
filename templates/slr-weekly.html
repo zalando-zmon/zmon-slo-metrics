@@ -53,14 +53,14 @@
                     <table class="table">
                         <tr>
                             {% for sli in slo.slis.keys() | sort %}
-                                {% if sli != 'requests' %}
+                                {% if slo.slis[sli].unit %}
                                     <th class="sli-caption">{{ sli|sli_title }}</th>
                                 {% endif %}
                             {% endfor %}
                         </tr>
                         <tr>
                             {% for sli in slo.slis.keys() | sort %}
-                                {% if sli != 'requests' %}
+                                {% if slo.slis[sli].unit %}
                                     <td class="sli-large {{ 'red' if not slo.slis[sli].ok }}">{{ slo.slis[sli].avg }}</td>
                                 {% endif %}
                             {% endfor %}
