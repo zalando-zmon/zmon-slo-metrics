@@ -71,6 +71,10 @@ definitions:
       department:
         type: string
         description: The department of the product group.
+      slug:
+        type: string
+        description: Product group slug.
+        readOnly: true
       username:
         type: string
         readOnly: true
@@ -105,6 +109,10 @@ definitions:
       product_group_uri:
         type: string
         description: Product Group URI (e.g. /product-groups/110)
+      slug:
+        type: string
+        readOnly: true
+        description: Product slug.
       product_group_name:
         type: string
         readOnly: true
@@ -117,10 +125,6 @@ definitions:
         type: string
         readOnly: true
         description: Created datetime.
-      updated:
-        type: string
-        readOnly: true
-        description: Updated datetime.
       uri:
         type: string
         readOnly: true
@@ -168,6 +172,10 @@ definitions:
       unit:
         type: string
         description: SLI unit (s, ms, %).
+      product_name:
+        type: string
+        readOnly: true
+        description: Product name
       username:
         type: string
         readOnly: true
@@ -192,10 +200,6 @@ definitions:
         type: string
         readOnly: true
         description: Product SLO URI (e.g /products/3/sli/33/query)
-      product_name:
-        type: string
-        readOnly: true
-        description: Product name
 
   SLOList:
     properties:
@@ -222,10 +226,6 @@ definitions:
         type: string
         readOnly: true
         description: Created datetime.
-      updated:
-        type: string
-        readOnly: true
-        description: Updated datetime.
       uri:
         type: string
         readOnly: true
@@ -262,6 +262,13 @@ definitions:
       to:
         type: number
         description: SLO target upper bound.
+      sli_uri:
+        type: string
+        description: Product SLI URI (e.g /products/3/sli/33).
+      sli_name:
+        type: string
+        readOnly: true
+        description: Product SLI name
       username:
         type: string
         readOnly: true
@@ -274,17 +281,10 @@ definitions:
         type: string
         readOnly: true
         description: Updated datetime.
-      sli_uri:
-        type: string
-        description: Product SLI URI (e.g /products/3/sli/33).
       uri:
         type: string
         readOnly: true
         description: Self reference URI (e.g /products/3/slo/333/targets/3333).
-      sli_name:
-        type: string
-        readOnly: true
-        description: Product SLI name
 
   Report:
     properties:
@@ -330,7 +330,7 @@ definitions:
 parameters:
   ResourceId:
     name: id
-    type: string
+    type: integer
     in: path
     required: true
     description: Resource ID.
@@ -375,32 +375,32 @@ parameters:
 
 
 paths:
-  /:
-    get:
-      tags: [API Root]
-      operationId: app.handler.api.get
-      summary: Root API entry point
-      security: []
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/definitions/APIRoot'
+  # /:
+  #   get:
+  #     tags: [API Root]
+  #     operationId: app.resources.ProductGroupResource.get
+  #     summary: Root API entry point
+  #     security: []
+  #     responses:
+  #       200:
+  #         description: OK
+  #         schema:
+  #           $ref: '#/definitions/APIRoot'
 
-  /health:
-    get:
-      tags: [System]
-      operationId: app.handler.health.get_health
-      summary: Return health
-      security: []
-      responses:
-        200:
-          description: Health is OK
+  # /health:
+  #   get:
+  #     tags: [System]
+  #     operationId: app.resources.ProductGroupResource.get
+  #     summary: Return health
+  #     security: []
+  #     responses:
+  #       200:
+  #         description: Health is OK
 
   /product-groups:
     get:
       tags: [Product Group]
-      operationId: app.handler.product_groups.get_list
+      operationId: app.resources.ProductGroupResource.list
       parameters:
         - name: name
           type: string
@@ -418,7 +418,7 @@ paths:
 
     post:
       tags: [Product Group]
-      operationId: app.handler.product_groups.create
+      operationId: app.resources.ProductGroupResource.create
       summary: Create a Product Group
       description: Create a product group.
       parameters:
@@ -438,7 +438,6 @@ paths:
                 example: Personalization
             required:
               - name
-              - department
       responses:
         201:
           description: CREATED
@@ -453,7 +452,7 @@ paths:
     get:
       tags: [Product Group]
       summary: Retrieve a Product Group
-      operationId: app.handler.product_groups.get
+      operationId: app.resources.ProductGroupResource.get
       parameters:
         - $ref: '#/parameters/ResourceId'
       responses:
@@ -468,7 +467,7 @@ paths:
 
     put:
       tags: [Product Group]
-      operationId: app.handler.product_groups.update
+      operationId: app.resources.ProductGroupResource.update
       summary: Update a Product Group
       parameters:
         - $ref: '#/parameters/ResourceId'
@@ -490,7 +489,7 @@ paths:
     delete:
       tags: [Product Group]
       summary: Delete a Product Group
-      operationId: app.handler.product_groups.delete
+      operationId: app.resources.ProductGroupResource.delete
       parameters:
         - $ref: '#/parameters/ResourceId'
       responses:
@@ -504,7 +503,7 @@ paths:
   /products:
     get:
       tags: [Product]
-      operationId: app.handler.products.get_list
+      operationId: app.resources.ProductResource.list
       parameters:
         - name: name
           type: string
@@ -526,7 +525,7 @@ paths:
 
     post:
       tags: [Product]
-      operationId: app.handler.products.create
+      operationId: app.resources.ProductResource.create
       description: Create a new Product
       parameters:
         - name: product
@@ -562,7 +561,7 @@ paths:
     get:
       tags: [Product]
       summary: Retrieve a Product
-      operationId: app.handler.products.get
+      operationId: app.resources.ProductResource.get
       parameters:
         - $ref: '#/parameters/ResourceId'
       responses:
@@ -577,7 +576,7 @@ paths:
 
     put:
       tags: [Product]
-      operationId: app.handler.products.update
+      operationId: app.resources.ProductResource.update
       summary: Update a Product
       parameters:
         - $ref: '#/parameters/ResourceId'
@@ -601,7 +600,7 @@ paths:
     delete:
       tags: [Product]
       summary: Delete a Product
-      operationId: app.handler.products.delete
+      operationId: app.resources.ProductResource.delete
       parameters:
         - $ref: '#/parameters/ResourceId'
       responses:
@@ -616,7 +615,7 @@ paths:
     get:
       tags: [SLI]
       description: Get list of Product SLIs
-      operationId: app.handler.sli.get_list
+      operationId: app.resources.SLIResource.list
       parameters:
         - $ref: '#/parameters/ProductId'
         - name: name
@@ -637,7 +636,7 @@ paths:
 
     post:
       tags: [SLI]
-      operationId: app.handler.sli.create
+      operationId: app.resources.SLIResource.create
       description: Create a new Product SLI
       parameters:
         - $ref: '#/parameters/ProductId'
@@ -683,7 +682,7 @@ paths:
     get:
       tags: [SLI]
       summary: Retrieve a SLI
-      operationId: app.handler.sli.get
+      operationId: app.resources.SLIResource.get
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/ResourceId'
@@ -699,7 +698,7 @@ paths:
 
     put:
       tags: [SLI]
-      operationId: app.handler.sli.update
+      operationId: app.resources.SLIResource.update
       summary: Update a Product SLI
       parameters:
         - $ref: '#/parameters/ProductId'
@@ -724,7 +723,7 @@ paths:
     delete:
       tags: [SLI]
       summary: Delete a Product SLI
-      operationId: app.handler.sli.delete
+      operationId: app.resources.SLIResource.delete
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/ResourceId'
@@ -740,7 +739,7 @@ paths:
     get:
       tags: [SLI]
       description: Get list of Product SLIs values
-      operationId: app.handler.sli.get_values
+      operationId: app.resources.SLIValueResource.list
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/ResourceId'
@@ -764,7 +763,7 @@ paths:
                 items:
                   type: object
                   properties:
-                    time:
+                    timestamp:
                       type: string
                     value:
                       type: number
@@ -778,7 +777,7 @@ paths:
     post:
       tags: [SLI]
       description: Update Product SLI values
-      operationId: app.handler.sli.query
+      operationId: app.resources.SLIQueryResource.create
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/ResourceId'
@@ -815,7 +814,7 @@ paths:
     get:
       tags: [SLO]
       description: Get list of Product SLOs
-      operationId: app.handler.slo.get_list
+      operationId: app.resources.SLOResource.list
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/Limit'
@@ -832,7 +831,7 @@ paths:
 
     post:
       tags: [SLO]
-      operationId: app.handler.slo.create
+      operationId: app.resources.SLOResource.create
       description: Create a new Product SLO
       parameters:
         - $ref: '#/parameters/ProductId'
@@ -864,7 +863,7 @@ paths:
     get:
       tags: [SLO]
       summary: Retrieve a SLO
-      operationId: app.handler.slo.get
+      operationId: app.resources.SLOResource.get
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/ResourceId'
@@ -880,7 +879,7 @@ paths:
 
     put:
       tags: [SLO]
-      operationId: app.handler.slo.update
+      operationId: app.resources.SLOResource.update
       summary: Update a Product SLO
       parameters:
         - $ref: '#/parameters/ProductId'
@@ -905,7 +904,7 @@ paths:
     delete:
       tags: [SLO]
       summary: Delete a Product SLO
-      operationId: app.handler.slo.delete
+      operationId: app.resources.SLOResource.delete
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/ResourceId'
@@ -921,7 +920,7 @@ paths:
     get:
       tags: [Target]
       description: Get list of SLO targets
-      operationId: app.handler.targets.get_list
+      operationId: app.resources.TargetResource.list
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/SLOId'
@@ -939,7 +938,7 @@ paths:
 
     post:
       tags: [Target]
-      operationId: app.handler.targets.create
+      operationId: app.resources.TargetResource.create
       description: Create a new Product SLO target
       parameters:
         - $ref: '#/parameters/ProductId'
@@ -979,7 +978,7 @@ paths:
     get:
       tags: [Target]
       summary: Retrieve a SLO Target
-      operationId: app.handler.targets.get
+      operationId: app.resources.TargetResource.get
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/SLOId'
@@ -996,7 +995,7 @@ paths:
 
     put:
       tags: [Target]
-      operationId: app.handler.targets.update
+      operationId: app.resources.TargetResource.update
       summary: Update a Product SLO Target
       parameters:
         - $ref: '#/parameters/ProductId'
@@ -1022,7 +1021,7 @@ paths:
     delete:
       tags: [Target]
       summary: Delete a Product SLO Target
-      operationId: app.handler.targets.delete
+      operationId: app.resources.TargetResource.delete
       parameters:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/SLOId'
@@ -1035,30 +1034,30 @@ paths:
         404:
           description: NOT FOUND.
 
-  /products/{product_id}/reports:
-    get:
-      tags: [Report]
-      description: Get Product report
-      operationId: app.handler.reports.get
-      parameters:
-        - $ref: '#/parameters/ProductId'
-        - $ref: '#/parameters/From'
-        - $ref: '#/parameters/To'
-      responses:
-        200:
-          description: Generated report
-          schema:
-            $ref: '#/definitions/Report'
-        401:
-          description: UNAUTHORIZED
-        404:
-          description: NOT FOUND (Product does not exist)
+  # /products/{product_id}/reports:
+  #   get:
+  #     tags: [Report]
+  #     description: Get Product report
+  #     operationId: app.resources.ProductGroupResource.get
+  #     parameters:
+  #       - $ref: '#/parameters/ProductId'
+  #       - $ref: '#/parameters/From'
+  #       - $ref: '#/parameters/To'
+  #     responses:
+  #       200:
+  #         description: Generated report
+  #         schema:
+  #           $ref: '#/definitions/Report'
+  #       401:
+  #         description: UNAUTHORIZED
+  #       404:
+  #         description: NOT FOUND (Product does not exist)
 
   /products/{product_id}/reports/weekly:
     get:
       tags: [Report]
       description: Get Product weekly report
-      operationId: app.handler.reports.get_weekly
+      operationId: app.resources.ReportResource.get
       parameters:
         - $ref: '#/parameters/ProductId'
       responses:
