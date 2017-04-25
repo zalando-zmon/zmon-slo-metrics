@@ -375,27 +375,27 @@ parameters:
 
 
 paths:
-  # /:
-  #   get:
-  #     tags: [API Root]
-  #     operationId: app.resources.ProductGroupResource.get
-  #     summary: Root API entry point
-  #     security: []
-  #     responses:
-  #       200:
-  #         description: OK
-  #         schema:
-  #           $ref: '#/definitions/APIRoot'
+  /:
+    get:
+      tags: [API Root]
+      operationId: app.resources.APIRoot.get
+      summary: Root API entry point
+      security: []
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/APIRoot'
 
-  # /health:
-  #   get:
-  #     tags: [System]
-  #     operationId: app.resources.ProductGroupResource.get
-  #     summary: Return health
-  #     security: []
-  #     responses:
-  #       200:
-  #         description: Health is OK
+  /health:
+    get:
+      tags: [System]
+      operationId: app.resources.APIRoot.health
+      summary: Return health
+      security: []
+      responses:
+        200:
+          description: Health is OK
 
   /product-groups:
     get:

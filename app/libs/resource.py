@@ -1,4 +1,4 @@
-from typing import List, Tuple, Optional
+from typing import List, Union, Tuple, Optional
 from urllib.parse import urljoin
 
 from sqlalchemy.exc import IntegrityError
@@ -29,7 +29,7 @@ class ResourceHandler:
     # HANDLERS
     ####################################################################################################################
     @classmethod
-    def list(cls, **kwargs) -> dict:
+    def list(cls, **kwargs) -> Union[dict, Tuple]:
         resource = cls()
 
         # Get query
@@ -53,7 +53,7 @@ class ResourceHandler:
         return resource.build_list_response(resources, **kwargs)
 
     @classmethod
-    def get(cls, **kwargs) -> dict:
+    def get(cls, **kwargs) -> Union[dict, Tuple]:
         resource = cls()
 
         obj_id = int(kwargs.get('id'))
@@ -65,7 +65,7 @@ class ResourceHandler:
         return resource.build_resource(obj, **kwargs)
 
     @classmethod
-    def create(cls, **kwargs) -> Tuple:
+    def create(cls, **kwargs) -> Union[dict, Tuple]:
         resource = cls()
 
         resource.validate(**kwargs)
@@ -86,7 +86,7 @@ class ResourceHandler:
         return resource.build_resource(obj), 201
 
     @classmethod
-    def update(cls, **kwargs) -> dict:
+    def update(cls, **kwargs) -> Union[dict, Tuple]:
         resource = cls()
 
         obj_id = int(kwargs.get('id'))
@@ -107,7 +107,7 @@ class ResourceHandler:
         return resource.build_resource(obj, **kwargs)
 
     @classmethod
-    def delete(cls, **kwargs) -> Tuple:
+    def delete(cls, **kwargs) -> Union[dict, Tuple]:
         resource = cls()
 
         obj_id = int(kwargs.get('id'))

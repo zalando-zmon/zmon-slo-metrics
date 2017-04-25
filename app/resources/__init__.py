@@ -4,12 +4,13 @@ from .sli.models import Indicator, IndicatorValue
 from .slo.models import Objective
 from .target.models import Target
 
-from .product_group.api import ProductGroupResource
 from .product.api import ProductResource
-from .slo.api import SLOResource
-from .sli.api import SLIResource, SLIValueResource, SLIQueryResource
-from .target.api import TargetResource
+from .product_group.api import ProductGroupResource
 from .report.api import ReportResource
+from .root.api import APIRoot
+from .sli.api import SLIResource, SLIValueResource, SLIQueryResource
+from .slo.api import SLOResource
+from .target.api import TargetResource
 
 
 __all__ = (
@@ -20,12 +21,13 @@ __all__ = (
     ProductGroup,
     Target,
 
+    APIRoot,
     ProductGroupResource,
     ProductResource,
+    ReportResource,
     SLIQueryResource,
     SLIResource,
     SLIValueResource,
     SLOResource,
     TargetResource,
-    ReportResource,
 )
