@@ -70,7 +70,6 @@ def query_sli(sli_name: str, sli_source: dict, start: int, end: Optional[int]) -
             for ts, value in result['values']:
                 # truncate to full minutes
                 minute = datetime.utcfromtimestamp((ts // 60000) * 60)
-                print(minute)
                 if minute not in res:
                     res[minute] = {}
 

@@ -30,7 +30,7 @@ class Indicator(db.Model):
 
 
 class IndicatorValue(db.Model):
-    __tablename__ = 'IndicatorValue'
+    __tablename__ = 'indicatorvalue'
 
     timestamp = db.Column(db.DateTime(), nullable=False)
     value = db.Column(db.Numeric(), nullable=False)

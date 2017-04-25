@@ -1034,32 +1034,18 @@ paths:
         404:
           description: NOT FOUND.
 
-  # /products/{product_id}/reports:
-  #   get:
-  #     tags: [Report]
-  #     description: Get Product report
-  #     operationId: app.resources.ProductGroupResource.get
-  #     parameters:
-  #       - $ref: '#/parameters/ProductId'
-  #       - $ref: '#/parameters/From'
-  #       - $ref: '#/parameters/To'
-  #     responses:
-  #       200:
-  #         description: Generated report
-  #         schema:
-  #           $ref: '#/definitions/Report'
-  #       401:
-  #         description: UNAUTHORIZED
-  #       404:
-  #         description: NOT FOUND (Product does not exist)
-
-  /products/{product_id}/reports/weekly:
+  /products/{product_id}/reports/{report_type}:
     get:
       tags: [Report]
       description: Get Product weekly report
       operationId: app.resources.ReportResource.get
       parameters:
         - $ref: '#/parameters/ProductId'
+        - name: report_type
+          type: string
+          in: path
+          required: true
+          description: Report type [weekly, monthly, quarterly].
       responses:
         200:
           description: Generated report
