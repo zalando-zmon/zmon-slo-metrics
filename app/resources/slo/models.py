@@ -22,4 +22,4 @@ class Objective(db.Model):
         return self.product.product_group.name
 
     def __repr__(self):
-        return '<SLO %s | %s>'.format(self.product.name, self.title)
+        return '<SLO {} | {}>'.format(self.product.name, self.title)

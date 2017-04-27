@@ -29,7 +29,7 @@ class Indicator(db.Model):
         return self.product.product_group.name
 
     def __repr__(self):
-        return '<SLI %s | %s>'.format(self.product.name, self.name)
+        return '<SLI {} | {}>'.format(self.product.name, self.name)
 
 
 class IndicatorValue(db.Model):
@@ -55,7 +55,7 @@ class IndicatorValue(db.Model):
         return {'value': self.value}
 
     def __repr__(self):
-        return '<SLI value %s | %s: %s>'.format(self.indicator.name, self.timestamp, self.value)
+        return '<SLI value {} | {}: {}>'.format(self.indicator.name, self.timestamp, self.value)
 
 
 # Source: http://stackoverflow.com/questions/41636169/how-to-use-postgresqls-insert-on-conflict-upsert-feature-with-flask-sqlal  # noqa

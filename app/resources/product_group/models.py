@@ -19,4 +19,4 @@ class ProductGroup(db.Model):
         return self.name
 
     def __repr__(self):
-        return '<Product group: %s>'.format(self.name)
+        return '<Product group: {}>'.format(self.name)

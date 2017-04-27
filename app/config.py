@@ -4,6 +4,8 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = os.getenv('DEBUG', False)
 
+RUN_UPDATER = os.environ.get('SLR_RUN_UPDATER', False)
+
 # DB
 SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
 SQLALCHEMY_POOL_SIZE = os.getenv('DATABASE_POOL_SIZE', 30)
@@ -30,3 +32,10 @@ API_DEFAULT_LIMIT = os.getenv('API_DEFAULT_LIMIT', 100)
 # ZMON
 KAIROSDB_URL = os.getenv('KAIROSDB_URL')
 KAIROS_QUERY_LIMIT = os.getenv('KAIROS_QUERY_LIMIT', 10000)
+
+# UPDATER
+MAX_QUERY_TIME_SLICE = os.getenv('MAX_QUERY_TIME_SLICE', 1440)
+
+# Careful with high concurrency, as we might hit rate limits on ZMON
+UPDATER_CONCURRENCY = os.getenv('UPDATER_CONCURRENCY', 20)
+UPDATER_INTERVAL = os.getenv('UPDATER_INTERVAL', 600)

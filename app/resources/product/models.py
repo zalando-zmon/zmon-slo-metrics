@@ -23,4 +23,4 @@ class Product(db.Model):
         return self.product_group.name
 
     def __repr__(self):
-        return '<Product %s>'.format(self.name)
+        return '<Product {}>'.format(self.name)

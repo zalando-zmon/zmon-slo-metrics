@@ -1,29 +1,38 @@
 #!/usr/bin/env python3
-import gevent.monkey
+from gevent import os
 
-gevent.monkey.patch_all()  # noqa
+SERVER = None  # noqa
 
-import psycogreen.gevent
-psycogreen.gevent.patch_psycopg()  # noqa
+if not os.environ.get('SLR_LOCAL_ENV'):  # noqa
+    import gevent.monkey
 
-import os
+    gevent.monkey.patch_all()
+
+    import psycogreen.gevent
+    psycogreen.gevent.patch_psycopg()
+
+    SERVER = 'gevent'
+
 import logging
+import warnings
 
+from flask.exthook import ExtDeprecationWarning
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+
+warnings.filterwarnings('ignore', category=ExtDeprecationWarning)  # noqa
 
 from flask_cache import Cache
 
 import connexion
 
-from app.config import CACHE_TYPE, CACHE_THRESHOLD
+from app.config import DEBUG, CACHE_TYPE, CACHE_THRESHOLD
 from app.utils import DecimalEncoder
-from app.libs.resolver import get_resource_handler
 
 __version__ = '0.1'
 
-logging.basicConfig(level=logging.INFO)
-swagger_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'swagger.yaml')
+level = logging.INFO if not DEBUG else logging.DEBUG
+logging.basicConfig(level=level)
 
 app = connexion.App(__name__)
 app.app.json_encoder = DecimalEncoder
@@ -39,9 +48,6 @@ db = SQLAlchemy(application)
 
 # CACHE
 cache = Cache(application, config={'CACHE_TYPE': CACHE_TYPE, 'CACHE_THRESHOLD': CACHE_THRESHOLD})
-
-# IMPORTANT: Add swagger api after *db* instance is ready!
-app.add_api(swagger_path, resolver=connexion.Resolver(function_resolver=get_resource_handler))
 
 # Models
 from app.resources import ProductGroup, Product, Target, Objective, Indicator, IndicatorValue  # noqa

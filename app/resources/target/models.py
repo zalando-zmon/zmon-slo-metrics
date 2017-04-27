@@ -24,4 +24,4 @@ class Target(db.Model):
         return self.objective.product.product_group.name
 
     def __repr__(self):
-        return '<Target %s | %s - %s>'.format(self.objective.product.name, self.target_from, self.target_to)
+        return '<Target {} | {} - {}>'.format(self.objective.product.name, self.target_from, self.target_to)
