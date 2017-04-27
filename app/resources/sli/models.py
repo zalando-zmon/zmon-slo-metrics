@@ -25,6 +25,9 @@ class Indicator(db.Model):
         db.UniqueConstraint('name', 'product_id', name='indicator_name_product_id_key'),
     )
 
+    def get_owner(self):
+        return self.product.product_group.name
+
     def __repr__(self):
         return '<SLI %s | %s>'.format(self.product.name, self.name)
 

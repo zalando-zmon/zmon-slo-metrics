@@ -20,5 +20,8 @@ class Target(db.Model):
         db.UniqueConstraint('indicator_id', 'objective_id', name='target_indicator_id_objective_id_key'),
     )
 
+    def get_owner(self):
+        return self.objective.product.product_group.name
+
     def __repr__(self):
         return '<Target %s | %s - %s>'.format(self.objective.product.name, self.target_from, self.target_to)

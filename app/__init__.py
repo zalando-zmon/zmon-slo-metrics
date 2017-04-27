@@ -12,8 +12,11 @@ import logging
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+from flask_cache import Cache
+
 import connexion
 
+from app.config import CACHE_TYPE, CACHE_THRESHOLD
 from app.utils import DecimalEncoder
 from app.libs.resolver import get_resource_handler
 
@@ -33,6 +36,9 @@ application = app.app
 
 # DB
 db = SQLAlchemy(application)
+
+# CACHE
+cache = Cache(application, config={'CACHE_TYPE': CACHE_TYPE, 'CACHE_THRESHOLD': CACHE_THRESHOLD})
 
 # IMPORTANT: Add swagger api after *db* instance is ready!
 app.add_api(swagger_path, resolver=connexion.Resolver(function_resolver=get_resource_handler))

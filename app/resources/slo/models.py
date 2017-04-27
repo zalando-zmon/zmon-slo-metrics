@@ -18,5 +18,8 @@ class Objective(db.Model):
     created = db.Column(db.DateTime(), default=datetime.utcnow)
     updated = db.Column(db.DateTime(), onupdate=datetime.utcnow)
 
+    def get_owner(self):
+        return self.product.product_group.name
+
     def __repr__(self):
         return '<SLO %s | %s>'.format(self.product.name, self.title)

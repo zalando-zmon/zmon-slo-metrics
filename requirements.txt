@@ -1,6 +1,7 @@
 awesome-slugify
 clickclick
 connexion
+Flask-Cache>=0.13.1
 gevent<1.2.0
 psycogreen
 psycopg2

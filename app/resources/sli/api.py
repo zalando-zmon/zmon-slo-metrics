@@ -177,7 +177,7 @@ class SLIQueryResource(ResourceHandler):
         resource.authorization.update(obj, **kwargs)
 
         # Query and persist
-        # TODO: what about return ACCEPTED and run in background?!
+        # TODO: what about returning ACCEPTED and run in background?!
         count = resource.query(obj, **kwargs)
 
         # Transform object to resource

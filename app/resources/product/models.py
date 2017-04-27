@@ -19,5 +19,8 @@ class Product(db.Model):
     created = db.Column(db.DateTime(), default=datetime.utcnow)
     updated = db.Column(db.DateTime(), onupdate=datetime.utcnow)
 
+    def get_owner(self):
+        return self.product_group.name
+
     def __repr__(self):
-        return '<Product %r>'.format(self.name)
+        return '<Product %s>'.format(self.name)
