@@ -3,6 +3,7 @@ __pycache__/
 scm-source.json
 output/
 **/node_modules
+**/bower_components
 .tox
 .eggs/
 *.egg-info
