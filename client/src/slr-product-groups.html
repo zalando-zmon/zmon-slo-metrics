@@ -1,0 +1,119 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+
+<link rel="import" href="./slr-product-group-card.html">
+<link rel="import" href="./slr-product-group-view.html">
+<link rel="import" href="./slr-utils.html">
+<link rel="import" href="./common-styles.html">
+
+<dom-module id="slr-product-groups">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: block;
+        @apply --slr-content;
+      }
+
+      .add {
+        position: fixed;
+        right: 5%;
+        bottom: 8%;
+      }
+    </style>
+
+    <iron-ajax
+      id="ajax"
+      url="http://localhost:8000/product-groups"
+      handle-as="json"
+      on-response="handleResponse"
+      debounce-duration="300"
+      loading={{loading}}></iron-ajax>
+
+    <slr-product-group-view item="{{selectedItem}}"
+                            opened={{viewOpened}}
+                            loading={{loading}}
+                            edit-mode={{editMode}}></slr-product-group-view>
+
+    <template is="dom-repeat"
+              items="{{productGroups}}"
+              sort="sort"
+              observe="favorite"
+              filter={{computeFilter(searchStr)}}>
+      <slr-product-group-card item={{item}}
+                              favorite={{item.favorite}}
+                              on-click="openView"></slr-product-group-card>
+    </template>
+
+    <paper-fab class="add"
+                icon="add"
+                title="add"
+                on-click="addProductGroup"
+                hidden$={{viewOpened}}></paper-fab>
+
+  </template>
+
+  <script>
+    class SlrProductGroups extends Polymer.Element {
+      static get is() { return 'slr-product-groups' }
+
+      static get properties() {
+        return {
+          loading: {
+            type: Boolean,
+            value: true,
+            notify: true
+          },
+          route: {
+            type: Object,
+            observer: 'routeChanged'
+          },
+          productGroups: {
+            type: Array,
+            value: []
+          },
+          viewOpened: {
+            type: Boolean
+          },
+          editMode: {
+            type: Boolean
+          },
+          searchStr: {
+            type: String
+          }
+        }
+      }
+
+      routeChanged() {
+        if (this.route.prefix === '/product-groups') {
+          this.$.ajax.generateRequest()
+        }
+      }
+
+      handleResponse(e) {
+        this.set('productGroups', e.detail.response.data)
+      }
+
+      openView(e) {
+        this.set('viewOpened', true)
+        this.set('selectedItem', e.model.item)
+      }
+
+      addProductGroup() {
+        this.set('selectedItem', {})
+        this.set('viewOpened', true)
+        this.set('editMode', true)
+      }
+
+      sort(a, b) {
+        return SlrUtils.favoriteSort(a, b)
+      }
+
+      computeFilter(str) {
+        return SlrUtils.filterCollection(str)
+      }
+    }
+
+    window.customElements.define(SlrProductGroups.is, SlrProductGroups)
+  </script>
+</dom-module>

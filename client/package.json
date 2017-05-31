@@ -1,0 +1,32 @@
+{
+  "name": "slr",
+  "version": "1.0.0",
+  "description": "Service Level Reports User Interface",
+  "main": "index.html",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "polymer serve",
+    "build": "polymer build",
+    "test": "polymer lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/zalando-zmon/service-level-reporting.git"
+  },
+  "keywords": [
+    "service",
+    "level",
+    "reports",
+    "slr",
+    "slo",
+    "sli"
+  ],
+  "author": "Emanuel Lauria",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/zalando-zmon/service-level-reporting/issues"
+  },
+  "homepage": "https://github.com/zalando-zmon/service-level-reporting#readme"
+}

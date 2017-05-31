@@ -1,0 +1,66 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="./slr-form-modal.html">
+
+<dom-module id="slr-product-group-view">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: block;
+        @apply --slr-content;
+        text-align: left;
+      }
+
+      paper-dialog {
+        max-width: var(--app-content-max-width);
+        min-width: 500px;
+      }
+    </style>
+
+    <slr-form-modal id="form"
+                    title="Product Group"
+                    item={{item}}
+                    method="post"
+                    action="/product-group"
+                    opened={{opened}}
+                    edit-mode={{editMode}}>
+      <paper-input  id="name"
+                    label="Name" always-float-label
+                    disabled={{!editMode}}
+                    value={{item.name}}></paper-input>
+      <paper-input  id="department"
+                    label="Department" always-float-label
+                    disabled={{!editMode}}
+                    value={{item.department}}></paper-input>
+    </slr-form-modal>
+  </template>
+  <script>
+    class SlrProductGroupView extends Polymer.Element {
+      static get is() { return 'slr-product-group-view' }
+
+      static get properties() {
+        return {
+          item: {
+            type: Object
+          },
+          opened: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          loading: {
+            type: Boolean,
+            notify: true
+          },
+          editMode: {
+            type: Boolean,
+            value: false,
+            notify: true
+          }
+        }
+      }
+    }
+
+    window.customElements.define(SlrProductGroupView.is, SlrProductGroupView)
+  </script>
+</dom-module>

@@ -1,0 +1,213 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/iron-label/iron-label.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+
+<dom-module id="slr-product-view">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: block;
+        @apply --slr-content;
+        text-align: left;
+      }
+
+      paper-dialog {
+        max-width: var(--app-content-max-width);
+        min-width: 500px;
+        max-height: 80%;
+      }
+
+      iron-label {
+        font-family: var(--paper-font-caption_-_font-family);
+        -webkit-font-smoothing: var(--paper-font-caption_-_webkit-font-smoothing);
+        white-space: var(--paper-font-caption_-_white-space);
+        overflow: var(--paper-font-caption_-_overflow);
+        text-overflow: var(--paper-font-caption_-_overflow);
+        font-size: var(--paper-font-caption_-_font-size);
+        font-weight: var(--paper-font-caption_-_font-weight);
+        letter-spacing: var(--paper-font-caption_-_letter-spacing);
+        line-height: var(--paper-font-caption_-_line-height);
+        color: var(--paper-input-container-color, var(--secondary-text-color));
+        opacity: 0.66;
+        position: relative;
+        top: 8px;
+      }
+
+      .column {
+        display: inline-block;
+        min-width: 20vw;
+        max-height: 80vh;
+        padding: 10px;
+        vertical-align: top;
+        overflow: hidden;
+      }
+
+      iron-list {
+        margin-top: 5px;
+      }
+
+      .list-item {
+        padding: 5px;
+        opacity: 0.66
+      }
+    </style>
+
+    <iron-ajax
+      id="ajaxSlo"
+      url="http://localhost:8000/products/{{item.product_slo_uri}}/slo"
+      handle-as="json"
+      on-response="handleSloResponse"
+      debounce-duration="300"
+      loading={{loading}}></iron-ajax>
+
+    <iron-ajax
+      id="ajaxSli"
+      url="http://localhost:8000/products/{{item.product_sli_uri}}/sli"
+      handle-as="json"
+      on-response="handleSliResponse"
+      debounce-duration="300"
+      loading={{loading}}></iron-ajax>
+
+    <slr-form-modal id="modal"
+                    title="Product"
+                    item={{item}}
+                    method="post"
+                    action="/products"
+                    opened={{opened}}
+                    edit-mode={{editMode}}>
+      <div class="column">
+        <paper-input  type="text"
+                      name="name"
+                      label="Name" always-float-label
+                      autofocus="true"
+                      disabled={{!editMode}}
+                      value="{{item.name}}"
+                      required></paper-input>
+        <paper-input  type="text"
+                      always-float-label
+                      name="product-group"
+                      label="Product Group"
+                      disabled={{!editMode}}
+                      value={{item.product_group_name}}
+                      required></paper-input>
+      </div>
+      <div class="column">
+        <div class="objectives" hidden$="{{editMode}}">
+          <iron-label>Objectives</iron-label>
+          <iron-list id="list" items=[[slo]] as="objective" selection-enabled>
+            <template>
+              <div class="list-item">[[objective.title]]</div>
+            </template>
+          </iron-list>
+        </div>
+        <paper-textarea type="text"
+                        label="Objectives"
+                        always-float-label
+                        placeholder="[]"
+                        disabled="{{!editMode}}"
+                        rows="4"
+                        value="{{sloStr}}"
+                        hidden$="{{!editMode}}"></paper-textarea>
+      </div>
+      <div class="column">
+        <div class="targets" hidden$="{{editMode}}">
+          <iron-label>Indicators</iron-label>
+          <iron-list id="list" items=[[sli]] as="target" selection-enabled>
+            <template>
+              <div class="list-item">[[target.name]] [[target.unit]]</div>
+            </template>
+          </iron-list>
+        </div>
+        <paper-textarea type="text"
+                        label="Indicators"
+                        always-float-label
+                        placeholder="[]"
+                        disabled="{{!editMode}}"
+                        rows="4"
+                        value="{{sliStr}}"
+                        hidden$="{{!editMode}}"></paper-textarea>
+      </div>
+    </slr-form-modal>
+
+  </template>
+  <script>
+    class SlrProductView extends Polymer.Element {
+      static get is() { return 'slr-product-view' }
+
+      static get properties() {
+        return {
+          item: {
+            type: Object,
+            value: {
+              slo: [],
+              sli: []
+            }
+          },
+          opened: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          loading: {
+            type: Boolean,
+            notify: true
+          },
+          editMode: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          slo: {
+            type: String
+          },
+          sli: {
+            type: String
+          },
+          sloStr: {
+            type: String
+          },
+          sliStr: {
+            type: String
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          'itemChanged(item.*)'
+        ]
+      }
+
+      ready() {
+        super.ready()
+        this.$.modal.addEventListener('slr-form-modal-opened',
+                                        () => { console.log('modal open event'); this.whenOpened() })
+      }
+
+      itemChanged() {
+        this.set('slo', [].concat(this.item.slo))
+        this.set('sli', [].concat(this.item.sli))
+        this.set('sloStr', JSON.stringify(this.item.slo, null, '    '))
+        this.set('sliStr', JSON.stringify(this.item.sli, null, '    '))
+      }
+
+      whenOpened() {
+        this.$.ajaxSlo.generateRequest()
+        this.$.ajaxSli.generateRequest()
+      }
+
+      handleSloResponse(e) {
+        this.set('item.slo', e.detail.response.data)
+      }
+
+      handleSliResponse(e) {
+        this.set('item.sli', e.detail.response.data)
+      }
+    }
+
+    window.customElements.define(SlrProductView.is, SlrProductView)
+  </script>
+</dom-module>
