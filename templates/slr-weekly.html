@@ -61,7 +61,8 @@
                         <tr>
                             {% for sli in slo.slis.keys() | sort %}
                                 {% if sli != 'requests' %}
-                                    <td class="sli-large {{ 'red' if not slo.slis[sli].ok }}">{{ slo.slis[sli][aggregate_name_mapping[slo.slis[sli].aggregate_type]] }}</td>
+                                    <td class="sli-large {{ 'red' if not slo.slis[sli].ok }}"
+                                        title="aggregate: slo.slis[sli].aggregate_type">{{ slo.slis[sli][aggregate_name_mapping[slo.slis[sli].aggregate_type]] }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
