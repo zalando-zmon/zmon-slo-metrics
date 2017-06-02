@@ -269,6 +269,10 @@ definitions:
         type: string
         readOnly: true
         description: Product SLI name
+      product_name:
+        type: string
+        readOnly: true
+        description: Product name
       username:
         type: string
         readOnly: true

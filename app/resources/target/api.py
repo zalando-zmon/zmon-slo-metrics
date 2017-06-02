@@ -95,6 +95,7 @@ class TargetResource(ResourceHandler):
         resource['sli_name'] = obj.indicator.name
         resource['from'] = obj.target_from
         resource['to'] = obj.target_to
+        resource['product_name'] = obj.objective.product.name
 
         # TODO: get these from the resources as single source of truth?
         product_id = kwargs.get('product_id')
