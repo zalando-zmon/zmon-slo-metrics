@@ -12,3 +12,12 @@ approvals:
   ignore: none
 
 X-Zalando-Team: "zmon"
+X-Zalando-Type: code
+
+approvals:
+  minimum: 2
+
+commit:
+  message:
+    patterns: # commit message has to match any one of
+      - "^ *#[0-9]+" # starts with hash and digits
