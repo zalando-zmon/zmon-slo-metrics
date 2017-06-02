@@ -27,6 +27,7 @@ def get_service_level_objective_report(product, report_type):
                 SELECT
                     date_trunc(\'day\', sli_timestamp) AS day,
                     sli_name AS name,
+                    ds_definition #>> ARRAY['aggregation', 'type'] AS aggregate_type,
                     MIN(sli_value) AS min,
                     AVG(sli_value),
                     MAX(sli_value),
@@ -38,17 +39,22 @@ def get_service_level_objective_report(product, report_type):
                 JOIN zsm_data.service_level_indicator_target ON slit_sli_name = sli_name
                 JOIN zsm_data.service_level_objective ON slo_id = slit_slo_id AND slo_id = %s
                 JOIN zsm_data.product ON p_id = slo_product_id AND p_slug = %s
+                JOIN zsm_data.data_source ON ds_product_id = p_id AND ds_sli_name = sli_name
                 WHERE
                     sli_timestamp >= date_trunc(\'day\', \'now\'::TIMESTAMP - INTERVAL \'7 days\') AND
                     sli_product_id = %s
-                GROUP BY date_trunc(\'day\', sli_timestamp), sli_name
+                GROUP BY date_trunc(\'day\', sli_timestamp), sli_name, ds_definition #>> ARRAY['aggregation', 'type']
                 ''',
                 (slo['id'], product, product_data['id'],))
 
             rows = cur.fetchall()
             for row in rows:
-                days[row.day.isoformat()][row.name] = {'min': row.min, 'avg': row.avg, 'max': row.max,
-                                                       'count': row.count, 'breaches': row.agg}
+                days[row.day.isoformat()][row.name] = {'min': row.min, 
+                                                       'avg': row.avg, 
+                                                       'max': row.max,
+                                                       'count': row.count, 
+                                                       'breaches': row.agg,
+                                                       'aggregate_type': row.aggregate_type}
             slo['days'] = days
 
     return {'product': product_data, 'service_level_objectives': service_level_objectives}

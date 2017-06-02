@@ -61,7 +61,8 @@
                         <tr>
                             {% for sli in slo.slis.keys() | sort %}
                                 {% if sli != 'requests' %}
-                                    <td class="sli-large {{ 'red' if not slo.slis[sli].ok }}">{{ slo.slis[sli].avg }}</td>
+                                    <td class="sli-large {{ 'red' if not slo.slis[sli].ok }}"
+                                        title="aggregate: {{ slo.slis[sli].aggregate_type }}">{{ slo.slis[sli][aggregate_name_mapping[slo.slis[sli].aggregate_type]] }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -75,13 +76,17 @@
                             {% endfor %}
                         </tr>
 
-                        {% for sli in slo.slis.keys()|sort %}
+                        {% for sli in slo.slis.keys() | sort %}
                             <tr>
                                 <th>{{ sli|sli_title }}</th>
                                 {% for data in slo.data %}
                                     {% if data.slis.get(sli) %}
                                         <td class="value {{ ' '.join(data.slis.get(sli).classes) }}"
-                                            title="min: {{ data.slis.get(sli).min }}, max: {{ data.slis.get(sli).max }}, breaches: {{ data.slis.get(sli).breaches }}, count: {{ data.slis.get(sli).count }}">{% if 'total' in data.slis.get(sli) %}{{ '{:,}'.format(data.slis.get(sli).total) }}{% else %}{{ '%.2f'|format(data.slis.get(sli).avg) }} {{ data.slis.get(sli).unit }}{% endif %}</td>
+                                            title="min: {{ data.slis.get(sli).min }}, max: {{ data.slis.get(sli).max }}, breaches: {{ data.slis.get(sli).breaches }}, count: {{ data.slis.get(sli).count }}">
+                                        {% if 'total' in data.slis.get(sli) %}{{ '{:,}'.format(data.slis.get(sli).total) }}
+                                        {% else %}{{ '%.2f'|format(data.slis[sli][aggregate_name_mapping[data.slis[sli].aggregate_type]]) }}
+                                                  {{ data.slis.get(sli).unit }}
+                                        {% endif %}</td>
                                     {% else %}
                                         <td></td>
                                     {% endif %}
