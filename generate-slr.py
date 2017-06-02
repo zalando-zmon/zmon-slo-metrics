@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import collections
+from collections import defaultdict
 import datetime
 import os
 import sys
@@ -62,6 +62,16 @@ def generate_directory_index(output_dir, path='/'):
 
 
 def generate_weekly_report(base_url, product, output_dir):
+    from copy import deepcopy
+    aggregate_short_names = {'average': 'avg',
+                             'sum': 'sum',
+                             'minimum': 'min',
+                             'maximum': 'max'}
+                             # weighted?
+    
+    # sum is currently not in the data returned by the API call.  As we offer that aggregate, we may want to implement it some time.
+    aggregates = [i for i in aggregate_short_names.values() if i != 'sum']
+
     url = '{}/service-level-objectives/{}/reports/weekly'.format(base_url, product)
     resp = requests.get(url, headers={'Authorization': 'Bearer {}'.format(zign.api.get_token('zmon', ['uid']))})
     resp.raise_for_status()
@@ -85,12 +95,6 @@ def generate_weekly_report(base_url, product, output_dir):
     report_dir = os.path.join(output_dir, product_group, product, period_id)
     os.makedirs(report_dir, exist_ok=True)
 
-    values_by_sli = collections.defaultdict(list)
-    for slo in report_data['service_level_objectives']:
-        for day, data in sorted(slo['days'].items()):
-            for sli_name, _sli_data in data.items():
-                values_by_sli[sli_name].append(_sli_data['avg'])
-
     loader = jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
     env = jinja2.Environment(loader=loader)
 
@@ -99,35 +103,32 @@ def generate_weekly_report(base_url, product, output_dir):
         'period': '{} - {}'.format(period_from, period_to),
         'slos': []}
 
+    values_by_sli = defaultdict(lambda: defaultdict(list))
+    aggregate_per_sli = defaultdict()
+
     for slo in report_data['service_level_objectives']:
         slo['slis'] = {}
-
-        for target in slo['targets']:
-            val = (sum(values_by_sli[target['sli_name']]) / len(values_by_sli[target['sli_name']]) if
-                   len(values_by_sli[target['sli_name']]) > 0 else None)
-            ok = True
-            if val is not None and target['to'] and val > target['to']:
-                ok = False
-            if val is not None and target['from'] and val < target['from']:
-                ok = False
-            slo['slis'][target['sli_name']] = {
-                'avg': '-' if val is None else '{:.2f} {}'.format(val, target['unit']),
-                'ok': ok,
-                'unit': target['unit'],
-            }
-
         slo['data'] = []
-        breaches_by_sli = collections.defaultdict(int)
-        counts_by_sli = collections.defaultdict(int)
+        breaches_by_sli = defaultdict(int)
+        counts_by_sli = defaultdict(int)
+
         for day, day_data in sorted(slo['days'].items()):
             slis = {}
+
             for sli, sli_data in day_data.items():
+                for agg in aggregates:
+                    values_by_sli[sli][agg].append(sli_data[agg])
+
                 breaches_by_sli[sli] += sli_data['breaches']
                 counts_by_sli[sli] += sli_data['count']
+                aggregate_per_sli[sli] = sli_data['aggregate_type']
                 classes = set()
+
                 if sli_data['breaches']:
                     classes.add('orange')
+
                 unit = ''
+
                 for target in slo['targets']:
                     if target['sli_name'] == sli:
                         unit = target['unit']
@@ -145,14 +146,42 @@ def generate_weekly_report(base_url, product, output_dir):
                 if sli == 'requests':
                     # interpolate total number of requests per day from average per sec
                     sli_data['total'] = int(sli_data['avg'] * sli_data['count'] * 60)
+
                 slis[sli] = sli_data
                 slis[sli]['unit'] = unit
                 slis[sli]['classes'] = classes
+
             dt = datetime.datetime.strptime(day[:10], '%Y-%m-%d')
             dow = dt.strftime('%a')
             slo['data'].append({'caption': '{} {}'.format(dow, day[5:10]), 'slis': slis})
+        
         slo['breaches'] = max(breaches_by_sli.values())
         slo['count'] = max(counts_by_sli.values())
+
+        for target in slo['targets']:
+            # TODO: aggregate type and to-from with regard to it (?)
+            slo['slis'][target['sli_name']] = {}
+            aggregate_type = aggregate_per_sli[target['sli_name']]
+            vals = {}
+            for agg in aggregates:
+                if agg == aggregate_short_names[aggregate_type]:
+                    vals['average'] = (sum(values_by_sli[target['sli_name']][agg]) / len(values_by_sli[target['sli_name']][agg]) if
+                                       len(values_by_sli[target['sli_name']][agg]) > 0 else None)
+                    vals['minimum'] = min(values_by_sli[target['sli_name']][agg])
+                    vals['maximum'] = max(values_by_sli[target['sli_name']][agg])
+
+                    ok = True
+                    val = vals[aggregate_type]
+
+                    if val is not None and target['to'] and val > target['to']:
+                        ok = False
+                    if val is not None and target['from'] and val < target['from']:
+                        ok = False
+                    slo['slis'][target['sli_name']] = {
+                        aggregate_short_names[aggregate_type]: '-' if val is None else '{:.2f} {}'.format(val, target['unit']),
+                        'aggregate_type': aggregate_type,
+                        'ok': ok
+                    }
 
         fn = os.path.join(report_dir, 'chart-{}.png'.format(slo['id']))
         plot.plot(base_url, product, slo['id'], fn)
@@ -160,6 +189,8 @@ def generate_weekly_report(base_url, product, output_dir):
         data['slos'].append(slo)
 
     data['now'] = datetime.datetime.utcnow()
+    data['aggregate_name_mapping'] = aggregate_short_names
+    data['aggregate_per_sli'] = aggregate_per_sli
 
     env.filters['sli_title'] = title
     env.filters['human_time'] = human_time
