@@ -49,10 +49,10 @@ def get_service_level_objective_report(product, report_type):
 
             rows = cur.fetchall()
             for row in rows:
-                days[row.day.isoformat()][row.name] = {'min': row.min, 
-                                                       'avg': row.avg, 
+                days[row.day.isoformat()][row.name] = {'min': row.min,
+                                                       'avg': row.avg,
                                                        'max': row.max,
-                                                       'count': row.count, 
+                                                       'count': row.count,
                                                        'breaches': row.agg,
                                                        'aggregate_type': row.aggregate_type}
             slo['days'] = days

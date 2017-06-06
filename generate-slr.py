@@ -62,14 +62,13 @@ def generate_directory_index(output_dir, path='/'):
 
 
 def generate_weekly_report(base_url, product, output_dir):
-    from copy import deepcopy
     aggregate_short_names = {'average': 'avg',
                              'sum': 'sum',
                              'minimum': 'min',
-                             'maximum': 'max'}
-                             # weighted?
-    
-    # sum is currently not in the data returned by the API call.  As we offer that aggregate, we may want to implement it some time.
+                             'maximum': 'max'} # weighted to be added?
+
+    # sum is currently not in the data returned by the API call.  
+    # As we offer that aggregate, we may want to implement it some time.
     aggregates = [i for i in aggregate_short_names.values() if i != 'sum']
 
     url = '{}/service-level-objectives/{}/reports/weekly'.format(base_url, product)
@@ -154,7 +153,7 @@ def generate_weekly_report(base_url, product, output_dir):
             dt = datetime.datetime.strptime(day[:10], '%Y-%m-%d')
             dow = dt.strftime('%a')
             slo['data'].append({'caption': '{} {}'.format(dow, day[5:10]), 'slis': slis})
-        
+
         slo['breaches'] = max(breaches_by_sli.values())
         slo['count'] = max(counts_by_sli.values())
 
@@ -165,10 +164,11 @@ def generate_weekly_report(base_url, product, output_dir):
             vals = {}
             for agg in aggregates:
                 if agg == aggregate_short_names[aggregate_type]:
-                    vals['average'] = (sum(values_by_sli[target['sli_name']][agg]) / len(values_by_sli[target['sli_name']][agg]) if
-                                       len(values_by_sli[target['sli_name']][agg]) > 0 else None)
-                    vals['minimum'] = min(values_by_sli[target['sli_name']][agg])
-                    vals['maximum'] = max(values_by_sli[target['sli_name']][agg])
+                    aggregate_values = values_by_sli[target['sli_name']][agg]
+                    vals['average'] = (sum(aggregate_values) / len(aggregate_values) if
+                                       len(aggregate_values) > 0 else None)
+                    vals['minimum'] = min(aggregate_values)
+                    vals['maximum'] = max(aggregate_values)
 
                     ok = True
                     val = vals[aggregate_type]
@@ -178,7 +178,8 @@ def generate_weekly_report(base_url, product, output_dir):
                     if val is not None and target['from'] and val < target['from']:
                         ok = False
                     slo['slis'][target['sli_name']] = {
-                        aggregate_short_names[aggregate_type]: '-' if val is None else '{:.2f} {}'.format(val, target['unit']),
+                        aggregate_short_names[aggregate_type]: '-' if val is None 
+                                                                   else '{:.2f} {}'.format(val, target['unit']),
                         'aggregate_type': aggregate_type,
                         'ok': ok
                     }
