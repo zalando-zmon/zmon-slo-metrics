@@ -19,21 +19,16 @@
         body {
             font-family: 'Roboto', sans-serif;
         }
-
         h1, h2, h3, h4, h5, h6 {
             font-family: 'Merriweather', serif;
         }
-
         table.report td, th.day { text-align: center;}
         td.ok { }
         td.orange { background-color: #ffffc8; }
         td.red { background-color: #ffcece; }
         td.not-enough-samples { opacity: 0.7; }
-
         .sli-large { font-size: 48px; }
-
         .chart { text-align: center; }
-
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
@@ -61,7 +56,8 @@
                         <tr>
                             {% for sli in slo.slis.keys() | sort %}
                                 {% if sli != 'requests' %}
-                                    <td class="sli-large {{ 'red' if not slo.slis[sli].ok }}">{{ slo.slis[sli].avg }}</td>
+                                    <td class="sli-large {{ 'red' if not slo.slis[sli].ok }}"
+                                        title="aggregate: {{ slo.slis[sli].aggregate_type }}">{{ slo.slis[sli][aggregate_name_mapping[slo.slis[sli].aggregate_type]] }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -75,13 +71,17 @@
                             {% endfor %}
                         </tr>
 
-                        {% for sli in slo.slis.keys()|sort %}
+                        {% for sli in slo.slis.keys() | sort %}
                             <tr>
                                 <th>{{ sli|sli_title }}</th>
                                 {% for data in slo.data %}
                                     {% if data.slis.get(sli) %}
                                         <td class="value {{ ' '.join(data.slis.get(sli).classes) }}"
-                                            title="min: {{ data.slis.get(sli).min }}, max: {{ data.slis.get(sli).max }}, breaches: {{ data.slis.get(sli).breaches }}, count: {{ data.slis.get(sli).count }}">{% if 'total' in data.slis.get(sli) %}{{ '{:,}'.format(data.slis.get(sli).total) }}{% else %}{{ '%.2f'|format(data.slis.get(sli).avg) }} {{ data.slis.get(sli).unit }}{% endif %}</td>
+                                            title="min: {{ data.slis.get(sli).min }}, max: {{ data.slis.get(sli).max }}, breaches: {{ data.slis.get(sli).breaches }}, count: {{ data.slis.get(sli).count }}">
+                                        {% if 'total' in data.slis.get(sli) %}{{ '{:,}'.format(data.slis.get(sli).total) }}
+                                        {% else %}{{ '%.2f'|format(data.slis[sli][aggregate_name_mapping[data.slis[sli].aggregate_type]]) }}
+                                                  {{ data.slis.get(sli).unit }}
+                                        {% endif %}</td>
                                     {% else %}
                                         <td></td>
                                     {% endif %}
