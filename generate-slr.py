@@ -65,9 +65,9 @@ def generate_weekly_report(base_url, product, output_dir):
     aggregate_short_names = {'average': 'avg',
                              'sum': 'sum',
                              'minimum': 'min',
-                             'maximum': 'max'} # weighted to be added?
+                             'maximum': 'max'}  # weighted to be added?
 
-    # sum is currently not in the data returned by the API call.  
+    # sum is currently not in the data returned by the API call.
     # As we offer that aggregate, we may want to implement it some time.
     aggregates = [i for i in aggregate_short_names.values() if i != 'sum']
 
@@ -178,8 +178,8 @@ def generate_weekly_report(base_url, product, output_dir):
                     if val is not None and target['from'] and val < target['from']:
                         ok = False
                     slo['slis'][target['sli_name']] = {
-                        aggregate_short_names[aggregate_type]: '-' if val is None 
-                                                                   else '{:.2f} {}'.format(val, target['unit']),
+                        aggregate_short_names[aggregate_type]: '-' if val is None
+                        else '{:.2f} {}'.format(val, target['unit']),
                         'aggregate_type': aggregate_type,
                         'ok': ok
                     }
