@@ -335,7 +335,7 @@ def slo_list(obj, product_name):
 
 @slo.command('create')
 @click.argument('product_name')
-@click.argument('slo_file', type=click.File('r'), help='SLO JSON file. Can include targets.')
+@click.argument('slo_file', type=click.File('r'))
 @click.pass_obj
 def slo_create(obj, product_name, slo_file):
     """
@@ -366,7 +366,7 @@ def slo_create(obj, product_name, slo_file):
 
 @slo.command('update')
 @click.argument('slo_uri')
-@click.argument('sli_file', type=click.File('r'), help='SLO JSON file.')
+@click.argument('sli_file', type=click.File('r'))
 @click.pass_obj
 def slo_update(obj, slo_uri, slo_file):
     """
@@ -448,7 +448,7 @@ def target_list(obj, slo_uri):
 
 @slo.command('create')
 @click.argument('slo_uri')
-@click.argument('target_file', type=click.File('r'), help='Target JSON file.')
+@click.argument('target_file', type=click.File('r'))
 @click.pass_obj
 def target_create(obj, slo_uri, target_file):
     """
@@ -476,7 +476,7 @@ def target_create(obj, slo_uri, target_file):
 
 @target.command('update')
 @click.argument('target_uri')
-@click.argument('target_file', type=click.File('r'), help='Target JSON file.')
+@click.argument('target_file', type=click.File('r'))
 @click.pass_obj
 def target_update(obj, target_uri, target_file):
     """Update Target for a product SLO."""
@@ -621,14 +621,14 @@ def sli_list(obj, product_name):
     if not product:
         fatal_error('Product {} does not exist'.format(product_name))
 
-    res = client.sli_list(product)
+    res = client.sli_list(product[0])
 
     print(json.dumps(res, indent=4))
 
 
 @sli.command('create')
 @click.argument('product_name')
-@click.argument('sli_file', type=click.File('r'), help='SLI JSON file.')
+@click.argument('sli_file', type=click.File('r'))
 @click.pass_obj
 def sli_create(obj, product_name, sli_file):
     """Create SLI for a product"""
@@ -650,7 +650,7 @@ def sli_create(obj, product_name, sli_file):
 @sli.command('update')
 @click.argument('product_name')
 @click.argument('sli_name')
-@click.argument('sli_file', type=click.File('r'), help='SLI JSON file.')
+@click.argument('sli_file', type=click.File('r'))
 @click.pass_obj
 def sli_update(obj, product_name, sli_name, sli_file):
     """Update SLI for a product"""
@@ -747,7 +747,7 @@ def sli_query(obj, product_name, sli_name, start, end):
     print(json.dumps(res, indent=4))
 
 
-if __name__ == '__main__':
+def main():
     try:
         cli()
     except requests.HTTPError as e:

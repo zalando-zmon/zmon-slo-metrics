@@ -1,9 +1,9 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from urllib.parse import urljoin
 
 from datetime import datetime, timedelta
 
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy import BaseQuery, Pagination
 
 from connexion import ProblemException, request
 
@@ -64,8 +64,8 @@ class SLIResource(ResourceHandler):
 
         return Indicator(**fields)
 
-    def get_objects(self, query: BaseQuery, **kwargs) -> List[Indicator]:
-        return [obj for obj in query.all()]
+    def get_objects(self, query: Pagination, **kwargs) -> List[Indicator]:
+        return [obj for obj in query.items]
 
     def get_object(self, obj_id: int, **kwargs) -> Indicator:
         return self.get_query(**kwargs).filter_by(id=obj_id).first_or_404()
@@ -146,14 +146,17 @@ class SLIValueResource(ResourceHandler):
         start = kwargs.get('start')
         return query.filter(IndicatorValue.timestamp >= start, IndicatorValue.timestamp < end)
 
-    def get_limited_query(self, query: BaseQuery, **kwargs) -> BaseQuery:
+    def get_limited_query(self, query: BaseQuery, **kwargs) -> Union[Pagination, BaseQuery]:
         """Apply pagination limits on query"""
         if 'from' in kwargs:
             return query
 
         return super().get_limited_query(query, **kwargs)
 
-    def get_objects(self, query: BaseQuery, **kwargs) -> List[IndicatorValue]:
+    def get_objects(self, query: Union[Pagination, BaseQuery], **kwargs) -> List[IndicatorValue]:
+        if isinstance(query, Pagination):
+            return [obj for obj in query.items]
+
         return [obj for obj in query.all()]
 
     def build_resource(self, obj: IndicatorValue, **kwargs) -> dict:

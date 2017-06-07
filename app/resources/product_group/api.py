@@ -1,6 +1,6 @@
 from typing import List
 
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy import BaseQuery, Pagination
 
 from connexion import ProblemException
 
@@ -33,8 +33,8 @@ class ProductGroupResource(ResourceHandler):
     def new_object(self, product_group: dict, **kwargs) -> ProductGroup:
         return ProductGroup(**product_group)
 
-    def get_objects(self, query: BaseQuery, **kwargs) -> List[ProductGroup]:
-        return [obj for obj in query.all()]
+    def get_objects(self, query: Pagination, **kwargs) -> List[ProductGroup]:
+        return [obj for obj in query.items]
 
     def get_object(self, obj_id: int, **kwargs) -> ProductGroup:
         return ProductGroup.query.get_or_404(obj_id)

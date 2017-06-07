@@ -111,7 +111,7 @@ class Client:
         return res.json()
 
     def slo_list(self, product: dict) -> List[dict]:
-        res = self.session.get(product['slo_uri'])
+        res = self.session.get(product['product_slo_uri'])
         res.raise_for_status()
 
         slo = res.json()
@@ -192,7 +192,7 @@ class Client:
     def sli_list(self, product: dict, name=None) -> List[dict]:
         params = {} if not name else {'name': name}
 
-        res = self.session.get(product['sli_uri'], params=params)
+        res = self.session.get(product['product_sli_uri'], params=params)
         res.raise_for_status()
 
         sli = res.json()

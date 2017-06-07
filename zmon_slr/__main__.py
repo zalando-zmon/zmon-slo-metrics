@@ -1,4 +1,4 @@
-from zmon_slr import main
+from zmon_slr.main import main
 
 if __name__ == '__main__':
     try:

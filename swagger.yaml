@@ -366,16 +366,16 @@ parameters:
     description: Relative end minutes
 
   Offset:
-    name: offset
+    name: page
     type: integer
     in: query
-    description: Pagination offset.
+    description: Pagination page.
 
   Limit:
-    name: limit
+    name: page_size
     type: integer
     in: query
-    description: Pagination limit.
+    description: Pagination page size limit.
 
 
 paths:

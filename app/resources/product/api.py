@@ -1,7 +1,7 @@
 from typing import List
 from urllib.parse import urljoin
 
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy import BaseQuery, Pagination
 
 from connexion import ProblemException, request
 
@@ -49,8 +49,8 @@ class ProductResource(ResourceHandler):
 
         return Product(**fields)
 
-    def get_objects(self, query: BaseQuery, **kwargs) -> List[Product]:
-        return [obj for obj in query.all()]
+    def get_objects(self, query: Pagination, **kwargs) -> List[Product]:
+        return [obj for obj in query.items]
 
     def get_object(self, obj_id: int, **kwargs) -> Product:
         return Product.query.get_or_404(obj_id)
