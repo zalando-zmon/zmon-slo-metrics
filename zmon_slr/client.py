@@ -135,7 +135,7 @@ class Client:
             'description': description
         }
 
-        res = self.session.post(product['slo_uri'], json=slo)
+        res = self.session.post(product['product_slo_uri'], json=slo)
         res.raise_for_status()
 
         return res.json()
@@ -217,7 +217,7 @@ class Client:
             'unit': unit
         }
 
-        res = self.session.post(product['sli_uri'], json=sli)
+        res = self.session.post(product['product_sli_uri'], json=sli)
         res.raise_for_status()
 
         return res.json()

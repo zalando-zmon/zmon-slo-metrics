@@ -2,6 +2,7 @@
 
 import os
 import json
+import numbers
 
 import click
 import requests
@@ -302,7 +303,7 @@ def product_delete(obj, name):
 # SLO
 ########################################################################################################################
 def validate_slo(slo: dict, act: Action):
-    if 'title' not in slo:
+    if not slo.get('title'):
         act.error('Field "title" is missing in SLO definition.')
 
     for target in slo.get('targets', []):
@@ -335,13 +336,13 @@ def slo_list(obj, product_name):
 
 @slo.command('create')
 @click.argument('product_name')
-@click.argument('slo_file', type=click.File('r'))
+@click.option('--title', '-t', help='SLO title')
+@click.option('--description', '-d', default='', help='SLO description')
+@click.option('--slo-file', '-f', type=click.File('r'), help='SLO definition JSON file. File can include Targets list')
 @click.pass_obj
-def slo_create(obj, product_name, slo_file):
+def slo_create(obj, product_name, title, description, slo_file):
     """
-    Create SLO
-
-    SLO definitions can include Targets.
+    Create SLO. If SLO file is used, then --title and --description will be ignored.
     """
     client = get_client(obj)
 
@@ -350,8 +351,15 @@ def slo_create(obj, product_name, slo_file):
         error('Product {} does not exist'.format(product_name))
         return
 
+    product = product[0]
+
     with Action('Creating SLO for product: {}'.format(product_name), nl=True) as act:
-        slo = json.load(slo_file)
+        if slo_file:
+            slo = json.load(slo_file)
+        else:
+            slo = {'title': title, 'description': description}
+
+        validate_slo(slo, act)
 
         if not act.errors:
             new_slo = client.slo_create(product, slo['title'], slo.get('description', ''))
@@ -366,13 +374,14 @@ def slo_create(obj, product_name, slo_file):
 
 @slo.command('update')
 @click.argument('slo_uri')
-@click.argument('sli_file', type=click.File('r'))
+@click.option('--title', '-t', help='SLO title')
+@click.option('--description', '-d', default='', help='SLO description')
+@click.option('--slo-file', '-f', type=click.File('r'), help='SLO definition JSON file. Targets list will be ignored.')
 @click.pass_obj
-def slo_update(obj, slo_uri, slo_file):
+def slo_update(obj, slo_uri, title, description, slo_file):
     """
-    Update SLO for a product.
-
-    All targets will be ignored if specified in SLO definitions. Updating targets can be achieved via "target" command.
+    Update SLO for a product. All targets will be ignored if specified in SLO definitions.
+    Updating targets can be achieved via "target" command.
     """
     client = get_client(obj)
 
@@ -380,8 +389,15 @@ def slo_update(obj, slo_uri, slo_file):
     if not slo:
         fatal_error('SLO {} does not exist'.format(slo_uri))
 
-    with Action('Updating SLO {} for '.format(slo_uri), nl=True) as act:
-        slo = json.load(slo_file)
+    with Action('Updating SLO {} for product {}'.format(slo_uri, slo['product_name']), nl=True) as act:
+        if slo_file:
+            slo = json.load(slo_file)
+            slo['uri'] = slo_uri
+        else:
+            if title:
+                slo['title'] = title
+            if description:
+                slo['description'] = description
 
         validate_slo(slo, act)
 
@@ -417,10 +433,10 @@ def slo_delete(obj, product_name, slo_uri):
 def validate_target(target, act):
     if 'sli_uri' not in target:
         act.error('Field "sli_uri" is missing in SLO target definition.')
-    if 'from' not in target:
-        act.error('Field "from" is missing in SLO target definition.')
-    if 'to' not in target:
-        act.error('Field "to" is missing in SLO target definition.')
+    if 'from' not in target or not isinstance(target['from'], numbers.Number):
+        act.error('Numeric field "from" is missing in SLO target definition.')
+    if 'to' not in target or not isinstance(target['to'], numbers.Number):
+        act.error('Numeric field "to" is missing in SLO target definition.')
 
 
 @cli.group('target', cls=AliasedGroup)
@@ -446,16 +462,16 @@ def target_list(obj, slo_uri):
     print(json.dumps(res, indent=4))
 
 
-@slo.command('create')
+@target.command('create')
 @click.argument('slo_uri')
-@click.argument('target_file', type=click.File('r'))
+@click.option('--sli-uri', '-s', help='SLI URI')
+@click.option('--target-from', '-r', help='Target "from" value')
+@click.option('--target-to', '-t', help='Target "to" value')
+@click.option('--target-file', '-f', type=click.File('r'), help='Target definition JSON file.')
 @click.pass_obj
-def target_create(obj, slo_uri, target_file):
+def target_create(obj, slo_uri, sli_uri, target_from, target_to, target_file):
     """
-    Create Target. Target should include:
-        - sli_uri
-        - from
-        - to
+    Create Target. If target-file is used, then other options are ignored.
     """
     client = get_client(obj)
 
@@ -463,8 +479,16 @@ def target_create(obj, slo_uri, target_file):
     if not slo:
         fatal_error('SLO {} does not exist'.format(slo_uri))
 
-    with Action('Creating Targets for SLO: {}'.format(slo['title']), nl=True) as act:
-        target = json.load(target_file)
+    sli = client.sli_get(sli_uri)
+    if not sli:
+        fatal_error('SLI {} does not exist'.format(sli_uri))
+
+    with Action(
+            'Creating Targets for SLO: {} for product: {}'.format(slo['title'], slo['product_name']), nl=True) as act:
+        if target_file:
+            target = json.load(target_file)
+        else:
+            target = {'sli_uri': sli_uri, 'from': target_from, 'to': target_to}
 
         validate_target(target, act)
 
@@ -476,9 +500,12 @@ def target_create(obj, slo_uri, target_file):
 
 @target.command('update')
 @click.argument('target_uri')
-@click.argument('target_file', type=click.File('r'))
+@click.option('--sli-uri', '-s', help='SLI URI')
+@click.option('--target-from', '-r', help='Target "from" value')
+@click.option('--target-to', '-t', help='Target "to" value')
+@click.option('--target-file', '-f', type=click.File('r'), help='Target definition JSON file.')
 @click.pass_obj
-def target_update(obj, target_uri, target_file):
+def target_update(obj, target_uri, sli_uri, target_from, target_to, target_file):
     """Update Target for a product SLO."""
     client = get_client(obj)
 
@@ -486,8 +513,20 @@ def target_update(obj, target_uri, target_file):
     if not target:
         fatal_error('Target {} does not exist'.format(target_uri))
 
-    with Action('Updating Target {} for '.format(target_uri), nl=True) as act:
-        target = json.load(target_file)
+    sli = client.sli_get(sli_uri)
+    if not sli:
+        fatal_error('SLI {} does not exist'.format(sli_uri))
+
+    with Action('Updating Target {} for product {}'.format(target_uri, target['product_name']), nl=True) as act:
+        if target_file:
+            target = json.load(target_file)
+        else:
+            if sli_uri:
+                target['sli_uri'] = sli_uri
+            if target_from:
+                target['from'] = target_from
+            if target_to:
+                target['to'] = target_to
 
         validate_target(target, act)
 
@@ -497,7 +536,7 @@ def target_update(obj, target_uri, target_file):
             print(json.dumps(target, indent=4))
 
 
-@slo.command('delete')
+@target.command('delete')
 @click.argument('product_name')
 @click.argument('target_uri')
 @click.pass_obj
@@ -523,7 +562,7 @@ def validate_sli_source(config, source):
 
     zmon = Zmon(config['zmon_url'], token=zign.api.get_token('uid', ['uid']))
 
-    check_id = int(source['definition']['check_id'])
+    check_id = int(source['check_id'])
 
     try:
         check = zmon.get_check_definition(check_id)
@@ -538,10 +577,13 @@ def validate_sli_source(config, source):
                 zmon.check_definition_url(check))
         )
 
-    keys = source['definition']['keys']
+    keys = source['keys']
     sli_exists = False
     sample_data = set()
     for alert in filtered:
+        if sli_exists:
+            break
+
         alert_data = zmon.get_alert_data(alert['id'])
 
         values = {v['entity']: v['results'][0]['value'] for v in alert_data if len(v['results'])}
@@ -565,10 +607,10 @@ def validate_sli_source(config, source):
 
 
 def validate_sli(obj: dict, sli: dict, act: Action):
-    if 'name' not in sli and not sli['name']:
+    if 'name' not in sli or not sli['name']:
         act.error('Field "name" is missing in SLI definition.')
 
-    if 'unit' not in sli and not sli['unit']:
+    if 'unit' not in sli or not sli['unit']:
         act.error('Field "unit" is missing in SLI definition.')
 
     if 'source' not in sli:
@@ -610,6 +652,25 @@ def sli(obj):
     pass
 
 
+@sli.command('get')
+@click.argument('product_name')
+@click.argument('name')
+@click.pass_obj
+def sli_get(obj, product_name, name):
+    """Get SLI for a product by name"""
+    client = get_client(obj)
+
+    product = client.product_list(name=product_name)
+    if not product:
+        fatal_error('Product {} does not exist'.format(product_name))
+
+    slis = client.sli_list(product[0], name=name)
+    if not slis:
+        fatal_error('SLI {} does not exist'.format(name))
+
+    print(json.dumps(slis[0], indent=4))
+
+
 @sli.command('list')
 @click.argument('product_name')
 @click.pass_obj
@@ -638,13 +699,16 @@ def sli_create(obj, product_name, sli_file):
     if not product:
         fatal_error('Product {} does not exist'.format(product_name))
 
+    product = product[0]
+
     with Action('Creating SLI for product: {}'.format(product_name), nl=True) as act:
         sli = json.load(sli_file)
 
         validate_sli(obj, sli, act)
 
         if not act.errors:
-            client.sli_create(product, sli['name'], sli['unit'], sli['source'])
+            res = client.sli_create(product, sli['name'], sli['unit'], sli['source'])
+            print(json.dumps(res, indent=4))
 
 
 @sli.command('update')
@@ -659,6 +723,8 @@ def sli_update(obj, product_name, sli_name, sli_file):
     product = client.product_list(name=product_name)
     if not product:
         fatal_error('Product {} does not exist'.format(product_name))
+
+    product = product[0]
 
     slis = client.sli_list(product, sli_name)
     if not slis:
@@ -688,11 +754,13 @@ def sli_delete(obj, product_name, sli_name):
     if not product:
         fatal_error('Product {} does not exist'.format(product_name))
 
+    product = product[0]
+
     slis = client.sli_list(product, sli_name)
     if not slis:
         fatal_error('SLI {} does not exist'.format(sli_name))
 
-    with Action('Deleting SLI: {}'.format(sli_name), nl=True) as act:
+    with Action('Deleting SLI: {} for product {}'.format(sli_name, product['name']), nl=True) as act:
         try:
             client.sli_delete(slis[0])
         except SLRClientError as e:
@@ -710,6 +778,8 @@ def sli_values(obj, product_name, sli_name):
     product = client.product_list(name=product_name)
     if not product:
         fatal_error('Product {} does not exist'.format(product_name))
+
+    product = product[0]
 
     slis = client.sli_list(product, sli_name)
     if not slis:
@@ -737,6 +807,8 @@ def sli_query(obj, product_name, sli_name, start, end):
     product = client.product_list(name=product_name)
     if not product:
         fatal_error('Product {} does not exist'.format(product_name))
+
+    product = product[0]
 
     slis = client.sli_list(product, sli_name)
     if not slis:

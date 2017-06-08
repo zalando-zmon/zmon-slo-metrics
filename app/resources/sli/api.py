@@ -18,10 +18,19 @@ from .updater import update_indicator_values
 
 
 class SLIResource(ResourceHandler):
-    model_fields = ('name', 'source', 'unit', 'created', 'updated')
+    model_fields = ('name', 'source', 'unit', 'created', 'updated', 'username')
 
     def get_query(self, product_id: int, **kwargs) -> BaseQuery:
         return Indicator.query.filter_by(product_id=product_id)
+
+    def get_filter_kwargs(self, **kwargs) -> dict:
+        """Return relevant filters"""
+        filters = {}
+
+        if 'name' in kwargs:
+            filters['name'] = kwargs['name']
+
+        return filters
 
     def validate(self, sli: dict, **kwargs) -> None:
         if not sli or not sli.get('name'):
