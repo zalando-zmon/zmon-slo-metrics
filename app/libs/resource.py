@@ -7,6 +7,7 @@ from flask_sqlalchemy import BaseQuery, Model, Pagination
 from connexion import NoContent, request, problem
 
 from app.config import API_DEFAULT_PAGE_SIZE
+from app.utils import slugger
 
 from .authorization import get_authorization
 
@@ -196,7 +197,11 @@ class ResourceHandler:
         for field in self.model_fields:
             if field in READ_ONLY_FIELDS:
                 continue
-            fields[field] = body.get(field)
+
+            if field == 'slug' and 'name' in body:
+                fields['slug'] = slugger(body['name'])
+            else:
+                fields[field] = body.get(field)
 
         return fields
 

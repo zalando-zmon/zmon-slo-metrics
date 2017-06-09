@@ -10,6 +10,7 @@ from connexion import ProblemException, request
 from app import db
 from app.libs.zmon import AGG_TYPES
 from app.libs.resource import ResourceHandler
+from app.utils import slugger
 
 from app.resources.product.models import Product
 
@@ -28,7 +29,7 @@ class SLIResource(ResourceHandler):
         filters = {}
 
         if 'name' in kwargs:
-            filters['name'] = kwargs['name']
+            filters['slug'] = slugger(kwargs['name'])
 
         return filters
 
@@ -80,6 +81,7 @@ class SLIResource(ResourceHandler):
         return self.get_query(**kwargs).filter_by(id=obj_id).first_or_404()
 
     def save_object(self, obj: Indicator, **kwargs) -> Indicator:
+        obj.slug = slugger(obj.name)
         db.session.add(obj)
         db.session.commit()
 

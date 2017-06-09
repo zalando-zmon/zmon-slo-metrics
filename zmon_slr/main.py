@@ -37,7 +37,7 @@ def get_config_data(config_file=DEFAULT_CONFIG_FILE):
                 error('Failed to configure ZMON SLR cli.')
 
     except Exception as e:
-        error(e)
+        fatal_error(e)
 
     return data
 
@@ -221,7 +221,7 @@ def product_list(obj, product_group):
     print(json.dumps(res, indent=4))
 
 
-@product_group.command('get')
+@product.command('get')
 @click.argument('name')
 @click.pass_obj
 def product_get(obj, name):
@@ -231,8 +231,7 @@ def product_get(obj, name):
     p = client.product_list(name=name)
 
     if not p:
-        error('Product does not exist')
-        return
+        fatal_error('Product does not exist')
 
     print(json.dumps(p[0], indent=4))
 
@@ -326,8 +325,7 @@ def slo_list(obj, product_name):
 
     p = client.product_list(name=product_name)
     if not p:
-        error('Product {} does not exist'.format(product_name))
-        return
+        fatal_error('Product {} does not exist'.format(product_name))
 
     res = client.slo_list(p[0])
 
@@ -348,8 +346,7 @@ def slo_create(obj, product_name, title, description, slo_file):
 
     product = client.product_list(name=product_name)
     if not product:
-        error('Product {} does not exist'.format(product_name))
-        return
+        fatal_error('Product {} does not exist'.format(product_name))
 
     product = product[0]
 
@@ -801,8 +798,7 @@ def sli_query(obj, product_name, sli_name, start, end):
     client = get_client(obj)
 
     if start and end and start <= end:
-        error('Relative "end" should be less than "start"')
-        return
+        fatal_error('Relative "end" should be less than "start"')
 
     product = client.product_list(name=product_name)
     if not product:
@@ -823,4 +819,4 @@ def main():
     try:
         cli()
     except requests.HTTPError as e:
-        error('HTTP error: {} - {}'.format(e.response.status_code, e.response.reason))
+        fatal_error('HTTP error: {} - {}'.format(e.response.status_code, e.response.reason))

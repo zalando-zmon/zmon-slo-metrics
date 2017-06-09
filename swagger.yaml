@@ -176,6 +176,10 @@ definitions:
         type: string
         readOnly: true
         description: Product name
+      slug:
+        type: string
+        readOnly: true
+        description: SLI slug.
       username:
         type: string
         readOnly: true
