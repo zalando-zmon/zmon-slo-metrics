@@ -1,9 +1,13 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../bower_components/iron-label/iron-label.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+
+<link rel="import" href="./slr-modal.html">
 
 <dom-module id="slr-product-view">
   <template>
@@ -78,58 +82,68 @@
                     action="/products"
                     opened={{opened}}
                     edit-mode={{editMode}}>
-      <div class="column">
-        <paper-input  type="text"
-                      name="name"
-                      label="Name" always-float-label
-                      autofocus="true"
-                      disabled={{!editMode}}
-                      value="{{item.name}}"
-                      required></paper-input>
-        <paper-input  type="text"
-                      always-float-label
-                      name="product-group"
-                      label="Product Group"
-                      disabled={{!editMode}}
-                      value={{item.product_group_name}}
-                      required></paper-input>
+      <div slot="actions">
+        <paper-button hidden$="{{!editMode}}" on-click="submit" autofocus>Save</paper-button>
       </div>
-      <div class="column">
-        <div class="objectives" hidden$="{{editMode}}">
-          <iron-label>Objectives</iron-label>
-          <iron-list id="list" items=[[slo]] as="objective" selection-enabled>
-            <template>
-              <div class="list-item">[[objective.title]]</div>
-            </template>
-          </iron-list>
-        </div>
-        <paper-textarea type="text"
-                        label="Objectives"
-                        always-float-label
-                        placeholder="[]"
-                        disabled="{{!editMode}}"
-                        rows="4"
-                        value="{{sloStr}}"
-                        hidden$="{{!editMode}}"></paper-textarea>
-      </div>
-      <div class="column">
-        <div class="targets" hidden$="{{editMode}}">
-          <iron-label>Indicators</iron-label>
-          <iron-list id="list" items=[[sli]] as="target" selection-enabled>
-            <template>
-              <div class="list-item">[[target.name]] [[target.unit]]</div>
-            </template>
-          </iron-list>
-        </div>
-        <paper-textarea type="text"
-                        label="Indicators"
-                        always-float-label
-                        placeholder="[]"
-                        disabled="{{!editMode}}"
-                        rows="4"
-                        value="{{sliStr}}"
-                        hidden$="{{!editMode}}"></paper-textarea>
-      </div>
+
+      <iron-form id="form">
+        <form class="form" method="post" action="/products">
+          <div class="column">
+            <paper-input  type="text"
+                          name="name"
+                          label="Name" always-float-label
+                          autofocus="true"
+                          disabled={{!editMode}}
+                          value="{{item.name}}"
+                          required></paper-input>
+            <paper-input  type="text"
+                          always-float-label
+                          name="product-group"
+                          label="Product Group"
+                          disabled={{!editMode}}
+                          value={{item.product_group_name}}
+                          required></paper-input>
+          </div>
+          <div class="column">
+            <div class="objectives" hidden$="{{editMode}}">
+              <iron-label>Objectives</iron-label>
+              <iron-list id="list" items=[[slo]] as="objective" selection-enabled>
+                <template>
+                  <div class="list-item">[[objective.title]]</div>
+                </template>
+              </iron-list>
+            </div>
+            <paper-textarea name="slo"
+                            type="text"
+                            label="Objectives"
+                            always-float-label
+                            placeholder="[]"
+                            disabled="{{!editMode}}"
+                            rows="4"
+                            value="{{sloStr}}"
+                            hidden$="{{!editMode}}"></paper-textarea>
+          </div>
+          <div class="column">
+            <div class="targets" hidden$="{{editMode}}">
+              <iron-label>Indicators</iron-label>
+              <iron-list id="list" items=[[sli]] as="target" selection-enabled>
+                <template>
+                  <div class="list-item">[[target.name]] [[target.unit]]</div>
+                </template>
+              </iron-list>
+            </div>
+            <paper-textarea name="sli"
+                            type="text"
+                            label="Indicators"
+                            always-float-label
+                            placeholder="[]"
+                            disabled="{{!editMode}}"
+                            rows="4"
+                            value="{{sliStr}}"
+                            hidden$="{{!editMode}}"></paper-textarea>
+          </div>
+        </form>
+      </iron-form>
     </slr-form-modal>
 
   </template>
@@ -184,7 +198,9 @@
       ready() {
         super.ready()
         this.$.modal.addEventListener('slr-form-modal-opened',
-                                        () => { console.log('modal open event'); this.whenOpened() })
+                                        () => { this.whenOpened() })
+        this.$.form.addEventListener('iron-form-presubmit',
+                                        () => { console.log('Form submitted:', this.$.form.serializeForm())})
       }
 
       itemChanged() {
@@ -197,6 +213,11 @@
       whenOpened() {
         this.$.ajaxSlo.generateRequest()
         this.$.ajaxSli.generateRequest()
+      }
+
+      submit() {
+        this.$.form.submit()
+        this.set('editMode', false)
       }
 
       handleSloResponse(e) {

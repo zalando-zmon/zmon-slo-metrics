@@ -2,6 +2,7 @@
 <link rel="import" href="../bower_components/paper-styles/typography.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <dom-module id="slr-product-card">
   <template>
@@ -64,6 +65,9 @@
         return {
           item: {
             type: Object
+          },
+          favorite: {
+            type: Boolean
           }
         }
       }

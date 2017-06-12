@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <link rel="import" href="./slr-product-card.html">
 <link rel="import" href="./slr-product-view.html">
@@ -74,6 +75,15 @@
           products: {
             type: Array,
             value: []
+          },
+          searchStr: {
+            type: String
+          },
+          selectedItem: {
+            type: String
+          },
+          editMode: {
+            type: Boolean
           }
         }
       }

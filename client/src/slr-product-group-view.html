@@ -1,6 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
-<link rel="import" href="./slr-form-modal.html">
+<link rel="import" href="./slr-modal.html">
 
 <dom-module id="slr-product-group-view">
   <template>
@@ -17,21 +17,30 @@
       }
     </style>
 
-    <slr-form-modal id="form"
-                    title="Product Group"
+    <slr-form-modal title="Product Group"
                     item={{item}}
                     method="post"
-                    action="/product-group"
+                    action="/product-groups"
                     opened={{opened}}
                     edit-mode={{editMode}}>
-      <paper-input  id="name"
-                    label="Name" always-float-label
-                    disabled={{!editMode}}
-                    value={{item.name}}></paper-input>
-      <paper-input  id="department"
-                    label="Department" always-float-label
-                    disabled={{!editMode}}
-                    value={{item.department}}></paper-input>
+      <div slot="actions">
+        <paper-button hidden$="{{!editMode}}" on-click="submit" autofocus>Save</paper-button>
+      </div>
+
+      <iron-form id="form">
+        <form class="form" method="post" action="/product-groups">
+          <paper-input  name="name"
+                        type="text"
+                        label="Name" always-float-label
+                        disabled={{!editMode}}
+                        value="{{item.name}}"></paper-input>
+          <paper-input  name="department"
+                        type="text"
+                        label="Department" always-float-label
+                        disabled={{!editMode}}
+                        value="{{item.department}}"></paper-input>
+        </form>
+      </iron-form>
     </slr-form-modal>
   </template>
   <script>
@@ -58,6 +67,16 @@
             notify: true
           }
         }
+      }
+
+      ready() {
+        super.ready()
+        this.$.form.addEventListener('iron-form-presubmit',
+                                        () => { console.log('Form submitted:', this.$.form.serializeForm())})
+      }
+      submit() {
+        this.$.form.submit()
+        this.set('editMode', false)
       }
     }
 
