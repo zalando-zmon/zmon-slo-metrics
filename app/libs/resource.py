@@ -1,12 +1,13 @@
 from typing import List, Union, Tuple, Optional
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode
 
 from sqlalchemy.exc import IntegrityError
-from flask_sqlalchemy import BaseQuery, Model
+from flask_sqlalchemy import BaseQuery, Model, Pagination
 
 from connexion import NoContent, request, problem
 
-from app.config import API_DEFAULT_LIMIT
+from app.config import API_DEFAULT_PAGE_SIZE
+from app.utils import slugger
 
 from .authorization import get_authorization
 
@@ -40,17 +41,19 @@ class ResourceHandler:
         if filter_kwargs:
             query = resource.get_filtered_query(query, **filter_kwargs)
 
+        total_count = query.count()
+
         # Limit query
-        query = resource.get_limited_query(query, **kwargs)
+        paginated = resource.get_limited_query(query, **kwargs)
 
         # Get objects from DB
-        objs = resource.get_objects(query)
+        objs = resource.get_objects(paginated)
 
         # Transform objects to resources
         resources = [resource.build_resource(obj, **kwargs) for obj in objs]
 
-        # Return list response (mainly add _meta)
-        return resource.build_list_response(resources, **kwargs)
+        # Return list response (mainly add _meta & data)
+        return resource.build_list_response(resources, paginated, total_count, **kwargs)
 
     @classmethod
     def get(cls, **kwargs) -> Union[dict, Tuple]:
@@ -72,6 +75,8 @@ class ResourceHandler:
 
         # Build object from resource payload
         obj = resource.new_object(**kwargs)
+
+        obj = resource.set_username(obj)
 
         # Should raise Authorization error if needed!
         resource.authorization.create(obj, **kwargs)
@@ -124,21 +129,29 @@ class ResourceHandler:
     ####################################################################################################################
     # DEFAULT IMPL
     ####################################################################################################################
-    def build_list_response(self, resources: List[dict], **kwargs) -> dict:
+    def build_list_response(self, resources: List[dict], paginated: Pagination, total_count, **kwargs) -> dict:
+        next_query = request.args.copy()
+        prev_query = request.args.copy()
+
+        next_query['page'] = paginated.next_num
+        prev_query['page'] = paginated.page - 1
+        next_query['page_size'] = prev_query['page_size'] = paginated.per_page
+
         return {
             'data': resources,
             '_meta': {
-                'count': len(resources),
-                # TODO: paging URIs
+                'count': total_count,
+                'next_uri': urljoin(request.url, '?' + urlencode(next_query)) if next_query['page'] else None,
+                'previous_uri': urljoin(request.url, '?' + urlencode(prev_query)) if prev_query['page'] else None,
             }
         }
 
-    def get_limited_query(self, query: BaseQuery, **kwargs) -> BaseQuery:
+    def get_limited_query(self, query: BaseQuery, **kwargs) -> Union[Pagination, BaseQuery]:
         """Apply pagination limits on query"""
-        limit = kwargs.get('limit', API_DEFAULT_LIMIT)
-        offset = kwargs.get('offset', 0)
+        per_page = int(kwargs.get('page_size', API_DEFAULT_PAGE_SIZE))
+        page = int(kwargs.get('page', 1))
 
-        return query.limit(limit).offset(offset)
+        return query.paginate(page=page, per_page=per_page, error_out=False)
 
     def get_filtered_query(self, query: BaseQuery, **kwargs) -> BaseQuery:
         """Filter query using query parameters"""
@@ -184,9 +197,19 @@ class ResourceHandler:
         for field in self.model_fields:
             if field in READ_ONLY_FIELDS:
                 continue
-            fields[field] = body.get(field)
+
+            if field == 'slug' and 'name' in body:
+                fields['slug'] = slugger(body['name'])
+            else:
+                fields[field] = body.get(field)
 
         return fields
+
+    def set_username(self, obj: Model) -> Model:
+        if hasattr(obj, 'username'):
+            obj.username = request.token_info['uid']
+
+        return obj
 
     ####################################################################################################################
     # NOT IMPL
@@ -200,7 +223,7 @@ class ResourceHandler:
     def new_object(self, **kwargs) -> Model:
         raise NotImplemented
 
-    def get_objects(self, query: BaseQuery, **kwargs) -> List[Model]:
+    def get_objects(self, query: Pagination, **kwargs) -> List[Model]:
         raise NotImplemented
 
     def get_object(self, obj_id: int, **kwargs) -> Model:

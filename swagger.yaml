@@ -176,6 +176,10 @@ definitions:
         type: string
         readOnly: true
         description: Product name
+      slug:
+        type: string
+        readOnly: true
+        description: SLI slug.
       username:
         type: string
         readOnly: true
@@ -269,6 +273,10 @@ definitions:
         type: string
         readOnly: true
         description: Product SLI name
+      product_name:
+        type: string
+        readOnly: true
+        description: Product name
       username:
         type: string
         readOnly: true
@@ -362,16 +370,16 @@ parameters:
     description: Relative end minutes
 
   Offset:
-    name: offset
+    name: page
     type: integer
     in: query
-    description: Pagination offset.
+    description: Pagination page.
 
   Limit:
-    name: limit
+    name: page_size
     type: integer
     in: query
-    description: Pagination limit.
+    description: Pagination page size limit.
 
 
 paths:

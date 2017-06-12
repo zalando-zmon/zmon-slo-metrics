@@ -1,6 +1,6 @@
 from typing import List
 
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy import BaseQuery, Pagination
 
 from connexion import ProblemException
 
@@ -12,14 +12,14 @@ from .models import ProductGroup
 
 
 class ProductGroupResource(ResourceHandler):
-    model_fields = ('name', 'department', 'username', 'created', 'updated')
+    model_fields = ('name', 'department', 'slug', 'username', 'created', 'updated')
 
     def get_filter_kwargs(self, **kwargs) -> dict:
         """Return relevant filters"""
         filters = {}
 
         if 'name' in kwargs:
-            filters['name'] = kwargs['name']
+            filters['slug'] = slugger(kwargs['name'])
 
         return filters
 
@@ -31,10 +31,12 @@ class ProductGroupResource(ResourceHandler):
             raise ProblemException(title='Invalid product group', detail='Product group name must have a value!')
 
     def new_object(self, product_group: dict, **kwargs) -> ProductGroup:
-        return ProductGroup(**product_group)
+        fields = self.get_object_fields(product_group)
 
-    def get_objects(self, query: BaseQuery, **kwargs) -> List[ProductGroup]:
-        return [obj for obj in query.all()]
+        return ProductGroup(**fields)
+
+    def get_objects(self, query: Pagination, **kwargs) -> List[ProductGroup]:
+        return [obj for obj in query.items]
 
     def get_object(self, obj_id: int, **kwargs) -> ProductGroup:
         return ProductGroup.query.get_or_404(obj_id)
@@ -46,8 +48,10 @@ class ProductGroupResource(ResourceHandler):
         return obj
 
     def update_object(self, obj: ProductGroup, product_group: dict, **kwargs) -> ProductGroup:
-        obj.name = product_group.get('name')
-        obj.department = product_group.get('department', '')
+        fields = self.get_object_fields(product_group)
+
+        for field, val in fields.items():
+            setattr(obj, field, val)
 
         db.session.commit()
 
@@ -61,11 +65,3 @@ class ProductGroupResource(ResourceHandler):
 
         db.session.delete(obj)
         db.session.commit()
-
-    def build_resource(self, obj, **kwargs) -> dict:
-        resource = super().build_resource(obj)
-
-        # extra fields
-        resource['slug'] = slugger(obj.name)
-
-        return resource

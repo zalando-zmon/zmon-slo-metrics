@@ -1,15 +1,16 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from urllib.parse import urljoin
 
 from datetime import datetime, timedelta
 
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy import BaseQuery, Pagination
 
 from connexion import ProblemException, request
 
 from app import db
 from app.libs.zmon import AGG_TYPES
 from app.libs.resource import ResourceHandler
+from app.utils import slugger
 
 from app.resources.product.models import Product
 
@@ -18,10 +19,19 @@ from .updater import update_indicator_values
 
 
 class SLIResource(ResourceHandler):
-    model_fields = ('name', 'source', 'unit', 'created', 'updated')
+    model_fields = ('name', 'source', 'unit', 'created', 'updated', 'username')
 
     def get_query(self, product_id: int, **kwargs) -> BaseQuery:
         return Indicator.query.filter_by(product_id=product_id)
+
+    def get_filter_kwargs(self, **kwargs) -> dict:
+        """Return relevant filters"""
+        filters = {}
+
+        if 'name' in kwargs:
+            filters['slug'] = slugger(kwargs['name'])
+
+        return filters
 
     def validate(self, sli: dict, **kwargs) -> None:
         if not sli or not sli.get('name'):
@@ -64,13 +74,14 @@ class SLIResource(ResourceHandler):
 
         return Indicator(**fields)
 
-    def get_objects(self, query: BaseQuery, **kwargs) -> List[Indicator]:
-        return [obj for obj in query.all()]
+    def get_objects(self, query: Pagination, **kwargs) -> List[Indicator]:
+        return [obj for obj in query.items]
 
     def get_object(self, obj_id: int, **kwargs) -> Indicator:
         return self.get_query(**kwargs).filter_by(id=obj_id).first_or_404()
 
     def save_object(self, obj: Indicator, **kwargs) -> Indicator:
+        obj.slug = slugger(obj.name)
         db.session.add(obj)
         db.session.commit()
 
@@ -146,14 +157,17 @@ class SLIValueResource(ResourceHandler):
         start = kwargs.get('start')
         return query.filter(IndicatorValue.timestamp >= start, IndicatorValue.timestamp < end)
 
-    def get_limited_query(self, query: BaseQuery, **kwargs) -> BaseQuery:
+    def get_limited_query(self, query: BaseQuery, **kwargs) -> Union[Pagination, BaseQuery]:
         """Apply pagination limits on query"""
         if 'from' in kwargs:
             return query
 
         return super().get_limited_query(query, **kwargs)
 
-    def get_objects(self, query: BaseQuery, **kwargs) -> List[IndicatorValue]:
+    def get_objects(self, query: Union[Pagination, BaseQuery], **kwargs) -> List[IndicatorValue]:
+        if isinstance(query, Pagination):
+            return [obj for obj in query.items]
+
         return [obj for obj in query.all()]
 
     def build_resource(self, obj: IndicatorValue, **kwargs) -> dict:

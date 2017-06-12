@@ -11,6 +11,8 @@ class ProductGroup(db.Model):
 
     products = db.relationship('Product', backref=db.backref('product_group', lazy='joined'), lazy='dynamic')
 
+    slug = db.Column(db.String(120), unique=True, nullable=False, index=True)
+
     username = db.Column(db.String(120), default='')
     created = db.Column(db.DateTime(), default=datetime.utcnow)
     updated = db.Column(db.DateTime(), onupdate=datetime.utcnow)

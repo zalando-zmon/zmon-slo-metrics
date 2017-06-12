@@ -1,7 +1,7 @@
 from typing import List
 from urllib.parse import urljoin
 
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy import BaseQuery, Pagination
 
 from connexion import ProblemException, request
 
@@ -39,8 +39,8 @@ class SLOResource(ResourceHandler):
 
         return Objective(**fields)
 
-    def get_objects(self, query: BaseQuery, **kwargs) -> List[Objective]:
-        return [obj for obj in query.all()]
+    def get_objects(self, query: Pagination, **kwargs) -> List[Objective]:
+        return [obj for obj in query.items]
 
     def get_object(self, obj_id: int, **kwargs) -> Objective:
         return self.get_query(**kwargs).filter_by(id=obj_id).first_or_404()

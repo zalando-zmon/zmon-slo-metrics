@@ -1,7 +1,7 @@
 from typing import List
 from urllib.parse import urljoin
 
-from flask_sqlalchemy import BaseQuery
+from flask_sqlalchemy import BaseQuery, Pagination
 
 from connexion import ProblemException, request
 
@@ -15,19 +15,23 @@ from .models import Product
 
 
 class ProductResource(ResourceHandler):
-    model_fields = ('name',)
+    model_fields = ('name', 'slug', 'username')
 
     def get_filter_kwargs(self, **kwargs) -> dict:
         """Return relevant filters"""
         filters = {}
 
         if 'name' in kwargs:
-            filters['name'] = kwargs['name']
+            filters['slug'] = slugger(kwargs['name'])
 
         return filters
 
     def get_query(self, **kwargs) -> BaseQuery:
-        return Product.query
+        q = Product.query
+        if 'product_group' in kwargs:
+            return q.filter(ProductGroup.name == kwargs['product_group'])
+
+        return q
 
     def validate(self, product: dict, **kwargs) -> None:
         if not product or not product.get('name'):
@@ -37,9 +41,7 @@ class ProductResource(ResourceHandler):
             raise ProblemException(title='Invalid product', detail="Product 'product_group_uri' must have a value!")
 
     def new_object(self, product: dict, **kwargs) -> Product:
-        fields = {
-            'name': product['name']
-        }
+        fields = self.get_object_fields(product)
 
         product_group_id = self.get_id_from_uri(product['product_group_uri'])
 
@@ -49,8 +51,8 @@ class ProductResource(ResourceHandler):
 
         return Product(**fields)
 
-    def get_objects(self, query: BaseQuery, **kwargs) -> List[Product]:
-        return [obj for obj in query.all()]
+    def get_objects(self, query: Pagination, **kwargs) -> List[Product]:
+        return [obj for obj in query.items]
 
     def get_object(self, obj_id: int, **kwargs) -> Product:
         return Product.query.get_or_404(obj_id)
@@ -62,7 +64,10 @@ class ProductResource(ResourceHandler):
         return obj
 
     def update_object(self, obj: Product, product: dict, **kwargs) -> Product:
-        obj.name = product.get('name')
+        fields = self.get_object_fields(product)
+
+        for field, val in fields.items():
+            setattr(obj, field, val)
 
         product_group_id = self.get_id_from_uri(product['product_group_uri'])
 
@@ -83,7 +88,6 @@ class ProductResource(ResourceHandler):
         resource = super().build_resource(obj)
 
         # extra fields
-        resource['slug'] = slugger(obj.name)
         resource['product_group_name'] = obj.product_group.name
 
         # Links

@@ -14,6 +14,8 @@ class Indicator(db.Model):
 
     product_id = db.Column(db.Integer(), db.ForeignKey('product.id'), nullable=False)
 
+    slug = db.Column(db.String(120), nullable=False, index=True)
+
     targets = db.relationship('Target', backref=db.backref('indicator', lazy='joined'), lazy='dynamic')
     values = db.relationship('IndicatorValue', backref='indicator', lazy='dynamic', cascade="all, delete")
 
