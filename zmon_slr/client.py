@@ -36,10 +36,10 @@ class Client:
 
         return urljoin(url, '/'.join(str(p).strip('/') for p in parts))
 
-    def product_list(self, name: str=None, product_group: str=None) -> List[dict]:
+    def product_list(self, name: str=None, product_group_name: str=None) -> List[dict]:
         params = {} if not name else {'name': name}
-        if product_group:
-            params['product_group'] = product_group
+        if product_group_name:
+            params['product_group'] = product_group_name
 
         res = self.session.get(self.endpoint(self.PRODUCTS), params=params)
         res.raise_for_status()
@@ -231,8 +231,9 @@ class Client:
 
         return res.json()
 
-    def sli_values(self, sli: dict) -> List[dict]:
-        res = self.session.get(sli['sli_values_uri'])
+    def sli_values(self, sli: dict, page_size=None) -> List[dict]:
+        params = {'page_size': page_size} if page_size else {}
+        res = self.session.get(sli['sli_values_uri'], params=params)
         res.raise_for_status()
 
         values = res.json()

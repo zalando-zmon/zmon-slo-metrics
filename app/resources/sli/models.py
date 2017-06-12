@@ -21,7 +21,7 @@ class Indicator(db.Model):
 
     username = db.Column(db.String(120), default='')
     created = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated = db.Column(db.DateTime(), onupdate=datetime.utcnow)
+    updated = db.Column(db.DateTime(), onupdate=datetime.utcnow, default=datetime.utcnow)
 
     __table_args__ = (
         db.UniqueConstraint('name', 'product_id', name='indicator_name_product_id_key'),

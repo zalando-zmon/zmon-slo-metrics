@@ -88,7 +88,7 @@ class ResourceHandler:
             return problem(status=400, title='Duplication error', detail='Resource already exist')
 
         # Transform object to resource
-        return resource.build_resource(obj), 201
+        return resource.build_resource(obj, **kwargs), 201
 
     @classmethod
     def update(cls, **kwargs) -> Union[dict, Tuple]:
