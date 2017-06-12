@@ -1,0 +1,113 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<link rel="import" href="./slr-product-card.html">
+<link rel="import" href="./slr-product-view.html">
+<link rel="import" href="./slr-utils.html">
+<link rel="import" href="./common-styles.html">
+
+<dom-module id="slr-products">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: block;
+        @apply --slr-content;
+      }
+
+      paper-dialog {
+        max-width: var(--app-content-max-width);
+        min-width: 500px;
+      }
+
+      .add {
+        position: fixed;
+        right: 5%;
+        bottom: 8%;
+      }
+    </style>
+
+    <iron-ajax
+      id="ajax"
+      url="http://localhost:8000/products"
+      handle-as="json"
+      on-response="handleResponse"
+      debounce-duration="300"
+      loading={{loading}}></iron-ajax>
+
+    <slr-product-view item="{{selectedItem}}"
+                      opened={{viewOpened}}
+                      loading={{loading}}
+                      edit-mode={{editMode}}></slr-product-view>
+
+    <template is="dom-repeat"
+              items="{{products}}"
+              sort="sort"
+              observe="favorite"
+              filter={{computeFilter(searchStr)}}>
+      <slr-product-card item={{item}}
+                        favorite={{item.favorite}}
+                        on-click="openView"></slr-product-card>
+    </template>
+
+    <paper-fab class="add"
+                icon="add"
+                title="add"
+                on-click="addProduct"
+                hidden$={{viewOpened}}></paper-fab>
+
+  </template>
+
+  <script>
+    class SlrProducts extends Polymer.Element {
+      static get is() { return 'slr-products' }
+
+      static get properties() {
+        return {
+          loading: {
+            type: Boolean,
+            value: true,
+            notify: true
+          },
+          route: {
+            type: Object,
+            observer: 'routeChanged'
+          },
+          products: {
+            type: Array,
+            value: []
+          }
+        }
+      }
+
+      routeChanged() {
+        if (this.route.prefix === '/products') {
+          this.$.ajax.generateRequest()
+        }
+      }
+
+      handleResponse(e) {
+        this.set('products', e.detail.response.data)
+      }
+
+      openView(e) {
+        this.set('viewOpened', true)
+        this.set('selectedItem', e.model.item)
+      }
+
+      addProduct() {
+        this.set('selectedItem', {})
+        this.set('viewOpened', true)
+        this.set('editMode', true)
+      }
+
+      sort(a, b) {
+        return SlrUtils.favoriteSort(a, b);
+      }
+
+      computeFilter(str) {
+        return SlrUtils.filterCollection(str)
+      }
+    }
+
+    window.customElements.define(SlrProducts.is, SlrProducts)
+  </script>
+</dom-module>

@@ -1,0 +1,23 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+
+<dom-module id="slr-404">
+  <template>
+    <style>
+      :host {
+        display: block;
+        max-width: 1440px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+      }
+    </style>
+    <h1>Woops!</h1>
+  </template>
+  <script>
+    class Slr404 extends Polymer.Element {
+      static get is() { return 'slr-404' }
+    }
+
+    window.customElements.define(Slr404.is, Slr404)
+    </script>
+  </dom-module>
