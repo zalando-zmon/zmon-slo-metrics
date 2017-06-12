@@ -162,22 +162,22 @@ def product_group_create(obj, name, department):
 
 
 @product_group.command('update')
-@click.argument('product_group_name')
-@click.option('--name', '-n', required=False, help='Product group new name.')
+@click.argument('name')
+@click.option('--new-name', '-n', required=False, help='Product group new name.')
 @click.option('--department', '-d', required=False, help='Product group new department.')
 @click.pass_obj
-def product_group_update(obj, product_group_name, name, department):
+def product_group_update(obj, name, new_name, department):
     """Update product group"""
     client = get_client(obj)
 
     pgs = client.product_group_list(name)
     if not pgs:
-        fatal_error('Product group {} does not exist'.format(product_group_name))
+        fatal_error('Product group {} does not exist'.format(name))
 
-    with Action('Updating product_group: {}'.format(product_group_name), nl=True):
+    with Action('Updating product_group: {}'.format(name), nl=True):
         pg = pgs[0]
-        if name:
-            pg['name'] = name
+        if new_name:
+            pg['name'] = new_name
         if department:
             pg['department'] = department
 
@@ -210,13 +210,13 @@ def product(obj):
 
 
 @product.command('list')
-@click.option('--product-group', '-p', required=False, type=str, help='Filter products by product group name.')
+@click.option('--product-group-name', '-p', required=False, type=str, help='Filter products by product group name.')
 @click.pass_obj
-def product_list(obj, product_group):
+def product_list(obj, product_group_name):
     """List all products"""
     client = get_client(obj)
 
-    res = client.product_list(product_group=product_group)
+    res = client.product_list(product_group_name=product_group_name)
 
     print(json.dumps(res, indent=4))
 
@@ -238,15 +238,15 @@ def product_get(obj, name):
 
 @product.command('create')
 @click.argument('name')
-@click.argument('product_group')
+@click.argument('product_group_name')
 @click.pass_obj
-def product_create(obj, name, product_group):
+def product_create(obj, name, product_group_name):
     """Create new product"""
     client = get_client(obj)
 
     with Action('Creating product: {}'.format(name), nl=True) as act:
         try:
-            pgs = client.product_group_list(name=product_group)
+            pgs = client.product_group_list(name=product_group_name)
             pg = pgs[0]
 
             p = client.product_create(name, product_group_uri=pg['uri'])
@@ -257,27 +257,27 @@ def product_create(obj, name, product_group):
 
 
 @product.command('update')
-@click.argument('product_name')
-@click.option('--name', '-n', required=False, help='Product new name.')
-@click.option('--product-group', '-p', required=False, help='Product new product group name.')
+@click.argument('name')
+@click.option('--new-name', '-n', required=False, help='Product new name.')
+@click.option('--product-group-name', '-p', required=False, help='Product new product group name.')
 @click.pass_obj
-def product_update(obj, product_name, name, product_group):
+def product_update(obj, name, new_name, product_group_name):
     """Update product"""
     client = get_client(obj)
 
-    ps = client.product_list(product_name)
+    ps = client.product_list(name)
     if not ps:
-        fatal_error('Product {} does not exist'.format(product_name))
+        fatal_error('Product {} does not exist'.format(name))
 
-    with Action('Updating product: {}'.format(product_name), nl=True):
+    with Action('Updating product: {}'.format(name), nl=True):
         p = ps[0]
-        if name:
-            p['name'] = name
+        if new_name:
+            p['name'] = new_name
 
-        if product_group:
-            pgs = client.product_group_list(name=product_group)
+        if product_group_name:
+            pgs = client.product_group_list(name=product_group_name)
             if not pgs:
-                fatal_error('Product group {} does not exist'.format(product_group))
+                fatal_error('Product group {} does not exist'.format(product_group_name))
             p['product_group_uri'] = pgs[0]['uri']
 
         p = client.product_update(p)
@@ -294,8 +294,10 @@ def product_delete(obj, name):
 
     with Action('Deleting product: {}'.format(name), nl=True):
         p = client.product_list(name=name)
+        if not p:
+            fatal_error('Product {} does not exist!'.format(name))
 
-        client.product_delete(p[0]['uri'])
+        client.product_delete(p[0])
 
 
 ########################################################################################################################
@@ -417,11 +419,8 @@ def slo_delete(obj, product_name, slo_uri):
     if product_name != slo['product_name']:
         fatal_error('Cannot delete SLO {} as it does not belong to product {}'.format(slo_uri, product_name))
 
-    with Action('Deleting SLO: {}'.format(id), nl=True) as act:
-        try:
-            client.slo_delete(product, id)
-        except SLRClientError as e:
-            act.fatal_error(e)
+    with Action('Deleting SLO: {}'.format(slo['uri']), nl=True):
+        client.slo_delete(slo)
 
 
 ########################################################################################################################
@@ -461,12 +460,12 @@ def target_list(obj, slo_uri):
 
 @target.command('create')
 @click.argument('slo_uri')
-@click.option('--sli-uri', '-s', help='SLI URI')
-@click.option('--target-from', '-r', help='Target "from" value')
-@click.option('--target-to', '-t', help='Target "to" value')
+@click.option('--sli-name', '-s', help='SLI name')
+@click.option('--target-from', '-r', type=float, help='Target "from" value')
+@click.option('--target-to', '-t', type=float, help='Target "to" value')
 @click.option('--target-file', '-f', type=click.File('r'), help='Target definition JSON file.')
 @click.pass_obj
-def target_create(obj, slo_uri, sli_uri, target_from, target_to, target_file):
+def target_create(obj, slo_uri, sli_name, target_from, target_to, target_file):
     """
     Create Target. If target-file is used, then other options are ignored.
     """
@@ -476,16 +475,19 @@ def target_create(obj, slo_uri, sli_uri, target_from, target_to, target_file):
     if not slo:
         fatal_error('SLO {} does not exist'.format(slo_uri))
 
-    sli = client.sli_get(sli_uri)
+    product = client.product_list(name=slo['product_name'])[0]
+
+    sli = client.sli_list(product=product, name=sli_name)
     if not sli:
-        fatal_error('SLI {} does not exist'.format(sli_uri))
+        fatal_error('SLI {} does not exist'.format(sli_name))
+    sli = sli[0]
 
     with Action(
             'Creating Targets for SLO: {} for product: {}'.format(slo['title'], slo['product_name']), nl=True) as act:
         if target_file:
             target = json.load(target_file)
         else:
-            target = {'sli_uri': sli_uri, 'from': target_from, 'to': target_to}
+            target = {'sli_uri': sli['uri'], 'from': target_from, 'to': target_to}
 
         validate_target(target, act)
 
@@ -497,12 +499,12 @@ def target_create(obj, slo_uri, sli_uri, target_from, target_to, target_file):
 
 @target.command('update')
 @click.argument('target_uri')
-@click.option('--sli-uri', '-s', help='SLI URI')
-@click.option('--target-from', '-r', help='Target "from" value')
-@click.option('--target-to', '-t', help='Target "to" value')
+@click.option('--sli-name', '-s', help='SLI name')
+@click.option('--target-from', '-r', type=float, help='Target "from" value')
+@click.option('--target-to', '-t', type=float, help='Target "to" value')
 @click.option('--target-file', '-f', type=click.File('r'), help='Target definition JSON file.')
 @click.pass_obj
-def target_update(obj, target_uri, sli_uri, target_from, target_to, target_file):
+def target_update(obj, target_uri, sli_name, target_from, target_to, target_file):
     """Update Target for a product SLO."""
     client = get_client(obj)
 
@@ -510,16 +512,19 @@ def target_update(obj, target_uri, sli_uri, target_from, target_to, target_file)
     if not target:
         fatal_error('Target {} does not exist'.format(target_uri))
 
-    sli = client.sli_get(sli_uri)
+    product = client.product_list(name=target['product_name'])[0]
+
+    sli = client.sli_list(product=product, name=sli_name)
     if not sli:
-        fatal_error('SLI {} does not exist'.format(sli_uri))
+        fatal_error('SLI {} does not exist'.format(sli_name))
+    sli = sli[0]
 
     with Action('Updating Target {} for product {}'.format(target_uri, target['product_name']), nl=True) as act:
         if target_file:
             target = json.load(target_file)
         else:
-            if sli_uri:
-                target['sli_uri'] = sli_uri
+            if sli_name:
+                target['sli_uri'] = sli['uri']
             if target_from:
                 target['from'] = target_from
             if target_to:
@@ -645,7 +650,7 @@ def validate_sli(obj: dict, sli: dict, act: Action):
 @cli.group('sli', cls=AliasedGroup)
 @click.pass_obj
 def sli(obj):
-    """Data sources"""
+    """Service level indicators"""
     pass
 
 
@@ -710,10 +715,10 @@ def sli_create(obj, product_name, sli_file):
 
 @sli.command('update')
 @click.argument('product_name')
-@click.argument('sli_name')
+@click.argument('name')
 @click.argument('sli_file', type=click.File('r'))
 @click.pass_obj
-def sli_update(obj, product_name, sli_name, sli_file):
+def sli_update(obj, product_name, name, sli_file):
     """Update SLI for a product"""
     client = get_client(obj)
 
@@ -723,11 +728,11 @@ def sli_update(obj, product_name, sli_name, sli_file):
 
     product = product[0]
 
-    slis = client.sli_list(product, sli_name)
+    slis = client.sli_list(product, name)
     if not slis:
-        fatal_error('SLI {} does not exist'.format(sli_name))
+        fatal_error('SLI {} does not exist'.format(name))
 
-    with Action('Updating SLI {} for product: {}'.format(sli_name, product_name), nl=True) as act:
+    with Action('Updating SLI {} for product: {}'.format(name, product_name), nl=True) as act:
         sli = json.load(sli_file)
 
         validate_sli(obj, sli, act)
@@ -741,9 +746,9 @@ def sli_update(obj, product_name, sli_name, sli_file):
 
 @sli.command('delete')
 @click.argument('product_name')
-@click.argument('sli_name')
+@click.argument('name')
 @click.pass_obj
-def sli_delete(obj, product_name, sli_name):
+def sli_delete(obj, product_name, name):
     """Delete SLI for a product"""
     client = get_client(obj)
 
@@ -753,11 +758,11 @@ def sli_delete(obj, product_name, sli_name):
 
     product = product[0]
 
-    slis = client.sli_list(product, sli_name)
+    slis = client.sli_list(product, name)
     if not slis:
-        fatal_error('SLI {} does not exist'.format(sli_name))
+        fatal_error('SLI {} does not exist'.format(name))
 
-    with Action('Deleting SLI: {} for product {}'.format(sli_name, product['name']), nl=True) as act:
+    with Action('Deleting SLI: {} for product {}'.format(name, product['name']), nl=True) as act:
         try:
             client.sli_delete(slis[0])
         except SLRClientError as e:
@@ -766,9 +771,10 @@ def sli_delete(obj, product_name, sli_name):
 
 @sli.command('values')
 @click.argument('product_name')
-@click.argument('sli_name')
+@click.argument('name')
+@click.option('--count', '-c', type=int, help='Number of SLI values returned')
 @click.pass_obj
-def sli_values(obj, product_name, sli_name):
+def sli_values(obj, product_name, name, count):
     """List SLI values"""
     client = get_client(obj)
 
@@ -778,22 +784,22 @@ def sli_values(obj, product_name, sli_name):
 
     product = product[0]
 
-    slis = client.sli_list(product, sli_name)
+    slis = client.sli_list(product, name)
     if not slis:
-        fatal_error('SLI {} does not exist'.format(sli_name))
+        fatal_error('SLI {} does not exist'.format(name))
 
-    res = client.sli_values(slis[0])
+    res = client.sli_values(slis[0], page_size=count)
 
     print(json.dumps(res, indent=4))
 
 
 @sli.command('query')
 @click.argument('product_name')
-@click.argument('sli_name')
+@click.argument('name')
 @click.option('--start', '-s', required=True, type=int, help='Relative start in minutes.')
 @click.option('--end', '-e', required=False, type=int, help='Relative end in minutes.')
 @click.pass_obj
-def sli_query(obj, product_name, sli_name, start, end):
+def sli_query(obj, product_name, name, start, end):
     """Update SLI values"""
     client = get_client(obj)
 
@@ -806,9 +812,9 @@ def sli_query(obj, product_name, sli_name, start, end):
 
     product = product[0]
 
-    slis = client.sli_list(product, sli_name)
+    slis = client.sli_list(product, name)
     if not slis:
-        fatal_error('SLI {} does not exist'.format(sli_name))
+        fatal_error('SLI {} does not exist'.format(name))
 
     res = client.sli_query(slis[0], start, end)
 
@@ -819,4 +825,10 @@ def main():
     try:
         cli()
     except requests.HTTPError as e:
-        fatal_error('HTTP error: {} - {}'.format(e.response.status_code, e.response.reason))
+        detail = ''
+        try:
+            detail = e.response.json()['detail']
+        except:
+            pass
+
+        fatal_error('HTTP error: {} - {} - {}'.format(e.response.status_code, e.response.reason, detail))

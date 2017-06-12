@@ -15,7 +15,7 @@ from .models import Product
 
 
 class ProductResource(ResourceHandler):
-    model_fields = ('name', 'slug', 'username')
+    model_fields = ('name', 'slug', 'username', 'created', 'updated')
 
     def get_filter_kwargs(self, **kwargs) -> dict:
         """Return relevant filters"""

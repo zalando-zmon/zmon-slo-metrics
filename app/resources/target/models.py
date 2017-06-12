@@ -14,7 +14,7 @@ class Target(db.Model):
 
     username = db.Column(db.String(120), default='')
     created = db.Column(db.DateTime(), default=datetime.utcnow)
-    updated = db.Column(db.DateTime(), onupdate=datetime.utcnow)
+    updated = db.Column(db.DateTime(), onupdate=datetime.utcnow, default=datetime.utcnow)
 
     __table_args__ = (
         db.UniqueConstraint('indicator_id', 'objective_id', name='target_indicator_id_objective_id_key'),

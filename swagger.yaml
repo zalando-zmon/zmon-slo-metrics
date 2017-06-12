@@ -125,6 +125,10 @@ definitions:
         type: string
         readOnly: true
         description: Created datetime.
+      updated:
+        type: string
+        readOnly: true
+        description: Updated datetime.
       uri:
         type: string
         readOnly: true
@@ -230,6 +234,10 @@ definitions:
         type: string
         readOnly: true
         description: Created datetime.
+      updated:
+        type: string
+        readOnly: true
+        description: Updated datetime.
       uri:
         type: string
         readOnly: true

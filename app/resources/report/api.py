@@ -75,6 +75,7 @@ class ReportResource(ResourceHandler):
             slo.append(
                 {
                     'title': objective.title,
+                    'description': objective.description,
                     'targets': [
                         {
                             'from': t.target_from, 'to': t.target_to, 'sli_name': t.indicator.name,
