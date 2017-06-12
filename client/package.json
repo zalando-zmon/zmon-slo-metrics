@@ -7,9 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "start": "polymer serve",
-    "build": "polymer build",
-    "test": "polymer lint"
+    "start": "./node_modules/polymer-cli/bin/polymer.js serve",
+    "build": "./node_modules/polymer-cli/bin/polymer.js build",
+    "test": "./node_modules/polymer-cli/bin/polymer.js lint"
   },
   "repository": {
     "type": "git",
@@ -28,5 +28,8 @@
   "bugs": {
     "url": "https://github.com/zalando-zmon/service-level-reporting/issues"
   },
-  "homepage": "https://github.com/zalando-zmon/service-level-reporting#readme"
+  "homepage": "https://github.com/zalando-zmon/service-level-reporting#readme",
+  "dependencies": {
+    "polymer-cli": "^1.1.0"
+  }
 }
