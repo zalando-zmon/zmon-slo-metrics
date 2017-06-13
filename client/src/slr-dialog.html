@@ -8,7 +8,7 @@
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/polymer/lib/utils/async.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner-lite.html">
 
 <link rel="import" href="./common-styles.html">
 
@@ -40,6 +40,14 @@
         margin-right: 5%;
       }
 
+      .spinner {
+        width: 100px;
+        text-align: center;
+      }
+
+      paper-spinner-lite.orange {
+        --paper-spinner-color: var(--app-accent-color);
+      }
     </style>
 
     <paper-dialog id="dialog" opened={{opened}}>
@@ -48,7 +56,14 @@
         <paper-icon-button icon="close" title="close" dialog-dismiss></paper-icon-button>
         <div main-title>{{title}}</div>
         <paper-fab mini icon="create" title="edit" on-click="toggleEditMode" hidden$="{{editMode}}"></paper-fab>
-        <paper-button hidden$="{{!editMode}}" on-click="cancel">Cancel</paper-button>
+          <div hidden={{!loading}}>
+            <div id="spinner" class="spinner" hidden$={{!editMode}}>
+              <paper-spinner-lite class="orange" active></paper-spinner-lite>
+            </div>
+          </div>
+        <div hidden$={{loading}}>
+          <paper-button hidden$="{{!editMode}}" on-click="cancel">Cancel</paper-button>
+        </div>
         <slot name="actions"></slot>
       </app-toolbar>
 
@@ -84,6 +99,10 @@
           editMode: {
             type: Boolean,
             notify: true
+          },
+          loading: {
+            type: Boolean,
+            value: false
           }
         }
       }
@@ -144,7 +163,6 @@
       copyItem() {
         this.set('_item', Object.assign({}, this.item))
       }
-
     }
 
     window.customElements.define(SlrDialog.is, SlrDialog)

@@ -82,9 +82,13 @@
                     title="Product"
                     item={{item}}
                     opened={{opened}}
-                    edit-mode={{editMode}}>
-      <div slot="actions">
-        <paper-button hidden$="{{!editMode}}" on-click="submit" autofocus>Save</paper-button>
+                    edit-mode={{editMode}}
+                    loading={{loading}}>
+      <div slot="actions" hidden$="{{!editMode}}">
+        <paper-button id="action"
+                      hidden$="{{loading}}"
+                      on-click="submit"
+                      autofocus>Save</paper-button>
       </div>
 
       <iron-form id="form">
@@ -108,7 +112,10 @@
           <div class="column">
             <div class="objectives" hidden$="{{editMode}}">
               <iron-label>Objectives</iron-label>
-              <iron-list id="list" items=[[slo]] as="objective" selection-enabled>
+              <iron-list  id="list"
+                          items=[[slo]]
+                          as="objective"
+                          selection-enabled>
                 <template>
                   <div class="list-item">[[objective.title]]</div>
                 </template>
@@ -129,9 +136,14 @@
           <div class="column">
             <div class="targets" hidden$="{{editMode}}">
               <iron-label>Indicators</iron-label>
-              <iron-list id="list" items=[[sli]] as="target" selection-enabled>
+              <iron-list  id="list"
+                          items="[[sli]]"
+                          as="target"
+                          selection-enabled>
                 <template>
-                  <div class="list-item">[[target.name]] [[target.unit]]</div>
+                  <div class="list-item">
+                    [[target.name]] [[target.unit]]
+                  </div>
                 </template>
               </iron-list>
             </div>
@@ -202,11 +214,38 @@
 
       ready() {
         super.ready()
-        this.$.dialog.addEventListener('slr-dialog-opened',
-                                        () => { this.whenOpened() })
-        this.$.form.addEventListener('iron-form-presubmit',
-                                        () => {
-                                          console.log('Form submitted:', this.$.form.serializeForm())})
+
+        this.$.dialog
+          .addEventListener('slr-dialog-opened', () => {
+            this.whenOpened()
+          })
+
+        this.$.form
+          .addEventListener('iron-form-presubmit', () => {
+            this.set('loading', true)
+            console.log('Form submitted:', this.$.form.serializeForm())
+          })
+
+        this.$.form
+          .addEventListener('iron-form-error', (e) => {
+            console.error('Error:', e)
+            this.set('loading', false)
+            // notify of error
+          })
+
+        this.$.form
+          .addEventListener('iron-form-response', (e) => {
+            this.set('opened', false)
+            this.set('loading', false)
+            this.dispatchEvent(new CustomEvent('slr-product-group-added'))
+            this.dispatchEvent(new CustomEvent('slr-notify',
+              {
+                detail: 'Product added.',
+                bubbles: true,
+                composed: true
+              })
+            )
+          })
       }
 
       itemChanged() {
@@ -222,12 +261,10 @@
       }
 
       submit() {
+        if (!this.$.form.validate()) {
+          return
+        }
         this.$.form.submit()
-        this.set('editMode', false)
-        this.dispatchEvent(new CustomEvent('slr-notify', {
-                              detail: 'Product saved successfully!',
-                              bubbles: true,
-                              composed: true}))
       }
 
       handleSloResponse(e) {
@@ -239,7 +276,6 @@
       }
 
       handleErrorResponse(e) {
-        console.error('Error:', e,detail.request.xhr.response)
         //notify of error
       }
     }

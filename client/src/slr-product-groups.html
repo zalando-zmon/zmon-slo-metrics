@@ -31,7 +31,7 @@
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
 
-    <slr-product-group-view id="productGroupView"
+    <slr-product-group-view id="view"
                             item="{{selectedItem}}"
                             opened={{viewOpened}}
                             loading={{loading}}
@@ -89,6 +89,13 @@
         }
       }
 
+      ready() {
+        super.ready()
+        this.$.view.addEventListener('slr-product-group-added', () => {
+          this.$.ajax.generateRequest()
+        })
+      }
+
       routeChanged() {
         if (this.route.prefix === '/product-groups') {
           this.$.ajax.generateRequest()
@@ -105,7 +112,6 @@
       }
 
       handleErrorResponse(e) {
-        console.error('Error:', e,detail.request.xhr.response)
         //notify of error
       }
 

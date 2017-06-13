@@ -35,7 +35,8 @@
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
 
-    <slr-product-view item="{{selectedItem}}"
+    <slr-product-view id="view"
+                      item="{{selectedItem}}"
                       opened={{viewOpened}}
                       loading={{loading}}
                       edit-mode={{editMode}}></slr-product-view>
@@ -89,6 +90,13 @@
         }
       }
 
+      ready() {
+        super.ready()
+        this.$.view.addEventListener('slr-product-added', () => {
+          this.$.ajax.generateRequest()
+        })
+      }
+
       routeChanged() {
         if (this.route.prefix === '/products') {
           this.$.ajax.generateRequest()
@@ -105,7 +113,6 @@
       }
 
       handleErrorResponse(e) {
-        console.error('Error:', e,detail.request.xhr.response)
         //notify of error
       }
 
