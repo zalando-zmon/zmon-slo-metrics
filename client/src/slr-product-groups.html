@@ -112,7 +112,11 @@
       }
 
       handleErrorResponse(e) {
-        //notify of error
+        console.error('Error loading Product Groups', e)
+        this.dispatchEvent(new CustomEvent('slr-error'), {
+                            bubbles: true,
+                            composed: true
+                          })
       }
 
       openView(e) {

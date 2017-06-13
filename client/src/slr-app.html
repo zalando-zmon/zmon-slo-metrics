@@ -165,7 +165,8 @@
                     route=[[subroute]]
                     loading={{loading}}
                     search-str={{searchStr}}></slr-products>
-      <slr-404 name="404"></slr-404>
+      <slr-404 name="404" loading={{loading}}></slr-404>
+      <slr-error name="error" loading={{loading}}></slr-error>
     </iron-pages>
 
     <paper-toast id="toast" text="{{toastText}}"></paper-toast>
@@ -238,6 +239,8 @@
                                               (n) => { this.notify(n) })
         this.$.products.addEventListener('slr-notify',
                                               (n) => { this.notify(n) })
+        this.$.productGroups.addEventListener('slr-error', () => { this.showError() })
+        this.$.products.addEventListener('slr-error', () => { this.showError() })
       }
 
       notify(notification) {
@@ -266,7 +269,10 @@
 
       show404() {
         this.page = 404;
-        this.loading = false
+      }
+
+      showError() {
+        this.page = 'error';
       }
 
       onSearchClick() {
