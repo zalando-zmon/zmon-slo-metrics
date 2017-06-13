@@ -4,6 +4,7 @@ scm-source.json
 output/
 **/node_modules
 **/bower_components
+client/build
 .tox
 .eggs/
 *.egg-info

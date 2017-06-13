@@ -8,10 +8,11 @@
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/polymer/lib/utils/async.html">
 
 <link rel="import" href="./common-styles.html">
 
-<dom-module id="slr-form-modal">
+<dom-module id="slr-dialog">
   <template include="common-styles">
     <style include="common-styles">
       :host {
@@ -38,6 +39,7 @@
         margin-top: 60px;
         margin-right: 5%;
       }
+
     </style>
 
     <paper-dialog id="dialog" opened={{opened}}>
@@ -57,8 +59,8 @@
     </paper-dialog>
   </template>
   <script>
-    class SlrFormModal extends Polymer.Element {
-      static get is() { return 'slr-form-modal' }
+    class SlrDialog extends Polymer.Element {
+      static get is() { return 'slr-dialog' }
 
       static get properties() {
         return {
@@ -106,25 +108,28 @@
       whenOpened() {
         this.copyItem()
         this.reset()
-        this.dispatchEvent(new CustomEvent('slr-form-modal-opened'));
+        this.dispatchEvent(new CustomEvent('slr-dialog-opened'))
       }
 
       whenClosed() {
         this.reset()
         this.set('editMode', false)
-        this.dispatchEvent(new CustomEvent('slr-form-modal-closed'));
+        this.dispatchEvent(new CustomEvent('slr-dialog-closed'))
       }
 
       itemChanged() {
         this.copyItem()
+        this.center()
       }
 
       itemPropsChanged(obj) {
         this.copyItem()
+        this.center()
       }
 
       toggleEditMode() {
         this.set('editMode', !this.editMode)
+        this.center()
       }
 
       cancel() {
@@ -134,6 +139,13 @@
 
       reset() {
         this.set('item', Object.assign({}, this._item))
+        this.center()
+      }
+
+      // <paper-dialog> doesn't center after its content changed size
+      // so center() every time that may happen
+      center() {
+        setTimeout(() => { this.$.dialog.center() })
       }
 
       copyItem() {
@@ -142,6 +154,6 @@
 
     }
 
-    window.customElements.define(SlrFormModal.is, SlrFormModal)
+    window.customElements.define(SlrDialog.is, SlrDialog)
   </script>
 </dom-module>

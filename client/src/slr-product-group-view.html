@@ -1,6 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
-<link rel="import" href="./slr-modal.html">
+<link rel="import" href="./slr-dialog.html">
 
 <dom-module id="slr-product-group-view">
   <template>
@@ -17,7 +17,7 @@
       }
     </style>
 
-    <slr-form-modal title="Product Group"
+    <slr-dialog title="Product Group"
                     item={{item}}
                     method="post"
                     action="/product-groups"
@@ -41,7 +41,7 @@
                         value="{{item.department}}"></paper-input>
         </form>
       </iron-form>
-    </slr-form-modal>
+    </slr-dialog>
   </template>
   <script>
     class SlrProductGroupView extends Polymer.Element {
