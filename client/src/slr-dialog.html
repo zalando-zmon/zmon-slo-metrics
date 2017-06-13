@@ -13,7 +13,7 @@
 <link rel="import" href="./common-styles.html">
 
 <dom-module id="slr-dialog">
-  <template include="common-styles">
+  <template>
     <style include="common-styles">
       :host {
         display: block;
@@ -75,13 +75,6 @@
           // save copy to avoid iron-form and paper-input issues
           _item: {
             type: Object
-          },
-          action: {
-            type: String,
-          },
-          method: {
-            type:  String,
-            value: 'post'
           },
           opened: {
             type: Boolean,

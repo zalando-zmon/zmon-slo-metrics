@@ -62,25 +62,25 @@
 
     <iron-ajax
       id="ajaxSlo"
-      url="http://localhost:8000/products/{{item.product_slo_uri}}/slo"
+      url="/api/products/{{item.product_slo_uri}}/slo"
       handle-as="json"
       on-response="handleSloResponse"
+      on-error="handleErrorResponse"
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
 
     <iron-ajax
       id="ajaxSli"
-      url="http://localhost:8000/products/{{item.product_sli_uri}}/sli"
+      url="/api/products/{{item.product_sli_uri}}/sli"
       handle-as="json"
       on-response="handleSliResponse"
+      on-error="handleErrorResponse"
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
 
     <slr-dialog id="dialog"
                     title="Product"
                     item={{item}}
-                    method="post"
-                    action="/products"
                     opened={{opened}}
                     edit-mode={{editMode}}>
       <div slot="actions">
@@ -88,7 +88,7 @@
       </div>
 
       <iron-form id="form">
-        <form class="form" method="post" action="/products">
+        <form class="form" method="post" action="/api/products">
           <div class="column">
             <paper-input  type="text"
                           name="name"
@@ -224,6 +224,10 @@
       submit() {
         this.$.form.submit()
         this.set('editMode', false)
+        this.dispatchEvent(new CustomEvent('slr-notify', {
+                              detail: 'Product saved successfully!',
+                              bubbles: true,
+                              composed: true}))
       }
 
       handleSloResponse(e) {
@@ -232,6 +236,11 @@
 
       handleSliResponse(e) {
         this.set('item.sli', e.detail.response.data)
+      }
+
+      handleErrorResponse(e) {
+        console.error('Error:', e,detail.request.xhr.response)
+        //notify of error
       }
     }
 

@@ -24,13 +24,15 @@
 
     <iron-ajax
       id="ajax"
-      url="http://localhost:8000/product-groups"
+      url="/api/product-groups"
       handle-as="json"
       on-response="handleResponse"
+      on-error="handleErrorResponse"
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
 
-    <slr-product-group-view item="{{selectedItem}}"
+    <slr-product-group-view id="productGroupView"
+                            item="{{selectedItem}}"
                             opened={{viewOpened}}
                             loading={{loading}}
                             edit-mode={{editMode}}></slr-product-group-view>
@@ -94,7 +96,17 @@
       }
 
       handleResponse(e) {
-        this.set('productGroups', e.detail.response.data)
+        try {
+          this.set('productGroups', e.detail.response.data)
+        } catch(e) {
+          // notify of error
+          console.error('Error:', e)
+        }
+      }
+
+      handleErrorResponse(e) {
+        console.error('Error:', e,detail.request.xhr.response)
+        //notify of error
       }
 
       openView(e) {
