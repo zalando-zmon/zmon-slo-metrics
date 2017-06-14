@@ -50,7 +50,10 @@
       }
     </style>
 
-    <paper-dialog id="dialog" opened={{opened}}>
+    <paper-dialog id="dialog"
+                  opened={{opened}}
+                  no-cancel-on-outside-click={{editMode}}
+                  no-cancel-on-esc-key={{editMode}}>
 
       <app-toolbar>
         <paper-icon-button icon="close" title="close" dialog-dismiss></paper-icon-button>
