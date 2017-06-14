@@ -91,7 +91,7 @@
                       autofocus>Save</paper-button>
       </div>
 
-      <iron-form id="form">
+      <iron-form id="form" headers={{headers}}>
         <form class="form" method="post" action="/api/products">
           <div class="column">
             <paper-input  type="text"
@@ -202,6 +202,12 @@
           },
           sliStr: {
             type: String
+          },
+          headers: {
+            type: Object,
+            value: {
+              'content-type': 'application/json'
+            }
           }
         }
       }

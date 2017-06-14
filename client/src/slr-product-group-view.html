@@ -29,8 +29,8 @@
                       autofocus>Save</paper-button>
       </div>
 
-      <iron-form id="form">
-        <form class="form" method="post" action="/api/product-groups">
+      <iron-form id="form" headers={{headers}}>
+        <form class="form" method="POST" action="/api/product-groups">
           <paper-input  name="name"
                         type="text"
                         label="Name" always-float-label
@@ -69,6 +69,12 @@
             type: Boolean,
             value: false,
             notify: true
+          },
+          headers: {
+            type: Object,
+            value: {
+              'content-type': 'application/json'
+            }
           }
         }
       }
