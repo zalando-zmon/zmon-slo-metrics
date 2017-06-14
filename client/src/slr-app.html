@@ -10,10 +10,11 @@
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+
 
 <link rel="import" href="./slr-product-groups.html">
 <link rel="import" href="./slr-products.html">
+<link rel="import" href="./slr-notifications.html">
 <link rel="import" href="./common-styles.html">
 
 <dom-module id="slr-app">
@@ -49,6 +50,7 @@
       paper-progress {
         display: block;
         width: 100%;
+        margin-top: -4px;
         --paper-progress-active-color: var(--app-accent-color);
         --paper-progress-secondary-color: var(--app-secondary-color);
       }
@@ -169,7 +171,7 @@
       <slr-error name="error" loading={{loading}}></slr-error>
     </iron-pages>
 
-    <paper-toast id="toast" text="{{toastText}}"></paper-toast>
+    <slr-notifications id="notifications"></slr-notifications>
 
   </template>
 
@@ -201,9 +203,6 @@
           },
           loading: {
             type: Boolean
-          },
-          toastText: {
-            type: String
           }
         };
       }
@@ -235,17 +234,15 @@
 
       ready() {
         super.ready()
-        this.$.productGroups.addEventListener('slr-notify',
-                                              (n) => { this.notify(n) })
-        this.$.products.addEventListener('slr-notify',
-                                              (n) => { this.notify(n) })
-        this.$.productGroups.addEventListener('slr-error', () => { this.showError() })
-        this.$.products.addEventListener('slr-error', () => { this.showError() })
-      }
 
-      notify(notification) {
-        this.set('toastText', notification.detail)
-        this.$.toast.open()
+        this.$.productGroups.addEventListener('slr-notify', (n) =>
+                                          this.$.notifications.open(n.detail))
+        this.$.products.addEventListener('slr-notify', (n) =>
+                                          this.$.notifications.open(n.detail))
+
+        this.$.productGroups.addEventListener('slr-error', () =>
+                                                            this.showError())
+        this.$.products.addEventListener('slr-error', () => this.showError())
       }
 
       ensureLazyLoaded() {

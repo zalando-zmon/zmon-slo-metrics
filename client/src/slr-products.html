@@ -107,17 +107,34 @@
         try {
           this.set('products', e.detail.response.data)
         } catch(e) {
-          // notify of error
-          console.error('Error:', e)
+          console.error('Error loading Products')
+          this.dispatchEvent(
+            new CustomEvent('slr-notify', {
+              detail: {
+                message: "Can't Load Products",
+                duration: 0,
+                action: () => this.$.ajax.generateRequest()
+              },
+              bubbles: true,
+              composed: true
+            })
+          )
         }
       }
 
       handleErrorResponse(e) {
-        console.error('Error loading Products', e)
-        this.dispatchEvent(new CustomEvent('slr-error'), {
-                            bubbles: true,
-                            composed: true
-                          })
+        console.error('Error loading Products')
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: {
+              message: "Can't load Products.",
+              duration: 0,
+              action: () => this.$.ajax.generateRequest()
+            },
+            bubbles: true,
+            composed: true
+          })
+        )
       }
 
       openView(e) {

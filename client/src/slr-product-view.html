@@ -65,7 +65,7 @@
       url="/api/products/{{item.product_slo_uri}}/slo"
       handle-as="json"
       on-response="handleSloResponse"
-      on-error="handleErrorResponse"
+      on-error="handleSloErrorResponse"
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
 
@@ -74,7 +74,7 @@
       url="/api/products/{{item.product_sli_uri}}/sli"
       handle-as="json"
       on-response="handleSliResponse"
-      on-error="handleErrorResponse"
+      on-error="handleSliErrorResponse"
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
 
@@ -228,9 +228,18 @@
 
         this.$.form
           .addEventListener('iron-form-error', (e) => {
-            console.error('Error:', e)
             this.set('loading', false)
-            // notify of error
+            console.error('Error saving Product.')
+            this.dispatchEvent(
+              new CustomEvent('slr-notify', {
+                detail: {
+                  message: "Can't save Product.",
+                  action: () => this.$.form.submit()
+                },
+                bubbles: true,
+                composed: true
+              })
+            )
           })
 
         this.$.form
@@ -238,9 +247,8 @@
             this.set('opened', false)
             this.set('loading', false)
             this.dispatchEvent(new CustomEvent('slr-product-group-added'))
-            this.dispatchEvent(new CustomEvent('slr-notify',
-              {
-                detail: 'Product added.',
+            this.dispatchEvent(new CustomEvent('slr-notify', {
+                detail: { message: 'Product added.' },
                 bubbles: true,
                 composed: true
               })
@@ -275,8 +283,34 @@
         this.set('item.sli', e.detail.response.data)
       }
 
-      handleErrorResponse(e) {
-        //notify of error
+      handleSloErrorResponse(e) {
+        console.error('Error loading Product Objectives')
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: {
+              message: "Can't load Product Objectives.",
+              duration: 5000,
+              action: () => this.$.ajaxSlo.generateRequest()
+            },
+            bubbles: true,
+            composed: true
+          })
+        )
+      }
+
+      handleSliErrorResponse(e) {
+        console.error('Error loading Product Indicators')
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: {
+              message: "Can't load Product Indicators.",
+              duration: 5000,
+              action: () => this.$.ajaxSli.generateRequest()
+            },
+            bubbles: true,
+            composed: true
+          })
+        )
       }
     }
 
