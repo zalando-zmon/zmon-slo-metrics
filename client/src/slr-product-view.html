@@ -62,7 +62,7 @@
 
     <iron-ajax
       id="ajaxSlo"
-      url="/api/products/{{item.product_slo_uri}}/slo"
+      url="{{item.product_slo_uri}}"
       handle-as="json"
       on-response="handleSloResponse"
       on-error="handleSloErrorResponse"
@@ -71,7 +71,7 @@
 
     <iron-ajax
       id="ajaxSli"
-      url="/api/products/{{item.product_sli_uri}}/sli"
+      url="{{item.product_sli_uri}}"
       handle-as="json"
       on-response="handleSliResponse"
       on-error="handleSliErrorResponse"
