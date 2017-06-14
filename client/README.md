@@ -8,12 +8,12 @@ Service Level Report User Interface
 $ cd ../mock
 $ npm i
 $ npm start
-
+```
 
 ## Start Polymer dev server
 
 ```
-$ npm start
+$ npm run-script mock
 ```
 
 ## Building the App
