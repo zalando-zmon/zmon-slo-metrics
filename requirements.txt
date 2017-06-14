@@ -2,6 +2,8 @@ awesome-slugify
 clickclick
 connexion==1.1.4
 Flask-Cache>=0.13.1
+Flask-OAuthlib==0.9.4
+Flask-Session==0.3.1
 gevent<1.2.0
 psycogreen
 psycopg2

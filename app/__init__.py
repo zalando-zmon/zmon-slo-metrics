@@ -15,41 +15,21 @@ if not os.environ.get('SLR_LOCAL_ENV'):  # noqa
 
 import logging
 import warnings
-
-from flask.exthook import ExtDeprecationWarning
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-
-warnings.filterwarnings('ignore', category=ExtDeprecationWarning)  # noqa
-
-from flask_cache import Cache
-
 import connexion
 
-from app.config import DEBUG, CACHE_TYPE, CACHE_THRESHOLD
+from flask.exthook import ExtDeprecationWarning
+
+from app.config import DEBUG
 from app.utils import DecimalEncoder
+
+warnings.filterwarnings('ignore', category=ExtDeprecationWarning)  # noqa
 
 __version__ = '0.1'
 
 level = logging.INFO if not DEBUG else logging.DEBUG
 logging.basicConfig(level=level)
 
-app = connexion.App(__name__)
-app.app.json_encoder = DecimalEncoder
+connexion_app = connexion.App(__name__)
+connexion_app.app.json_encoder = DecimalEncoder
 
-app.app.config.from_object('app.config')
-
-# set the WSGI application callable to allow using uWSGI:
-# uwsgi --http :8080 -w app
-application = app.app
-
-# DB
-db = SQLAlchemy(application)
-
-# CACHE
-cache = Cache(application, config={'CACHE_TYPE': CACHE_TYPE, 'CACHE_THRESHOLD': CACHE_THRESHOLD})
-
-# Models
-from app.resources import ProductGroup, Product, Target, Objective, Indicator, IndicatorValue  # noqa
-
-migrate = Migrate(application, db)
+connexion_app.app.config.from_object('app.config')

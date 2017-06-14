@@ -4,6 +4,8 @@ info:
   title: ZMON service level reporting
   version: "0.3"
 
+basePath: /api
+
 consumes:
   - application/json
 

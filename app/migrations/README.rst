@@ -10,7 +10,7 @@ Note: This step is already done!
 
 .. code-block:: bash
 
-    export FLASK_APP=app/__init__.py
+    export FLASK_APP=app/main.py
 
     flask db init -d app/migrations
     flask db migrate -d app/migrations

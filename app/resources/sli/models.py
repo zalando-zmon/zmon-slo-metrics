@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from app import db
+from app.main import db
 
 
 class Indicator(db.Model):
