@@ -7,7 +7,7 @@ from flask_sqlalchemy import BaseQuery, Pagination
 
 from connexion import ProblemException, request
 
-from app import db
+from app.main import db
 from app.libs.zmon import AGG_TYPES
 from app.libs.resource import ResourceHandler
 from app.utils import slugger

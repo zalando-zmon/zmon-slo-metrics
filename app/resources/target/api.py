@@ -5,7 +5,7 @@ from flask_sqlalchemy import BaseQuery, Pagination
 
 from connexion import ProblemException, request
 
-from app import db
+from app.main import db
 from app.libs.resource import ResourceHandler
 
 from app.resources.slo.models import Objective

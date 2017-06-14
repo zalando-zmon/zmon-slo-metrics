@@ -10,38 +10,28 @@ class SLRClientError(Exception):
 
 
 class Client:
-    PRODUCT_GROUPS = 'product-groups'
-    PRODUCTS = 'products'
-    SLO = 'slo'
-    SLI = 'sli'
-
     def __init__(self, url: str, token: str):
-        self.url = url
+        self.url = urljoin(url, 'api')
         self.token = token
 
         self.session = requests.Session()
-        self.session.headers.update({'Authorization': 'Bearer {}'.format(token), 'User-Agent': 'SLR-SLI/0.1-alpha'})
+        self.session.headers.update({'Authorization': 'Bearer {}'.format(token), 'User-Agent': 'slr-cli/0.1-alpha'})
 
-    def _count(self, obj: dict) -> int:
-        return obj['_meta']['count']
+        # Load root URIs
+        resp = self.session.get(self.url)
+        resp.raise_for_status()
+        api = resp.json()
 
-    def endpoint(self, *args, trailing_slash=False, base_url=None) -> str:
-        parts = list(args)
-
-        # Ensure trailing slash!
-        if trailing_slash:
-            parts.append('')
-
-        url = self.url if not base_url else base_url
-
-        return urljoin(url, '/'.join(str(p).strip('/') for p in parts))
+        self.HEALTH = api['health_uri']
+        self.PRODUCT_GROUPS = api['product_groups_uri']
+        self.PRODUCTS = api['products_uri']
 
     def product_list(self, name: str=None, product_group_name: str=None) -> List[dict]:
         params = {} if not name else {'name': name}
         if product_group_name:
             params['product_group'] = product_group_name
 
-        res = self.session.get(self.endpoint(self.PRODUCTS), params=params)
+        res = self.session.get(self.PRODUCTS, params=params)
         res.raise_for_status()
 
         ps = res.json()
@@ -56,7 +46,7 @@ class Client:
     def product_create(self, name, product_group_uri) -> dict:
         data = {'name': name, 'product_group_uri': product_group_uri}
 
-        res = self.session.post(self.endpoint(self.PRODUCTS), json=data)
+        res = self.session.post(self.PRODUCTS, json=data)
         res.raise_for_status()
 
         return res.json()
@@ -72,7 +62,7 @@ class Client:
 
     def product_group_list(self, name=None) -> List[dict]:
         params = {} if not name else {'name': name}
-        res = self.session.get(self.endpoint(self.PRODUCT_GROUPS), params=params)
+        res = self.session.get(self.PRODUCT_GROUPS, params=params)
         res.raise_for_status()
 
         pgs = res.json()
@@ -96,7 +86,7 @@ class Client:
             'department': department
         }
 
-        res = self.session.post(self.endpoint(self.PRODUCT_GROUPS), json=data)
+        res = self.session.post(self.PRODUCT_GROUPS, json=data)
         res.raise_for_status()
 
         return res.json()
