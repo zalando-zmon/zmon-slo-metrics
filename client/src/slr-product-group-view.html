@@ -84,8 +84,18 @@
 
         this.$.form
           .addEventListener('iron-form-error', (e) => {
-            console.error('Error:', e)
-            // notify of error
+            this.set('loading', false)
+            console.error('Error saving Product Group')
+            this.dispatchEvent(
+              new CustomEvent('slr-notify', {
+                detail: {
+                  message: "Can't save Product Group.",
+                  action: () => this.$.form.submit()
+                },
+                bubbles: true,
+                composed: true
+              })
+            )
           })
 
         this.$.form
@@ -94,7 +104,7 @@
             this.dispatchEvent(new CustomEvent('slr-product-group-added'))
             this.dispatchEvent(new CustomEvent('slr-notify',
               {
-                detail: 'Product Group added.',
+                detail: { message: 'Product Group added.' },
                 bubbles: true,
                 composed: true
               })

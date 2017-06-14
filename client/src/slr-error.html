@@ -8,12 +8,17 @@
         @apply --slr-content;
         opacity: 0.66;
       }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
     </style>
     <img class="icecream" src="/assets/images/icecream.png" width="150px"></img>
     <h1>Something terrible happened!</h1>
+    <p>We have no more Ice Cream... and this is not working. Please talk to your Administrator (about buying more Ice Cream) or...</p>
     <br>
-    <p>We have no more Ice Cream... and this is not working. Please talk to your Administrator (about buying more Ice Cream)</p>
-    <p>or try going <a href="/">home</a></p>
+    <paper-button raised><a href="/">RELOAD</a></paper-button>
   </template>
   <script>
     class SlrError extends Polymer.Element {

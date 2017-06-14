@@ -106,17 +106,34 @@
         try {
           this.set('productGroups', e.detail.response.data)
         } catch(e) {
-          // notify of error
-          console.error('Error:', e)
+          console.error('Error loading Product Groups')
+          this.dispatchEvent(
+            new CustomEvent('slr-notify', {
+              detail: {
+                message: "Can't Load Product Groups",
+                duration: 0,
+                action: () => this.$.ajax.generateRequest()
+              },
+              bubbles: true,
+              composed: true
+            })
+          )
         }
       }
 
       handleErrorResponse(e) {
-        console.error('Error loading Product Groups', e)
-        this.dispatchEvent(new CustomEvent('slr-error'), {
-                            bubbles: true,
-                            composed: true
-                          })
+        console.error('Error loading Product Groups')
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: {
+              message: "Can't Load Product Groups.",
+              duration: 0,
+              action: () => this.$.ajax.generateRequest()
+            },
+            bubbles: true,
+            composed: true
+          })
+        )
       }
 
       openView(e) {

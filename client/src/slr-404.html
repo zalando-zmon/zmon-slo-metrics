@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <dom-module id="slr-404">
   <template>
@@ -8,11 +9,17 @@
         @apply --slr-content;
         opacity: 0.66;
       }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
     </style>
 
     <img class="icecream" src="/assets/images/icecream.png" width="150px"></img>
     <h1>Woops! We got lost</h1>
-    <p>Please follow the way back <a href="/">home</a>.</p>
+    <p>Please follow the way back</p>
+    <paper-button raised><a href="/">home</a></paper-button>
   </template>
   <script>
     class Slr404 extends Polymer.Element {
