@@ -6,6 +6,7 @@ import time
 
 import gevent
 import connexion
+import zign.api
 
 from urllib.parse import urljoin
 
@@ -71,9 +72,10 @@ oauth.remote_apps['auth'] = auth
 # PATHS
 @application.route('/login')
 def login():
-    if not OAUTH2_ENABLED:
-        return redirect(urljoin(APP_URL, '/'))
+    print(OAUTH2_ENABLED)
     redirect_uri = urljoin(APP_URL, '/login/authorized')
+    if not OAUTH2_ENABLED:
+        return redirect(redirect_uri)
     return auth.authorize(callback=redirect_uri)
 
 
@@ -85,15 +87,20 @@ def logout():
 
 @application.route('/login/authorized')
 def authorized():
-    resp = auth.authorized_response()
-    if resp is None:
-        return 'Access denied: reason={} error={}'.format(request.args['error'], request.args['error_description'])
+    token = ''
+    if not OAUTH2_ENABLED:
+        token = zign.api.get_token('uid', ['uid'])
+    else:
+        resp = auth.authorized_response()
+        if resp is None:
+            return 'Access denied: reason={} error={}'.format(request.args['error'], request.args['error_description'])
 
-    if not isinstance(resp, dict):
-        return 'Invalid OAUTH response'
+        if not isinstance(resp, dict):
+            return 'Invalid OAUTH response'
 
-    session['auth_token'] = (resp['access_token'], '')
+        token = resp['access_token']
 
+    session['auth_token'] = token
     return redirect(urljoin(APP_URL, '/'))
 
 

@@ -6,6 +6,7 @@ DEBUG = os.getenv('DEBUG', False)
 
 # APP
 APP_URL = os.environ.get('SLR_APP_URL', 'http://localhost:8080')
+APP_PRODUCTION = not os.environ.get('SLR_LOCAL_ENV')
 
 # DB
 SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')
@@ -31,7 +32,7 @@ SESSION_REDIS = os.getenv('SLR_SESSION_REDIS', '127.0.0.1:6379')
 # AUTH & OAUTH2
 API_AUTHORIZATION = os.getenv('SLR_API_AUTHORIZATION', '')
 
-OAUTH2_ENABLED = os.getenv('OAUTH2_ENABLED', False)
+OAUTH2_ENABLED = os.getenv('OAUTH2_ENABLED', False) or APP_PRODUCTION
 ACCESS_TOKEN_URL = os.getenv('ACCESS_TOKEN_URL', '')
 CREDENTIALS_DIR = os.getenv('CREDENTIALS_DIR', '')
 AUTHORIZE_URL = os.getenv('AUTHORIZE_URL', '')
