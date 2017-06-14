@@ -24,13 +24,15 @@
 
     <iron-ajax
       id="ajax"
-      url="http://localhost:8080/product-groups"
+      url="/api/product-groups"
       handle-as="json"
       on-response="handleResponse"
+      on-error="handleErrorResponse"
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
 
-    <slr-product-group-view item="{{selectedItem}}"
+    <slr-product-group-view id="view"
+                            item="{{selectedItem}}"
                             opened={{viewOpened}}
                             loading={{loading}}
                             edit-mode={{editMode}}></slr-product-group-view>
@@ -87,6 +89,13 @@
         }
       }
 
+      ready() {
+        super.ready()
+        this.$.view.addEventListener('slr-product-group-added', () => {
+          this.$.ajax.generateRequest()
+        })
+      }
+
       routeChanged() {
         if (this.route.prefix === '/product-groups') {
           this.$.ajax.generateRequest()
@@ -94,7 +103,20 @@
       }
 
       handleResponse(e) {
-        this.set('productGroups', e.detail.response.data)
+        try {
+          this.set('productGroups', e.detail.response.data)
+        } catch(e) {
+          // notify of error
+          console.error('Error:', e)
+        }
+      }
+
+      handleErrorResponse(e) {
+        console.error('Error loading Product Groups', e)
+        this.dispatchEvent(new CustomEvent('slr-error'), {
+                            bubbles: true,
+                            composed: true
+                          })
       }
 
       openView(e) {

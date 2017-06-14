@@ -8,11 +8,12 @@
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner-lite.html">
 
 <link rel="import" href="./common-styles.html">
 
-<dom-module id="slr-form-modal">
-  <template include="common-styles">
+<dom-module id="slr-dialog">
+  <template>
     <style include="common-styles">
       :host {
         display: block;
@@ -38,6 +39,15 @@
         margin-top: 60px;
         margin-right: 5%;
       }
+
+      .spinner {
+        width: 100px;
+        text-align: center;
+      }
+
+      paper-spinner-lite.orange {
+        --paper-spinner-color: var(--app-accent-color);
+      }
     </style>
 
     <paper-dialog id="dialog" opened={{opened}}>
@@ -46,7 +56,14 @@
         <paper-icon-button icon="close" title="close" dialog-dismiss></paper-icon-button>
         <div main-title>{{title}}</div>
         <paper-fab mini icon="create" title="edit" on-click="toggleEditMode" hidden$="{{editMode}}"></paper-fab>
-        <paper-button hidden$="{{!editMode}}" on-click="cancel">Cancel</paper-button>
+          <div hidden={{!loading}}>
+            <div id="spinner" class="spinner" hidden$={{!editMode}}>
+              <paper-spinner-lite class="orange" active></paper-spinner-lite>
+            </div>
+          </div>
+        <div hidden$={{loading}}>
+          <paper-button hidden$="{{!editMode}}" on-click="cancel">Cancel</paper-button>
+        </div>
         <slot name="actions"></slot>
       </app-toolbar>
 
@@ -57,8 +74,8 @@
     </paper-dialog>
   </template>
   <script>
-    class SlrFormModal extends Polymer.Element {
-      static get is() { return 'slr-form-modal' }
+    class SlrDialog extends Polymer.Element {
+      static get is() { return 'slr-dialog' }
 
       static get properties() {
         return {
@@ -74,13 +91,6 @@
           _item: {
             type: Object
           },
-          action: {
-            type: String,
-          },
-          method: {
-            type:  String,
-            value: 'post'
-          },
           opened: {
             type: Boolean,
             value: false,
@@ -89,6 +99,10 @@
           editMode: {
             type: Boolean,
             notify: true
+          },
+          loading: {
+            type: Boolean,
+            value: false
           }
         }
       }
@@ -106,25 +120,28 @@
       whenOpened() {
         this.copyItem()
         this.reset()
-        this.dispatchEvent(new CustomEvent('slr-form-modal-opened'));
+        this.dispatchEvent(new CustomEvent('slr-dialog-opened'))
       }
 
       whenClosed() {
         this.reset()
         this.set('editMode', false)
-        this.dispatchEvent(new CustomEvent('slr-form-modal-closed'));
+        this.dispatchEvent(new CustomEvent('slr-dialog-closed'))
       }
 
       itemChanged() {
         this.copyItem()
+        this.center()
       }
 
       itemPropsChanged(obj) {
         this.copyItem()
+        this.center()
       }
 
       toggleEditMode() {
         this.set('editMode', !this.editMode)
+        this.center()
       }
 
       cancel() {
@@ -134,14 +151,20 @@
 
       reset() {
         this.set('item', Object.assign({}, this._item))
+        this.center()
+      }
+
+      // <paper-dialog> doesn't center after its content changed size
+      // so center() every time that may happen
+      center() {
+        setTimeout(() => { this.$.dialog.center() })
       }
 
       copyItem() {
         this.set('_item', Object.assign({}, this.item))
       }
-
     }
 
-    window.customElements.define(SlrFormModal.is, SlrFormModal)
+    window.customElements.define(SlrDialog.is, SlrDialog)
   </script>
 </dom-module>

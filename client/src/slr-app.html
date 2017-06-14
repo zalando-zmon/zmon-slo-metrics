@@ -10,6 +10,7 @@
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 
 <link rel="import" href="./slr-product-groups.html">
 <link rel="import" href="./slr-products.html">
@@ -154,16 +155,21 @@
                 attr-for-selected="name"
                 selected-attribute="visible"
                 fallback-selection="404">
-      <slr-product-groups name="product-groups"
+      <slr-product-groups id="productGroups"
+                          name="product-groups"
                           route=[[subroute]]
                           loading={{loading}}
                           search-str={{searchStr}}></slr-product-groups>
-      <slr-products name="products"
+      <slr-products id="products"
+                    name="products"
                     route=[[subroute]]
                     loading={{loading}}
                     search-str={{searchStr}}></slr-products>
-      <slr-404 name="404"></slr-404>
+      <slr-404 name="404" loading={{loading}}></slr-404>
+      <slr-error name="error" loading={{loading}}></slr-error>
     </iron-pages>
+
+    <paper-toast id="toast" text="{{toastText}}"></paper-toast>
 
   </template>
 
@@ -195,6 +201,9 @@
           },
           loading: {
             type: Boolean
+          },
+          toastText: {
+            type: String
           }
         };
       }
@@ -224,6 +233,21 @@
         this.ensureLazyLoaded()
       }
 
+      ready() {
+        super.ready()
+        this.$.productGroups.addEventListener('slr-notify',
+                                              (n) => { this.notify(n) })
+        this.$.products.addEventListener('slr-notify',
+                                              (n) => { this.notify(n) })
+        this.$.productGroups.addEventListener('slr-error', () => { this.showError() })
+        this.$.products.addEventListener('slr-error', () => { this.showError() })
+      }
+
+      notify(notification) {
+        this.set('toastText', notification.detail)
+        this.$.toast.open()
+      }
+
       ensureLazyLoaded() {
         if (!this.loadComplete) {
           Polymer.RenderStatus.afterNextRender(this, () => {
@@ -245,7 +269,10 @@
 
       show404() {
         this.page = 404;
-        this.loading = false
+      }
+
+      showError() {
+        this.page = 'error';
       }
 
       onSearchClick() {
@@ -256,6 +283,7 @@
         this.searchStr = ''
         this.searchMode = false
       }
+
     }
 
     window.customElements.define(SlrApp.is, SlrApp);

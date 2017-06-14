@@ -1,6 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
-<dom-module id="slr-404">
+<dom-module id="slr-error">
   <template>
     <style include="common-styles">
       :host {
@@ -9,14 +9,15 @@
         opacity: 0.66;
       }
     </style>
-
     <img class="icecream" src="/assets/images/icecream.png" width="150px"></img>
-    <h1>Woops! We got lost</h1>
-    <p>Please follow the way back <a href="/">home</a>.</p>
+    <h1>Something terrible happened!</h1>
+    <br>
+    <p>We have no more Ice Cream... and this is not working. Please talk to your Administrator (about buying more Ice Cream)</p>
+    <p>or try going <a href="/">home</a></p>
   </template>
   <script>
-    class Slr404 extends Polymer.Element {
-      static get is() { return 'slr-404' }
+    class SlrError extends Polymer.Element {
+      static get is() { return 'slr-error' }
 
       static get properties() {
         return {
@@ -29,11 +30,11 @@
       }
 
       ready() {
-        super.ready()
+        super.ready();
         this.set('loading', false)
       }
     }
 
-    window.customElements.define(Slr404.is, Slr404)
+    window.customElements.define(SlrError.is, SlrError)
     </script>
   </dom-module>

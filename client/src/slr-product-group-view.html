@@ -1,6 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 
-<link rel="import" href="./slr-modal.html">
+<link rel="import" href="./slr-dialog.html">
 
 <dom-module id="slr-product-group-view">
   <template>
@@ -17,31 +17,35 @@
       }
     </style>
 
-    <slr-form-modal title="Product Group"
+    <slr-dialog title="Product Group"
                     item={{item}}
-                    method="post"
-                    action="/product-groups"
                     opened={{opened}}
-                    edit-mode={{editMode}}>
-      <div slot="actions">
-        <paper-button hidden$="{{!editMode}}" on-click="submit" autofocus>Save</paper-button>
+                    edit-mode={{editMode}}
+                    loading={{loading}}>
+      <div slot="actions" hidden$="{{!editMode}}">
+        <paper-button id="action"
+                      hidden$="{{loading}}"
+                      on-click="submit"
+                      autofocus>Save</paper-button>
       </div>
 
       <iron-form id="form">
-        <form class="form" method="post" action="/product-groups">
+        <form class="form" method="post" action="/api/product-groups">
           <paper-input  name="name"
                         type="text"
                         label="Name" always-float-label
                         disabled={{!editMode}}
-                        value="{{item.name}}"></paper-input>
+                        value="{{item.name}}"
+                        required></paper-input>
           <paper-input  name="department"
                         type="text"
                         label="Department" always-float-label
                         disabled={{!editMode}}
-                        value="{{item.department}}"></paper-input>
+                        value="{{item.department}}"
+                        required></paper-input>
         </form>
       </iron-form>
-    </slr-form-modal>
+    </slr-dialog>
   </template>
   <script>
     class SlrProductGroupView extends Polymer.Element {
@@ -71,12 +75,38 @@
 
       ready() {
         super.ready()
-        this.$.form.addEventListener('iron-form-presubmit',
-                                        () => { console.log('Form submitted:', this.$.form.serializeForm())})
+
+        this.$.form
+          .addEventListener('iron-form-presubmit', () => {
+            this.set('loading', true)
+            console.log('Form submitted:', this.$.form.serializeForm())
+          })
+
+        this.$.form
+          .addEventListener('iron-form-error', (e) => {
+            console.error('Error:', e)
+            // notify of error
+          })
+
+        this.$.form
+          .addEventListener('iron-form-response', (e) => {
+            this.set('opened', false)
+            this.dispatchEvent(new CustomEvent('slr-product-group-added'))
+            this.dispatchEvent(new CustomEvent('slr-notify',
+              {
+                detail: 'Product Group added.',
+                bubbles: true,
+                composed: true
+              })
+            )
+          })
       }
+
       submit() {
+        if (!this.$.form.validate()) {
+          return
+        }
         this.$.form.submit()
-        this.set('editMode', false)
       }
     }
 

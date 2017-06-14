@@ -28,13 +28,15 @@
 
     <iron-ajax
       id="ajax"
-      url="http://localhost:8000/products"
+      url="/api/products"
       handle-as="json"
       on-response="handleResponse"
+      on-error="handleErrorResponse"
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
 
-    <slr-product-view item="{{selectedItem}}"
+    <slr-product-view id="view"
+                      item="{{selectedItem}}"
                       opened={{viewOpened}}
                       loading={{loading}}
                       edit-mode={{editMode}}></slr-product-view>
@@ -88,6 +90,13 @@
         }
       }
 
+      ready() {
+        super.ready()
+        this.$.view.addEventListener('slr-product-added', () => {
+          this.$.ajax.generateRequest()
+        })
+      }
+
       routeChanged() {
         if (this.route.prefix === '/products') {
           this.$.ajax.generateRequest()
@@ -95,7 +104,20 @@
       }
 
       handleResponse(e) {
-        this.set('products', e.detail.response.data)
+        try {
+          this.set('products', e.detail.response.data)
+        } catch(e) {
+          // notify of error
+          console.error('Error:', e)
+        }
+      }
+
+      handleErrorResponse(e) {
+        console.error('Error loading Products', e)
+        this.dispatchEvent(new CustomEvent('slr-error'), {
+                            bubbles: true,
+                            composed: true
+                          })
       }
 
       openView(e) {
