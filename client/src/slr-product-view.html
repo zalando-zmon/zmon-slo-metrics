@@ -282,12 +282,41 @@
       }
 
       handleSloResponse(e) {
-        this.set('item.slo', e.detail.response.data)
+        try {
+          this.set('item.slo', e.detail.response.data)
+        } catch(e) {
+          console.error('Error loading Product Objectives')
+          this.dispatchEvent(
+            new CustomEvent('slr-notify', {
+              detail: {
+                message: "Can't Load Product Objectives",
+                duration: 5000,
+                action: () => this.$.ajaxSlo.generateRequest()
+              },
+              bubbles: true,
+              composed: true
+            })
+          )
+        }
       }
 
       handleSliResponse(e) {
-        this.set('item.sli', e.detail.response.data)
-      }
+        try {
+          this.set('item.sli', e.detail.response.data)
+        } catch(e) {
+          console.error('Error loading Product Indicators')
+          this.dispatchEvent(
+            new CustomEvent('slr-notify', {
+              detail: {
+                message: "Can't Load Product Indicators",
+                duration: 5000,
+                action: () => this.$.ajaxSli.generateRequest()
+              },
+              bubbles: true,
+              composed: true
+            })
+          )
+        }      }
 
       handleSloErrorResponse(e) {
         console.error('Error loading Product Objectives')
