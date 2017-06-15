@@ -3,10 +3,12 @@ import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = os.getenv('DEBUG', False)
+SLR_LOCAL_ENV = os.environ.get('SLR_LOCAL_ENV')
 
 # APP
 APP_URL = os.environ.get('SLR_APP_URL', 'http://localhost:8080')
-APP_PRODUCTION = not os.environ.get('SLR_LOCAL_ENV')
+API_PREFIX = 'api'
+APP_PRODUCTION = not SLR_LOCAL_ENV
 
 # DB
 SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI')

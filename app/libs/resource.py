@@ -127,6 +127,13 @@ class ResourceHandler:
         return NoContent, 204
 
     ####################################################################################################################
+    # URI
+    ####################################################################################################################
+    @staticmethod
+    def get_uri_from_id(id: Union[str, int], **kwargs) -> str:
+        raise NotImplemented
+
+    ####################################################################################################################
     # DEFAULT IMPL
     ####################################################################################################################
     def build_list_response(self, resources: List[dict], paginated: Pagination, total_count, **kwargs) -> dict:
@@ -160,14 +167,13 @@ class ResourceHandler:
     def get_filter_kwargs(self, **kwargs) -> dict:
         return {}
 
-    def build_resource(self, obj: Model, request_path: Optional[str]=None, **kwargs) -> dict:
+    def build_resource(self, obj: Model, **kwargs) -> dict:
         resource = {}
 
         for field in self.model_fields:
             resource[field] = getattr(obj, field)
 
-        if not request_path:
-            request_path = request.path
+        request_path = request.path.replace('/api/', '')
 
         if not hasattr(obj, 'id'):
             return resource
@@ -179,7 +185,7 @@ class ResourceHandler:
         if str(obj.id) == path_components[-1]:
             uri_path = request_path
 
-        resource['uri'] = urljoin(request.base_url, uri_path)
+        resource['uri'] = urljoin(request.api_url, uri_path)
 
         return resource
 

@@ -13,6 +13,7 @@ from app.libs.resource import ResourceHandler
 from app.utils import slugger
 
 from app.resources.product.models import Product
+from app.resources.product.api import ProductResource
 
 from .models import Indicator, IndicatorValue
 from .updater import update_indicator_values
@@ -20,6 +21,11 @@ from .updater import update_indicator_values
 
 class SLIResource(ResourceHandler):
     model_fields = ('name', 'source', 'unit', 'created', 'updated', 'username')
+
+    @staticmethod
+    def get_uri_from_id(id: Union[str, int], **kwargs) -> str:
+        product_id = kwargs.get('product_id')
+        return urljoin(request.api_url, 'products/{}/sli/{}'.format(product_id, id))
 
     def get_query(self, product_id: int, **kwargs) -> BaseQuery:
         return Indicator.query.filter_by(product_id=product_id)
@@ -120,8 +126,7 @@ class SLIResource(ResourceHandler):
         # Links
         base_uri = resource['uri'] + '/'
 
-        # TODO: get these from the resources as single source of truth?
-        resource['product_uri'] = urljoin(request.url_root, 'products/{}'.format(obj.product_id))
+        resource['product_uri'] = ProductResource.get_uri_from_id(obj.product_id, **kwargs)
         resource['sli_values_uri'] = urljoin(base_uri, 'values')
         resource['sli_query_uri'] = urljoin(base_uri, 'query')
 

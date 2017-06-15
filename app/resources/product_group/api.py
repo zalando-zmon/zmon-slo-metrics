@@ -1,8 +1,10 @@
-from typing import List
+from typing import List, Union
+
+from urllib.parse import urljoin
 
 from flask_sqlalchemy import BaseQuery, Pagination
 
-from connexion import ProblemException
+from connexion import ProblemException, request
 
 from app.main import db
 from app.libs.resource import ResourceHandler
@@ -13,6 +15,10 @@ from .models import ProductGroup
 
 class ProductGroupResource(ResourceHandler):
     model_fields = ('name', 'department', 'slug', 'username', 'created', 'updated')
+
+    @staticmethod
+    def get_uri_from_id(id: Union[str, int], **kwargs) -> str:
+        return urljoin(request.api_url, 'product-groups/{}'.format(id))
 
     def get_filter_kwargs(self, **kwargs) -> dict:
         """Return relevant filters"""

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from urllib.parse import urljoin
 
 from flask_sqlalchemy import BaseQuery, Pagination
@@ -9,12 +9,18 @@ from app.main import db
 from app.libs.resource import ResourceHandler, READ_ONLY_FIELDS
 
 from app.resources.product.models import Product
+from app.resources.product.api import ProductResource
 
 from .models import Objective
 
 
 class SLOResource(ResourceHandler):
     model_fields = ('title', 'description', 'username', 'created', 'updated')
+
+    @staticmethod
+    def get_uri_from_id(id: Union[str, int], **kwargs) -> str:
+        product_id = kwargs.get('product_id')
+        return urljoin(request.api_url, 'products/{}/slo/{}'.format(product_id, id))
 
     def get_query(self, product_id: int, **kwargs) -> BaseQuery:
         return Objective.query.filter_by(product_id=product_id)
@@ -84,8 +90,7 @@ class SLOResource(ResourceHandler):
         # TODO: get from corresponding build_resource()
         resource['targets'] = [urljoin(base_uri, 'targets/{}'.format(t.id)) for t in obj.targets]
 
-        # TODO: get these from the resources as single source of truth?
-        resource['product_uri'] = urljoin(request.url_root, 'products/{}'.format(obj.product_id))
+        resource['product_uri'] = ProductResource.get_uri_from_id(obj.product_id, **kwargs)
         resource['slo_targets_uri'] = urljoin(base_uri, 'targets')
 
         return resource

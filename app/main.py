@@ -20,7 +20,7 @@ from flask import request, session, redirect
 
 from app import connexion_app, SERVER
 from app.config import CACHE_TYPE, CACHE_THRESHOLD, APP_SESSION_SECRET
-from app.config import RUN_UPDATER, UPDATER_INTERVAL, AUTHORIZE_URL, APP_URL, OAUTH2_ENABLED
+from app.config import RUN_UPDATER, UPDATER_INTERVAL, AUTHORIZE_URL, APP_URL, OAUTH2_ENABLED, API_PREFIX
 
 from app.libs.oauth import OAuthRemoteAppWithRefresh, verify_oauth_with_session
 
@@ -69,10 +69,34 @@ auth = OAuthRemoteAppWithRefresh(
 oauth.remote_apps['auth'] = auth
 
 
+@application.before_request
+def process_request():
+    """
+    Process request.
+
+    - Set api_url
+
+    """
+    base_url = request.base_url
+
+    referrer = request.headers.get('referer')
+    forwarded = request.headers.get('x-forwarded-for')
+
+    if referrer and request.url_root != referrer:
+        # we use referrer as base url
+        base_url = referrer
+    elif forwarded:
+        base_url = forwarded
+    elif APP_URL:
+        base_url = APP_URL
+
+    # Used in building full URIs
+    request.api_url = urljoin(base_url, API_PREFIX + '/')
+
+
 # PATHS
 @application.route('/login')
 def login():
-    print(OAUTH2_ENABLED)
     redirect_uri = urljoin(APP_URL, '/login/authorized')
     if not OAUTH2_ENABLED:
         return redirect(redirect_uri)

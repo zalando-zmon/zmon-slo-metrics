@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from urllib.parse import urljoin
 
 from flask_sqlalchemy import BaseQuery, Pagination
@@ -10,12 +10,17 @@ from app.libs.resource import ResourceHandler
 from app.utils import slugger
 
 from app.resources.product_group.models import ProductGroup
+from app.resources.product_group.api import ProductGroupResource
 
 from .models import Product
 
 
 class ProductResource(ResourceHandler):
     model_fields = ('name', 'slug', 'username', 'created', 'updated')
+
+    @staticmethod
+    def get_uri_from_id(id: Union[str, int], **kwargs) -> str:
+        return urljoin(request.api_url, 'products/{}'.format(id))
 
     def get_filter_kwargs(self, **kwargs) -> dict:
         """Return relevant filters"""
@@ -93,8 +98,8 @@ class ProductResource(ResourceHandler):
         # Links
         base_uri = resource['uri'] + '/'
 
-        # TODO: get these from the resources as single source of truth?
-        resource['product_group_uri'] = urljoin(request.url_root, 'product-groups/{}'.format(obj.product_group_id))
+        resource['product_group_uri'] = ProductGroupResource.get_uri_from_id(obj.product_group_id, **kwargs)
+
         resource['product_sli_uri'] = urljoin(base_uri, 'sli')
         resource['product_slo_uri'] = urljoin(base_uri, 'slo')
         resource['product_reports_uri'] = urljoin(base_uri, 'reports')
