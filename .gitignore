@@ -9,3 +9,5 @@ client/build
 .tox
 .eggs/
 *.egg-info
+build/
+dist/

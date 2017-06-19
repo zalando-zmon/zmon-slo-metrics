@@ -2,7 +2,7 @@
 
 import os
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 def read_version(package):
@@ -32,14 +32,12 @@ setup(
     description=DESCRIPTION,
     long_description=open('README.rst').read(),
     license=open('LICENSE').read(),
-    packages=find_packages(exclude=['tests']),
+    packages=[MAIN_PACKAGE],
     install_requires=REQUIREMENTS,
     setup_requires=['pytest-runner'],
     test_suite='tests',
     tests_require=['pytest', 'pytest_cov', 'mock==2.0.0'],
-    entry_points={
-        'console_scripts': CONSOLE_SCRIPTS
-    },
+    entry_points={'console_scripts': CONSOLE_SCRIPTS},
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
