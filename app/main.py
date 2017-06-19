@@ -80,13 +80,10 @@ def process_request():
     base_url = request.base_url
 
     referrer = request.headers.get('referer')
-    forwarded = request.headers.get('x-forwarded-for')
 
     if referrer and request.url_root != referrer:
         # we use referrer as base url
         base_url = referrer
-    elif forwarded:
-        base_url = forwarded
     elif APP_URL:
         base_url = APP_URL
 
