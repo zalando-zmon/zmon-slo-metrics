@@ -56,7 +56,7 @@
                   no-cancel-on-esc-key={{editMode}}>
 
       <app-toolbar>
-        <a href={{backUrl}}>
+        <a href={{closeUrl}}>
           <paper-icon-button icon="{{icon}}" title="{{icon}}" dialog-dismiss></paper-icon-button>
         </a>
         <div main-title>{{title}}</div>
@@ -116,8 +116,12 @@
             type: Boolean,
             value: false
           },
-          backUrl: {
+          closeUrl: {
             type: String
+          },
+          route: {
+            type: Object,
+            notify: true
           }
         }
       }
@@ -142,6 +146,7 @@
         this.reset()
         this.set('editMode', false)
         this.dispatchEvent(new CustomEvent('slr-dialog-closed'))
+        this.set('route.path', '')
       }
 
       itemChanged() {

@@ -36,16 +36,19 @@
                             item="{{selectedItem}}"
                             opened={{viewOpened}}
                             loading={{loading}}
-                            edit-mode={{editMode}}></slr-product-group-view>
+                            edit-mode={{editMode}}
+                            route={{route}}></slr-product-group-view>
 
     <template is="dom-repeat"
               items="{{productGroups}}"
               sort="sort"
               observe="favorite"
               filter={{computeFilter(searchStr)}}>
-      <slr-product-group-card item={{item}}
-                              favorite={{item.favorite}}
-                              on-click="openView"></slr-product-group-card>
+      <a href="/product-groups/{{item.slug}}">
+        <slr-product-group-card item={{item}}
+                                favorite={{item.favorite}}
+                                on-click="openView"></slr-product-group-card>
+      </a>
     </template>
 
     <paper-fab class="add"
@@ -69,6 +72,7 @@
           },
           route: {
             type: Object,
+            notify: true,
             observer: 'routeChanged'
           },
           productGroups: {
@@ -98,9 +102,18 @@
       }
 
       routeChanged() {
-        if (this.route.prefix === '/product-groups') {
-          this.$.ajax.generateRequest()
+        if (this.route.prefix !== '/product-groups') {
+          return
         }
+
+        if (this.route.path) {
+          let ix = this.productGroups.findIndex( (pg) => '/'+pg.slug === this.route.path)
+          if (ix >= 0) {
+            this.openView(this.productGroups[ix])
+          }
+        }
+
+        this.$.ajax.generateRequest()
       }
 
       handleResponse(e) {
@@ -137,9 +150,9 @@
         )
       }
 
-      openView(e) {
+      openView(item) {
         this.set('viewOpened', true)
-        this.set('selectedItem', e.model.item)
+        this.set('selectedItem', item)
       }
 
       addProductGroup() {
