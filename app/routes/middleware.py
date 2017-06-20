@@ -1,4 +1,4 @@
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse, urlunparse
 
 from flask import request
 
@@ -16,9 +16,10 @@ def process_request():
 
     referrer = request.headers.get('referer')
 
-    if referrer and request.url_root != referrer:
+    if referrer:
         # we use referrer as base url
-        base_url = referrer
+        parts = urlparse(referrer)
+        base_url = urlunparse((parts.scheme, parts.netloc, '', '', '', ''))
     elif APP_URL:
         base_url = APP_URL
 
