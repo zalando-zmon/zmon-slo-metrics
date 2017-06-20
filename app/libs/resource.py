@@ -130,7 +130,7 @@ class ResourceHandler:
     # URI
     ####################################################################################################################
     @staticmethod
-    def get_uri_from_id(id: Union[str, int], **kwargs) -> str:
+    def get_uri_from_id(obj_id: Union[str, int], **kwargs) -> str:
         raise NotImplemented
 
     ####################################################################################################################

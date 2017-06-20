@@ -17,8 +17,8 @@ class ProductGroupResource(ResourceHandler):
     model_fields = ('name', 'department', 'slug', 'username', 'created', 'updated')
 
     @staticmethod
-    def get_uri_from_id(id: Union[str, int], **kwargs) -> str:
-        return urljoin(request.api_url, 'product-groups/{}'.format(id))
+    def get_uri_from_id(obj_id: Union[str, int], **kwargs) -> str:
+        return urljoin(request.api_url, 'product-groups/{}'.format(obj_id))
 
     def get_filter_kwargs(self, **kwargs) -> dict:
         """Return relevant filters"""

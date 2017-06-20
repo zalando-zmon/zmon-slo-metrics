@@ -18,9 +18,9 @@ class SLOResource(ResourceHandler):
     model_fields = ('title', 'description', 'username', 'created', 'updated')
 
     @staticmethod
-    def get_uri_from_id(id: Union[str, int], **kwargs) -> str:
+    def get_uri_from_id(obj_id: Union[str, int], **kwargs) -> str:
         product_id = kwargs.get('product_id')
-        return urljoin(request.api_url, 'products/{}/slo/{}'.format(product_id, id))
+        return urljoin(request.api_url, 'products/{}/slo/{}'.format(product_id, obj_id))
 
     def get_query(self, product_id: int, **kwargs) -> BaseQuery:
         return Objective.query.filter_by(product_id=product_id)

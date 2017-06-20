@@ -19,10 +19,10 @@ class TargetResource(ResourceHandler):
     model_fields = ('username', 'created', 'updated')
 
     @staticmethod
-    def get_uri_from_id(id: Union[str, int], **kwargs) -> str:
+    def get_uri_from_id(obj_id: Union[str, int], **kwargs) -> str:
         product_id = kwargs.get('product_id')
         slo_id = kwargs.get('slo_id')
-        return urljoin(request.api_url, 'products/{}/slo/{}/targets/{}'.format(product_id, slo_id, id))
+        return urljoin(request.api_url, 'products/{}/slo/{}/targets/{}'.format(product_id, slo_id, obj_id))
 
     def get_query(self, slo_id: int, **kwargs) -> BaseQuery:
         return Target.query.filter_by(objective_id=slo_id)
