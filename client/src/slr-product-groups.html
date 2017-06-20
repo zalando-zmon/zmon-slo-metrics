@@ -37,6 +37,7 @@
                             opened={{viewOpened}}
                             loading={{loading}}
                             edit-mode={{editMode}}
+                            loading={{loading}}
                             route={{route}}></slr-product-group-view>
 
     <template is="dom-repeat"
@@ -46,8 +47,7 @@
               filter={{computeFilter(searchStr)}}>
       <a href="/product-groups/{{item.slug}}">
         <slr-product-group-card item={{item}}
-                                favorite={{item.favorite}}
-                                on-click="openView"></slr-product-group-card>
+                                favorite={{item.favorite}}></slr-product-group-card>
       </a>
     </template>
 
@@ -107,10 +107,16 @@
         }
 
         if (this.route.path) {
-          let ix = this.productGroups.findIndex( (pg) => '/'+pg.slug === this.route.path)
-          if (ix >= 0) {
-            this.openView(this.productGroups[ix])
-          }
+          // make sure we got the collection before we display an item
+          let ajax = this.$.ajax.generateRequest();
+          Promise.all([ajax.completes]).then((reqs) => {
+            let ix = this.productGroups.findIndex( (pg) => '/'+pg.slug === this.route.path)
+            if (ix > -1) {
+              this.openView(this.productGroups[ix])
+            } else {
+              location.href = '/404'
+            }
+          })
         }
 
         this.$.ajax.generateRequest()

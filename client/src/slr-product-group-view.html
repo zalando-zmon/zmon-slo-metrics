@@ -38,7 +38,7 @@
                 loading={{loading}}
                 route={{route}}>
       <div slot="toolbar" hidden="{{!editMode}}">
-        <paper-icon-button icon="delete" on-click="delete"></paper-icon-button>
+        <paper-icon-button icon="delete" hidden$="{{!item.uri}}" on-click="delete"></paper-icon-button>
       </div>
       <div slot="actions" hidden$="{{!editMode}}">
         <paper-button id="action"
@@ -51,7 +51,8 @@
         <form class="form" method="{{method}}" action="{{action}}">
           <paper-input  name="name"
                         type="text"
-                        label="Name" always-float-label
+                        label="Name"
+                        always-float-label
                         disabled={{!editMode}}
                         value="{{item.name}}"
                         required></paper-input>
