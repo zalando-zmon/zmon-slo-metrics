@@ -31,7 +31,8 @@ Run migration
 .. code-block:: bash
 
     $ export FLASK_APP=app/main.py
-    $ sudo pip3 install -r requirements.txt
+    $ export SLR_LOCAL_ENV=true
+    $ pip3 install -r requirements.txt
     $ flask db upgrade -d app/migrations/
 
 Run the server

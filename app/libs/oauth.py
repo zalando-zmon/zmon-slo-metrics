@@ -6,11 +6,12 @@ import textwrap
 import requests
 from flask import request
 from flask import session as flask_session
-from flask_oauthlib.client import OAuthRemoteApp
+from flask_oauthlib.client import OAuth, OAuthRemoteApp
 
 from connexion.exceptions import OAuthProblem, OAuthResponseProblem, OAuthScopeProblem
 
-from app.config import CREDENTIALS_DIR
+from app.config import CREDENTIALS_DIR, AUTHORIZE_URL, ACCESS_TOKEN_URL
+
 
 logger = logging.getLogger('connexion.api.security')
 
@@ -19,6 +20,19 @@ adapter = requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100)
 session = requests.Session()
 session.mount('http://', adapter)
 session.mount('https://', adapter)
+
+
+def get_auth_app(oauth: OAuth):
+    auth = OAuthRemoteAppWithRefresh(
+        oauth,
+        'auth',
+        request_token_url=None,
+        access_token_method='POST',
+        access_token_url=ACCESS_TOKEN_URL,
+        authorize_url=AUTHORIZE_URL
+    )
+
+    return auth
 
 
 class OAuthRemoteAppWithRefresh(OAuthRemoteApp):
