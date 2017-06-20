@@ -28,11 +28,15 @@
                     <paper-button dialog-confirm on-click="deleteConfirm">Delete</paper-button>
                   </div></paper-dialog>
 
-    <slr-dialog title="Product Group"
-                    item={{item}}
-                    opened={{opened}}
-                    edit-mode={{editMode}}
-                    loading={{loading}}>
+    <slr-dialog id="dialog"
+                title="Product Group"
+                item={{item}}
+                icon="close"
+                close-url="/product-groups"
+                opened={{opened}}
+                edit-mode={{editMode}}
+                loading={{loading}}
+                route={{route}}>
       <div slot="toolbar" hidden="{{!editMode}}">
         <paper-icon-button icon="delete" on-click="delete"></paper-icon-button>
       </div>
@@ -69,6 +73,10 @@
         return {
           item: {
             type: Object
+          },
+          route: {
+            type: Object,
+            notify: true
           },
           opened: {
             type: Boolean,
@@ -126,24 +134,30 @@
           .addEventListener('iron-form-error', (e) => {
             this.set('loading', false)
             console.error('Error saving Product Group')
+            let method = this.$.form.request.method || 'default'
+            let m = {
+              'POST': 'add',
+              'PUT': 'update',
+              'DELETE': 'delete',
+              'default': 'save'
+            }
             this.dispatchEvent(
               new CustomEvent('slr-notify', {
                 detail: {
-                  message: "Can't save Product Group.",
+                  message: `Can't ${m[method]} Product Group.`,
                   action: () => this.$.form.submit()
                 },
                 bubbles: true,
                 composed: true
               })
             )
+            this.initForm()
           })
 
         this.$.form
           .addEventListener('iron-form-response', (e) => {
-            this.set('opened', false)
             this.dispatchEvent(new CustomEvent('slr-product-group-submitted'))
 
-            // TODO put this in utilities
             let method = this.$.form.request.method || 'default'
             let m = {
               'POST': 'added',
@@ -160,11 +174,25 @@
                 composed: true
               })
             )
+            this.initForm()
+
+            if (method === 'DELETE') {
+              this.set('opened', false)
+              this.set('route.path', '')
+            } else {
+              this.set('editMode', false)
+            }
           })
       }
 
       computeAction(uri) {
-        return uri ? uri : '/api/product-groups'
+        let a = uri ? uri : '/api/product-groups'
+        return a
+      }
+
+      initForm() {
+        this.set('method', 'POST')
+        this.set('action', '/api/product-groups')
       }
 
       submit() {
