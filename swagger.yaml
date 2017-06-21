@@ -228,6 +228,10 @@ definitions:
       description:
         type: string
         description: SLO description.
+      id:
+        type: integer
+        readOnly: true
+        description: SLO ID.
       username:
         type: string
         readOnly: true
@@ -837,6 +841,10 @@ paths:
         - $ref: '#/parameters/ProductId'
         - $ref: '#/parameters/Limit'
         - $ref: '#/parameters/Offset'
+        - name: id
+          type: integer
+          in: query
+          description: Filter SLO by ID.
       responses:
         200:
           description: List of Product SLOs

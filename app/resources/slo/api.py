@@ -25,6 +25,12 @@ class SLOResource(ResourceHandler):
     def get_query(self, product_id: int, **kwargs) -> BaseQuery:
         return Objective.query.filter_by(product_id=product_id)
 
+    def get_filter_kwargs(self, **kwargs) -> dict:
+        """Return relevant filters"""
+        filters = {} if 'id' not in kwargs else {'id': kwargs['id']}
+
+        return filters
+
     def validate(self, slo: dict, **kwargs) -> None:
         if not slo or not slo.get('title'):
             raise ProblemException(title='Invalid SLO', detail="SLO 'title' must have a value!")
@@ -83,6 +89,7 @@ class SLOResource(ResourceHandler):
 
         # extra fields
         resource['product_name'] = obj.product.name
+        resource['id'] = obj.id
 
         # Links
         base_uri = resource['uri'] + '/'
