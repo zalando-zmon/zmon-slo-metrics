@@ -1,7 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
-<dom-module id="slr-error">
+<dom-module id="slr-login">
   <template>
     <style include="common-styles">
       :host {
@@ -9,16 +9,19 @@
         @apply --slr-content;
         opacity: 0.66;
       }
+
+      h1 {
+        margin-top: 15%;
+      }
     </style>
-    <img class="icecream" src="/assets/images/icecream.png" width="150px"></img>
-    <h1>Something terrible happened!</h1>
-    <p>We have no more Ice Cream... and this is not working. Please talk to your Administrator (about buying more Ice Cream) or...</p>
-    <br>
-    <paper-button raised><a href="/">RELOAD</a></paper-button>
+
+    <h1>Not logged in yet?</h1>
+    <p>Please follow the authentication process</p>
+    <paper-button raised><a href="/login">continue</a></paper-button>
   </template>
   <script>
-    class SlrError extends Polymer.Element {
-      static get is() { return 'slr-error' }
+    class SlrLogin extends Polymer.Element {
+      static get is() { return 'slr-login' }
 
       static get properties() {
         return {
@@ -31,11 +34,11 @@
       }
 
       ready() {
-        super.ready();
+        super.ready()
         this.set('loading', false)
       }
     }
 
-    window.customElements.define(SlrError.is, SlrError)
+    window.customElements.define(SlrLogin.is, SlrLogin)
     </script>
   </dom-module>
