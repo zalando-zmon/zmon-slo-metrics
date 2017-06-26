@@ -3,12 +3,15 @@ from urllib.parse import urljoin
 
 import zign.api
 
-from flask import request, session, redirect
+from flask import request, redirect
+from flask import session as flask_session
 from flask_oauthlib.client import OAuth
 
 from app import connexion_app
 from app.libs.oauth import get_auth_app
 from app.config import APP_URL, OAUTH2_ENABLED, PRESHARED_TOKEN
+
+from app.session import set_token_info
 
 
 # OAUTH setup
@@ -25,14 +28,13 @@ def login():
 
 
 def logout():
-    session.pop('auth_token', None)
+    flask_session.pop('auth_token', None)
     return redirect(urljoin(APP_URL, '/'))
 
 
 def authorized():
-    token = ''
     if not OAUTH2_ENABLED:
-        token = PRESHARED_TOKEN or zign.api.get_token('uid', ['uid'])
+        token_info = {'access_token': PRESHARED_TOKEN or zign.api.get_token('uid', ['uid'])}
     else:
         resp = auth.authorized_response()
         if resp is None:
@@ -41,9 +43,10 @@ def authorized():
         if not isinstance(resp, dict):
             return 'Invalid OAUTH response'
 
-        token = resp['access_token']
+        token_info = resp
 
-    session['auth_token'] = token
+    set_token_info(token_info)
+
     return redirect(urljoin(APP_URL, '/'))
 
 

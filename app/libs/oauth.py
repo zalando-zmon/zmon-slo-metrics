@@ -12,6 +12,8 @@ from connexion.exceptions import OAuthProblem, OAuthResponseProblem, OAuthScopeP
 
 from app.config import CREDENTIALS_DIR, AUTHORIZE_URL, ACCESS_TOKEN_URL
 
+from app.session import get_token_info, set_token_info
+
 
 logger = logging.getLogger('connexion.api.security')
 
@@ -94,19 +96,24 @@ def verify_oauth_with_session(token_info_url, allowed_scopes, function):
                 except ValueError:
                     raise OAuthProblem(description='Invalid authorization header')
 
-            logger.debug("... Getting token from %s", token_info_url)
+            token_info = get_token_info()
 
-            token_request = session.get(token_info_url, params={'access_token': token}, timeout=5)
+            if not token_info or 'uid' not in token_info:
 
-            logger.debug("... Token info (%d): %s", token_request.status_code, token_request.text)
+                logger.debug("... Getting token from %s", token_info_url)
 
-            if not token_request.ok:
-                raise OAuthResponseProblem(
-                    description='Provided oauth token is not valid',
-                    token_response=token_request
-                )
+                token_request = session.get(token_info_url, params={'access_token': token}, timeout=5)
 
-            token_info = token_request.json()  # type: dict
+                logger.debug("... Token info (%d): %s", token_request.status_code, token_request.text)
+
+                if not token_request.ok:
+                    raise OAuthResponseProblem(
+                        description='Provided oauth token is not valid',
+                        token_response=token_request
+                    )
+
+                token_info = token_request.json()  # type: dict
+
             user_scopes = set(token_info['scope'])
 
             logger.debug("... Scopes required: %s", allowed_scopes)
@@ -127,6 +134,8 @@ def verify_oauth_with_session(token_info_url, allowed_scopes, function):
 
             request.user = token_info.get('uid')
             request.token_info = token_info
+
+            set_token_info(token_info)
 
         return function(*args, **kwargs)
 

@@ -11,7 +11,7 @@ class SLRClientError(Exception):
 
 class Client:
     def __init__(self, url: str, token: str):
-        self.url = urljoin(url, 'api')
+        self.url = urljoin(url, 'api/')
         self.token = token
 
         self.session = requests.Session()
