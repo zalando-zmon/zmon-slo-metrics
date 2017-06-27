@@ -11,7 +11,6 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
-
 <link rel="import" href="./slr-product-groups.html">
 <link rel="import" href="./slr-products.html">
 <link rel="import" href="./slr-notifications.html">
@@ -135,7 +134,7 @@
 
       <app-toolbar class="tabs-bar">
         <!-- Nav on desktop: tabs -->
-        <paper-tabs selected="{{page}}" attr-for-selected="name">
+        <paper-tabs selected="{{routeData.page}}" attr-for-selected="name">
           <paper-tab name="product-groups">
             <a href="/product-groups">Product Groups</a>
           </paper-tab>
@@ -151,22 +150,24 @@
 
     </app-header>
 
-    <iron-pages id="pages"
-                role="main"
-                selected="[[page]]"
-                attr-for-selected="name"
-                selected-attribute="visible"
-                fallback-selection="404">
+    <iron-pages
+      selected="{{routeData.page}}"
+      attr-for-selected="name"
+      selected-attribute="visible"
+      fallback-selection="404">
       <slr-product-groups id="productGroups"
                           name="product-groups"
                           route={{subroute}}
                           loading={{loading}}
+                          product-groups={{productGroups}}
                           search-str={{searchStr}}></slr-product-groups>
       <slr-products id="products"
                     name="products"
                     route={{subroute}}
                     loading={{loading}}
+                    product-groups={{productGroups}}
                     search-str={{searchStr}}></slr-products>
+      <slr-login name="login" loading={{loading}}></slr-login>
       <slr-404 name="404" loading={{loading}}></slr-404>
       <slr-error name="error" loading={{loading}}></slr-error>
     </iron-pages>
@@ -176,7 +177,6 @@
   </template>
 
   <script>
-    /** @polymerElement */
     class SlrApp extends Polymer.Element {
       static get is() { return 'slr-app'; }
       static get properties() {
@@ -187,10 +187,6 @@
           },
           searchStr: {
             type: String,
-          },
-          page: {
-            type: String,
-            observer: 'pageChanged'
           },
           route: {
             type: Object
@@ -203,6 +199,9 @@
           },
           loading: {
             type: Boolean
+          },
+          productGroups: {
+            type: Array
           }
         };
       }
@@ -211,9 +210,32 @@
         'routePageChanged(routeData.page)'
       ]}
 
-      pageChanged(page, oldPage) {
+      ready() {
+        super.ready()
+
+        this.$.productGroups.addEventListener('slr-notify', (n) =>
+                                          this.$.notifications.open(n.detail))
+        this.$.products.addEventListener('slr-notify', (n) =>
+                                          this.$.notifications.open(n.detail))
+
+        this.$.productGroups.addEventListener('slr-authenticate', (n) =>
+                                                              this.showLogin())
+        this.$.products.addEventListener('slr-authenticate', (n) =>
+                                                              this.showLogin())
+
+        this.$.productGroups.addEventListener('slr-error', () =>
+                                                            this.showError())
+        this.$.products.addEventListener('slr-error', () => this.showError())
+      }
+
+      routePageChanged(page) {
+
         if (page == null) {
           return
+        }
+
+        if (page === '') {
+          return this.set('routeData.page', 'product-groups')
         }
 
         if (page === 'product-groups') {
@@ -232,19 +254,6 @@
         this.ensureLazyLoaded()
       }
 
-      ready() {
-        super.ready()
-
-        this.$.productGroups.addEventListener('slr-notify', (n) =>
-                                          this.$.notifications.open(n.detail))
-        this.$.products.addEventListener('slr-notify', (n) =>
-                                          this.$.notifications.open(n.detail))
-
-        this.$.productGroups.addEventListener('slr-error', () =>
-                                                            this.showError())
-        this.$.products.addEventListener('slr-error', () => this.showError())
-      }
-
       ensureLazyLoaded() {
         if (!this.loadComplete) {
           Polymer.RenderStatus.afterNextRender(this, () => {
@@ -259,17 +268,17 @@
         }
       }
 
-      routePageChanged(page) {
-        this.page = page || 'product-groups'
-        this.set('routeData.page', this.page)
-      }
 
       show404() {
-        this.page = 404;
+        this.set('routeData.page', '404')
       }
 
       showError() {
-        this.page = 'error';
+        this.set('routeData.page', 'error')
+      }
+
+      showLogin() {
+        this.set('routeData.page', 'login')
       }
 
       onSearchClick() {
