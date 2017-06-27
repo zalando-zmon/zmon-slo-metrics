@@ -112,7 +112,8 @@ def generate_weekly_report(base_url, product, output_dir):
                 ok = False
             slo['slis'][target['sli_name']] = {
                 'avg': '-' if val is None else '{:.2f} {}'.format(val, target['unit']),
-                'ok': ok
+                'ok': ok,
+                'unit': target['unit'],
             }
 
         slo['data'] = []
