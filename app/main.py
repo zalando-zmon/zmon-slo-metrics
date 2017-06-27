@@ -25,7 +25,6 @@ import connexion.operation
 connexion.decorators.security.verify_oauth = verify_oauth_with_session
 connexion.operation.verify_oauth = verify_oauth_with_session  # noqa
 
-
 # set the WSGI application callable to allow using uWSGI:
 # uwsgi --http :8080 -w app
 application = connexion_app.app
@@ -48,7 +47,7 @@ migrate = Migrate(application, db)
 from app.libs.resolver import get_resource_handler  # noqa
 from app.resources.sli.updater import update_all_indicators  # noqa
 
-from app.routes import ROUTES, process_request  # noqa
+from app.routes import ROUTES, process_request, limiter  # noqa
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +89,9 @@ def run():
 
         # run our standalone gevent server
         logger.info('Service level reports starting application server')
+
+        # Add throttling
+        limiter.init_app(application)
 
         # IMPORTANT: Add swagger api after *db* instance is ready!
         connexion_app.add_api(SWAGGER_PATH, resolver=connexion.Resolver(function_resolver=get_resource_handler))
