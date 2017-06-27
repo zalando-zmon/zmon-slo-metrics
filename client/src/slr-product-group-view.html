@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="./slr-dialog.html">
 
@@ -19,53 +20,84 @@
       }
     </style>
 
-    <paper-dialog id="deleteModal"
-                  opened={{deleteModalOpened}}>
-                  <h2>Delete Product Group</h2>
-                  <p>Are you sure you want to delete "{{item.name}}"?</p>
-                  <div class="buttons">
-                    <paper-button dialog-dismiss>Cancel</paper-button>
-                    <paper-button dialog-confirm on-click="deleteConfirm">Delete</paper-button>
-                  </div></paper-dialog>
+    <app-route
+      route="{{route}}"
+      pattern="/:slug"
+      data="{{routeData}}"
+      tail="{{subroute}}"></app-route>
 
-    <slr-dialog id="dialog"
-                title="Product Group"
-                item={{item}}
-                icon="close"
-                close-url="/product-groups"
-                opened={{opened}}
-                edit-mode={{editMode}}
-                loading={{loading}}
-                route={{route}}>
-      <div slot="toolbar" hidden="{{!editMode}}">
-        <paper-icon-button icon="delete" hidden$="{{!item.uri}}" on-click="delete"></paper-icon-button>
+      <iron-ajax
+        id="ajax"
+        url="/api/product-groups"
+        handle-as="json"
+        on-response="handleResponse"
+        on-error="handleErrorResponse"
+        debounce-duration="300"
+        loading={{loading}}></iron-ajax>
+
+    <paper-dialog id="deleteModal" opened={{deleteModalIsOpen}}>
+      <h2>Delete Product Group</h2>
+      <p>Are you sure you want to delete "{{item.name}}"?</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button
+          dialog-confirm
+          on-click="deleteConfirm">Delete</paper-button>
+      </div></paper-dialog>
+
+    <slr-dialog
+      id="productGroupModal"
+      title="Product Group"
+      item={{item}}
+      opened={{opened}}
+      edit-mode={{editMode}}
+      loading={{loading}}>
+
+      <div slot="close">
+        <paper-icon-button
+          icon="close"
+          title="close"
+          on-click="close"></paper-icon-button>
       </div>
+
+      <div slot="toolbar" hidden="{{!editMode}}">
+        <paper-icon-button
+          icon="delete"
+          hidden$="{{!item.uri}}"
+          on-click="delete"></paper-icon-button>
+      </div>
+
       <div slot="actions" hidden$="{{!editMode}}">
-        <paper-button id="action"
-                      hidden$="{{loading}}"
-                      on-click="submit"
-                      autofocus>Save</paper-button>
+        <paper-button
+          id="action"
+          hidden$="{{loading}}"
+          on-click="submit"
+          autofocus>Save</paper-button>
       </div>
 
       <iron-form id="form" headers={{headers}}>
         <form class="form" method="{{method}}" action="{{action}}">
-          <paper-input  name="name"
-                        type="text"
-                        label="Name"
-                        always-float-label
-                        disabled={{!editMode}}
-                        value="{{item.name}}"
-                        required></paper-input>
-          <paper-input  name="department"
-                        type="text"
-                        label="Department" always-float-label
-                        disabled={{!editMode}}
-                        value="{{item.department}}"
-                        required></paper-input>
+          <paper-input
+            name="name"
+            type="text"
+            label="Name"
+            always-float-label
+            disabled={{!editMode}}
+            value="{{item.name}}"
+            required></paper-input>
+          <paper-input
+            name="department"
+            type="text"
+            label="Department" always-float-label
+            disabled={{!editMode}}
+            value="{{item.department}}"
+            required></paper-input>
         </form>
       </iron-form>
+
     </slr-dialog>
   </template>
+
   <script>
     class SlrProductGroupView extends Polymer.Element {
       static get is() { return 'slr-product-group-view' }
@@ -76,8 +108,13 @@
             type: Object
           },
           route: {
-            type: Object,
-            notify: true
+            type: Object
+          },
+          routeData: {
+            type: Object
+          },
+          visible: {
+            type: Boolean
           },
           opened: {
             type: Boolean,
@@ -90,8 +127,7 @@
           },
           editMode: {
             type: Boolean,
-            value: false,
-            notify: true
+            value: false
           },
           headers: {
             type: Object,
@@ -108,15 +144,46 @@
             value: '/api/product-groups',
             computed: 'computeAction(item.uri)'
           },
-          deleteModalOpened: {
+          deleteModalIsOpen: {
             type: Boolean,
             value: false
           }
         }
       }
 
+      static get observers() {
+        return [ 'routeDataChanged(routeData.slug, visible)' ]
+      }
+
+      routeDataChanged(slug, visible) {
+        if (!visible) {
+          return
+        }
+
+        // TODO fix when productGroups is empty
+        if (slug) {
+          let ix = this.productGroups.findIndex((pg) => pg.slug === slug)
+          if (ix > -1) {
+            this.set('item', this.productGroups[ix])
+            this.set('opened', true)
+          } else {
+            // TODO Fix 404
+            console.log('Product slug not found, 404')
+            this.routeData.page = '404'
+          }
+        } else {
+          this.set('opened', false)
+        }
+      }
+
       ready() {
         super.ready()
+
+        this.$.productGroupModal
+          .addEventListener('slr-dialog-closed', () => {
+            this.set('routeData.slug', null)
+            this.initForm()
+          })
 
         this.$.form
           .addEventListener('iron-form-presubmit', () => {
@@ -133,8 +200,8 @@
 
         this.$.form
           .addEventListener('iron-form-error', (e) => {
-            this.set('loading', false)
             console.error('Error saving Product Group')
+
             let method = this.$.form.request.method || 'default'
             let m = {
               'POST': 'add',
@@ -142,16 +209,11 @@
               'DELETE': 'delete',
               'default': 'save'
             }
-            this.dispatchEvent(
-              new CustomEvent('slr-notify', {
-                detail: {
-                  message: `Can't ${m[method]} Product Group.`,
-                  action: () => this.$.form.submit()
-                },
-                bubbles: true,
-                composed: true
-              })
-            )
+
+            let message = `Can't ${m[method]} Product Group.`
+            this.notify(message, () => this.$.form.submit())
+
+            this.set('loading', false)
             this.initForm()
           })
 
@@ -159,41 +221,35 @@
           .addEventListener('iron-form-response', (e) => {
             this.dispatchEvent(new CustomEvent('slr-product-group-submitted'))
 
-            let method = this.$.form.request.method || 'default'
+            let method = this.$.form.request.method
             let m = {
-              'POST': 'added',
-              'PUT': 'updated',
-              'DELETE': 'deleted',
-              'default': 'saved'
+              'POST': 'Added',
+              'PUT': 'Updated',
+              'DELETE': 'Deleted'
             }
-            let message = `Product Group ${m[method]}.`
+            this.notify(`${m[method]} Product Group.`)
 
-            this.dispatchEvent(new CustomEvent('slr-notify',
-              {
-                detail: { message: message },
-                bubbles: true,
-                composed: true
-              })
-            )
-            this.initForm()
-
+            // TODO can we improve this??
             if (method === 'DELETE') {
               this.set('opened', false)
-              this.set('route.path', '')
+              this.set('routeData.slug', '')
             } else {
               this.set('editMode', false)
+              this.set('routeData.slug', e.detail.response.slug)
+              this.set('item', e.detail.response)
             }
+            this.initForm()
           })
       }
 
       computeAction(uri) {
-        let a = uri ? uri : '/api/product-groups'
-        return a
+        return uri ? uri : '/api/product-groups'
       }
 
       initForm() {
         this.set('method', 'POST')
         this.set('action', '/api/product-groups')
+        this.$.form.reset()
       }
 
       submit() {
@@ -204,13 +260,35 @@
       }
 
       delete() {
-        this.set('deleteModalOpened', true)
+        this.set('deleteModalIsOpen', true)
       }
 
       deleteConfirm() {
         this.set('method', 'DELETE')
         this.$.form.submit()
       }
+
+      new() {
+        this.set('item', {})
+        this.set('opened', true)
+        this.set('editMode', true)
+      }
+
+      close() {
+        this.set('opened', false)
+        this.set('routeData.slug', '')
+      }
+
+      notify(message, action, duration) {
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: { message, action, duration },
+            bubbles: true,
+            composed: true
+          })
+        )
+      }
+
     }
 
     window.customElements.define(SlrProductGroupView.is, SlrProductGroupView)
