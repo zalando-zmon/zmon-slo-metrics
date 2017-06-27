@@ -73,8 +73,9 @@
         width: 100%;
       }
 
-      input {
-        width: 100%;
+      .no-items {
+        opacity: 0.66;
+        font-style: italic;
       }
 
     </style>
@@ -214,6 +215,9 @@
                     </a>
                   </li>
                 </template>
+                <li hidden="{{objectives.length}}">
+                  <p class="no-items">No items to show</p>
+                </li>
               </ul>
             </div>
             <div class="column" hidden$={{!item.uri}}>
@@ -232,6 +236,9 @@
                     </a>
                   </li>
                 </template>
+                <li hidden="{{indicators.length}}">
+                  <p class="no-items">No items to show</p>
+                </li>
               </ul>
             </div>
           </div>
