@@ -9,7 +9,7 @@ from typing import Optional
 from gevent.pool import Pool
 
 from app.config import MAX_QUERY_TIME_SLICE, UPDATER_CONCURRENCY
-from app.main import db
+from app.extensions import db
 from app.libs.zmon import query_sli
 
 from .models import IndicatorValue, Indicator

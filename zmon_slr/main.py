@@ -247,6 +247,9 @@ def product_create(obj, name, product_group_name):
     with Action('Creating product: {}'.format(name), nl=True) as act:
         try:
             pgs = client.product_group_list(name=product_group_name)
+            if not pgs:
+                act.fatal_error('Product group does not exist!')
+
             pg = pgs[0]
 
             p = client.product_create(name, product_group_uri=pg['uri'])

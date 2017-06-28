@@ -1,6 +1,6 @@
 from urllib.parse import urljoin
 
-from connexion import request
+from flask import request
 
 from app.libs.resource import ResourceHandler
 

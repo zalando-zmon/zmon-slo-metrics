@@ -7,7 +7,7 @@ from connexion import ProblemException
 
 from sqlalchemy.sql import text
 
-from app.main import db
+from app.extensions import db
 from app.libs.resource import ResourceHandler
 
 from app.resources.product.models import Product

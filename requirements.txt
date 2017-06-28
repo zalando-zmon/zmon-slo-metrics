@@ -11,5 +11,6 @@ gevent==1.2.2
 psycogreen
 psycopg2
 python-dateutil==2.6.0
+redis==2.10.5
 stups-zign
 zmon-cli

@@ -1,0 +1,22 @@
+FROM registry.opensource.zalan.do/stups/python:latest
+
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    postgresql-client
+
+COPY requirements.txt /
+
+RUN pip3 install -r /requirements.txt
+
+RUN pip3 install -U sqlalchemy-utils
+
+COPY app /app
+
+# COPY dockerfiles/migrate.sh /migrate.sh
+COPY dockerfiles/migrate.py /migrate.py
+
+ENV FLASK_APP /app/main.py
+
+RUN chmod a+x /migrate.py
+
+CMD ./migrate.py
