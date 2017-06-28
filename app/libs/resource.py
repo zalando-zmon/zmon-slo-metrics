@@ -4,7 +4,7 @@ from urllib.parse import urljoin, urlencode
 from sqlalchemy.exc import IntegrityError
 from flask_sqlalchemy import BaseQuery, Model, Pagination
 
-from connexion import NoContent, request, problem
+from connexion import NoContent, request, problem, ProblemException
 
 from app.config import API_DEFAULT_PAGE_SIZE
 from app.utils import slugger
@@ -158,7 +158,11 @@ class ResourceHandler:
         per_page = int(kwargs.get('page_size', API_DEFAULT_PAGE_SIZE))
         page = int(kwargs.get('page', 1))
 
-        return query.paginate(page=page, per_page=per_page, error_out=False)
+        if page < 0 or per_page < 1:
+            raise ProblemException(
+                title='Invalid paging parameters', detail='page and page_size should be greater than 0')
+
+        return query.paginate(page=page or 1, per_page=per_page, error_out=False)
 
     def get_filtered_query(self, query: BaseQuery, **kwargs) -> BaseQuery:
         """Filter query using query parameters"""
@@ -212,8 +216,8 @@ class ResourceHandler:
         return fields
 
     def set_username(self, obj: Model) -> Model:
-        if hasattr(obj, 'username'):
-            obj.username = request.token_info['uid']
+        if hasattr(obj, 'username') and hasattr(request, 'user'):
+            obj.username = request.user
 
         return obj
 

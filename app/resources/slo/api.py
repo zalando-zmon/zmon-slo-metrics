@@ -5,7 +5,7 @@ from flask_sqlalchemy import BaseQuery, Pagination
 
 from connexion import ProblemException, request
 
-from app.main import db
+from app.extensions import db
 from app.libs.resource import ResourceHandler, READ_ONLY_FIELDS
 
 from app.resources.product.models import Product

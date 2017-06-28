@@ -5,17 +5,14 @@ import zign.api
 
 from flask import request, redirect
 from flask import session as flask_session
-from flask_oauthlib.client import OAuth
 
-from app import connexion_app
 from app.libs.oauth import get_auth_app
 from app.config import APP_URL, OAUTH2_ENABLED, PRESHARED_TOKEN
 
-from app.session import set_token_info
+from app.extensions import set_token_info, oauth
 
 
 # OAUTH setup
-oauth = OAuth(connexion_app.app)
 auth = get_auth_app(oauth)
 oauth.remote_apps['auth'] = auth
 

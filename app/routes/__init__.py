@@ -1,10 +1,10 @@
 from .middleware import process_request
 from .routes import ROUTES
-from .throttle import limiter
-
+from .errors import rate_limit_exceeded
 
 __all__ = (
-    limiter,
-    process_request,
     ROUTES,
+
+    process_request,
+    rate_limit_exceeded,
 )

@@ -1,4 +1,4 @@
-from app.main import db
+from app.extensions import db
 
 
 class Authorization:

@@ -12,7 +12,7 @@ from connexion import request, ProblemException
 from app.config import ADMINS
 from app.config import API_AUTHORIZATION_COMMUNITY_URL, API_AUTHORIZATION_COMMUNITY_PREFIX
 from app.utils import slugger
-from app.main import cache, db
+from app.extensions import cache, db
 
 from .simple import Authorization
 
