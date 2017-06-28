@@ -172,7 +172,7 @@
       <slr-error name="error" loading={{loading}}></slr-error>
     </iron-pages>
 
-    <slr-notifications id="notifications"></slr-notifications>
+    <slr-notifications id="notif"></slr-notifications>
 
   </template>
 
@@ -212,20 +212,9 @@
 
       ready() {
         super.ready()
-
-        this.$.productGroups.addEventListener('slr-notify', (n) =>
-                                          this.$.notifications.open(n.detail))
-        this.$.products.addEventListener('slr-notify', (n) =>
-                                          this.$.notifications.open(n.detail))
-
-        this.$.productGroups.addEventListener('slr-authenticate', (n) =>
-                                                              this.showLogin())
-        this.$.products.addEventListener('slr-authenticate', (n) =>
-                                                              this.showLogin())
-
-        this.$.productGroups.addEventListener('slr-error', () =>
-                                                            this.showError())
-        this.$.products.addEventListener('slr-error', () => this.showError())
+        this.addEventListener('slr-authenticate', (n) => this.showLogin())
+        this.addEventListener('slr-notify', (n) => this.$.notif.open(n.detail))
+        this.addEventListener('slr-error', () => this.showError())
       }
 
       routePageChanged(page) {
