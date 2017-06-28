@@ -1,4 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <link rel="import" href="./slr-product-card.html">
@@ -11,7 +13,6 @@
     <style include="common-styles">
       :host {
         display: block;
-        @apply --slr-content;
       }
 
       paper-dialog {
@@ -29,11 +30,17 @@
     <iron-ajax
       id="ajax"
       url="/api/products"
+      params="{{params}}"
       handle-as="json"
       on-response="handleResponse"
       on-error="handleErrorResponse"
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
+
+    <iron-scroll-threshold id="scrollTheshold"
+              lower-threshold="500"
+              on-lower-threshold="load"
+              scroll-target="document"></iron-scroll-threshold>
 
     <slr-product-view id="view"
                       item="{{selectedItem}}"
@@ -43,8 +50,18 @@
                       loading={{loading}}
                       route={{route}}
                       visible={{visible}}></slr-product-view>
-
-    <template is="dom-repeat"
+    <iron-list grid
+      items="[[products]]"
+      scroll-target="document">
+      <template>
+        <a href="/products/{{item.slug}}">
+          <slr-product-card
+            item={{item}}
+            favorite={{item.favorite}}></slr-product-card>
+        </a>
+      </template>
+    </iron-list>
+    <!-- <template is="dom-repeat"
               items="{{products}}"
               sort="sort"
               observe="favorite"
@@ -53,7 +70,7 @@
         <slr-product-card item={{item}}
                           favorite={{item.favorite}}></slr-product-card>
       </a>
-    </template>
+    </template> -->
 
     <paper-fab class="add"
                 icon="add"
@@ -92,8 +109,24 @@
           },
           selectedItem: {
             type: String
+          },
+          params: {
+            type: Object,
+            computed: 'computeParams(page_size, page)'
+          },
+          page_size: {
+            type: Number,
+            value: 10
+          },
+          page: {
+            type: Number,
+            value: 1
           }
         }
+      }
+
+      computeParams(page_size, page) {
+        return { page_size, page }
       }
 
       static get observers() { return [
@@ -102,7 +135,7 @@
 
       routeChanged(route, visible) {
         if (visible) {
-          this.$.ajax.generateRequest()
+          // this.$.ajax.generateRequest()
         }
       }
 
@@ -115,7 +148,9 @@
 
       handleResponse(e) {
         try {
-          this.set('products', e.detail.response.data)
+          let products = e.detail.response.data.sort(this.sort)
+          products.forEach((pg) => this.push('products', pg))
+          this.$.scrollTheshold.clearTriggers();
         } catch(e) {
           console.error('Error loading Products')
           this.notify("Can't Load Products", () =>
@@ -144,6 +179,11 @@
 
       sort(a, b) {
         return SlrUtils.favoriteSort(a, b);
+      }
+
+      load() {
+        this.$.ajax.generateRequest()
+        this.set('page', this.page+1)
       }
 
       computeFilter(str) {
