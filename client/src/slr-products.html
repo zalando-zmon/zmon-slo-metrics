@@ -30,7 +30,6 @@
     <iron-ajax
       id="ajax"
       url="/api/products"
-      params="{{params}}"
       handle-as="json"
       on-response="handleResponse"
       on-error="handleErrorResponse"
@@ -135,7 +134,7 @@
 
       routeChanged(route, visible) {
         if (visible) {
-          // this.$.ajax.generateRequest()
+          this.$.ajax.generateRequest()
         }
       }
 
@@ -148,8 +147,9 @@
 
       handleResponse(e) {
         try {
-          let products = e.detail.response.data.sort(this.sort)
-          products.forEach((pg) => this.push('products', pg))
+          // let products = e.detail.response.data.sort(this.sort)
+          // products.forEach((pg) => this.push('products', pg))
+          this.set('products', e.detail.response.data.sort(this.sort))
           this.$.scrollTheshold.clearTriggers();
         } catch(e) {
           console.error('Error loading Products')
@@ -182,7 +182,7 @@
       }
 
       load() {
-        this.$.ajax.generateRequest()
+        // this.$.ajax.generateRequest()
         this.set('page', this.page+1)
       }
 

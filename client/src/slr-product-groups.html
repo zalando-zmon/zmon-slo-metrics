@@ -26,7 +26,6 @@
     <iron-ajax
       id="ajax"
       url="/api/product-groups"
-      params="{{params}}"
       handle-as="json"
       on-response="handleResponse"
       on-error="handleErrorResponse"
@@ -134,14 +133,14 @@
       }
 
       routeChanged(route, visible) {
-        // always fetch product groups (needed in Products also)
-        // this.$.ajax.generateRequest()
+        this.$.ajax.generateRequest()
       }
 
       handleResponse(e) {
         try {
-          let productGroups = e.detail.response.data.sort(this.sort)
-          productGroups.forEach((pg) => this.push('productGroups', pg))
+          // let productGroups = e.detail.response.data.sort(this.sort)
+          // productGroups.forEach((pg) => this.push('productGroups', pg))
+          this.set('productGroups', e.detail.response.data.sort(this.sort))
           this.$.scrollTheshold.clearTriggers();
         } catch(e) {
           console.error('Error loading Product Groups', e)
@@ -173,7 +172,7 @@
       }
 
       load() {
-        this.$.ajax.generateRequest()
+        // this.$.ajax.generateRequest()
         this.set('page', this.page+1)
       }
 
