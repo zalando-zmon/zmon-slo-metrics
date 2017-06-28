@@ -1,10 +1,13 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/iron-label/iron-label.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="./slr-dialog.html">
+<link rel="import" href="./slr-target.html">
 
 <dom-module id="slr-objective-view">
   <template>
@@ -43,6 +46,15 @@
       pattern="/slo/:objectiveId"
       data="{{routeData}}"></app-route>
 
+    <iron-ajax
+      id="ajax"
+      url="{{item.uri}}"
+      handle-as="json"
+      on-response="handleResponse"
+      on-error="handleErrorResponse"
+      debounce-duration="300"
+      loading={{loading}}></iron-ajax>
+
     <paper-dialog
       id="deleteModal"
       opened={{deleteModalOpened}}>
@@ -78,48 +90,38 @@
                       autofocus>Save</paper-button>
       </div>
 
-      <iron-form id="objectiveForm" headers={{headers}}>
+      <iron-form id="objectiveForm" headers="{{headers}}">
         <form class="form" method="{{method}}" action="{{action}}">
           <paper-input  type="text"
                         name="title"
                         label="Title" always-float-label
                         autofocus="true"
-                        disabled={{!editMode}}
+                        disabled="{{!editMode}}"
                         value="{{item.title}}"
                         required></paper-input>
           <paper-input  type="text"
                         name="description"
                         label="Description" always-float-label
-                        disabled={{!editMode}}
+                        disabled="{{!editMode}}"
                         value="{{item.description}}"
                         required></paper-input>
-          <iron-list  id="list"
-                      items=[[item.targets]]
-                      as="target"
-                      selection-enabled>
-            <template>
-              <paper-item>[[target.from]] - [[target.to]] -- [[target.sli_name]]</paper-item>
-            </template>
-          </iron-list>
-
-          <iron-label>Targets</iron-label>
-          <paper-button
-            raised hidden$="{{!editMode}}"
-            on-click="addTarget">Add Target</paper-button>
-          <ul>
-            <template
-              is="dom-repeat"
-              items="{{targets}}"
-              as="target">
-              <li>
-                <paper-card>[[target.title]]</paper-card>
-              </li>
-            </template>
-          </ul>
-
-
         </form>
       </iron-form>
+      <iron-label>Targets</iron-label>
+      <paper-button
+        raised hidden$="{{!editMode}}"
+        on-click="addTarget">Add Target</paper-button>
+      <ul>
+        <template
+          is="dom-repeat"
+          items="{{item.targets}}"
+          as="target">
+          <li>
+            <slr-target uri="{{target}}" objective="[[item]]" targets="{{item.targets}}" indicators="[[indicators]]"></slr-target>
+          </li>
+        </template>
+        <li hidden="{{item.targets.length}}"><p class="no-items">No targets...</p></li>
+      </ul>
     </slr-dialog>
   </template>
   <script>
@@ -134,8 +136,18 @@
           objectives: {
             type: Array
           },
+          indicators: {
+            type: Array
+          },
           item: {
             type: Object
+          },
+          opened: {
+            type: Boolean
+          },
+          editMode: {
+            type: Boolean,
+            value: false
           },
           method: {
             type: String,
@@ -203,6 +215,10 @@
             this.set('routeData.objectiveId', null)
             this.initForm()
           })
+
+        this.addEventListener('slr-target-removed', () => {
+          this.$.ajax.generateRequest()
+        })
 
         this.$.objectiveForm
           .addEventListener('iron-form-presubmit', () => {
@@ -291,6 +307,10 @@
         this.set('editMode', true)
       }
 
+      addTarget() {
+        this.push('item.targets', '')
+      }
+
       close() {
         this.set('opened', false)
         this.set('routeData.objectiveId', '')
@@ -308,6 +328,28 @@
       deleteConfirm() {
         this.set('method', 'DELETE')
         this.$.objectiveForm.submit()
+      }
+
+      handleResponse(e) {
+        try {
+          this.set('item', e.detail.response)
+        } catch(e) {
+          console.error('Error loading Objective')
+          this.notify("Can't Load Objective", () => this.$.ajax.generateRequest())
+        }
+      }
+
+      handleErrorResponse(e) {
+        try {
+          if (e.detail.request.xhr.response.status === 401) {
+            this.dispatchEvent(
+              new CustomEvent('slr-authenticate', {bubbles: true, composed: true})
+            )
+            return
+          }
+        } catch(e) {}
+        console.error('Error loading Objective')
+        this.notify("Can't Load Objective.", () => this.$.ajax.generateRequest())
       }
     }
     window.customElements.define(SlrObjectiveView.is, SlrObjectiveView)

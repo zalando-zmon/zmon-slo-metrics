@@ -201,21 +201,18 @@
                 hidden$="{{!editMode}}"
                 on-click="addObjective"
                 raised>Add Objective</paper-button>
-              <ul>
-                <template
-                  is="dom-repeat"
-                  items="{{objectives}}"
-                  as="objective">
-                  <li>
+                <paper-listbox
+                  id="objectivesList"
+                  slot="dropdown-content">
+                  <template
+                    is="dom-repeat"
+                    items="{{objectives}}"
+                    as="objective">
                     <a href="/products/[[item.slug]]/slo/[[objective.id]]">
-                      <paper-card>[[objective.title]]</paper-card>
+                      <paper-item>{{objective.title}}</paper-item>
                     </a>
-                  </li>
-                </template>
-                <li hidden="{{objectives.length}}">
-                  <p class="no-items">No items to show</p>
-                </li>
-              </ul>
+                  </template>
+                </paper-listbox>
             </div>
             <div class="column" hidden$="{{!item.uri}}">
               <iron-label>Indicators</iron-label>
@@ -223,20 +220,18 @@
                 hidden$="{{!editMode}}"
                 on-click="addIndicator"
                 raised>Add Indicator</paper-button>
-              <ul>
-                <template is="dom-repeat"
-                          items="{{indicators}}"
-                          as="indicator">
-                  <li>
-                    <a href="/products/[[item.slug]]/sli/[[indicator.name]]">
-                      <paper-card>[[indicator.name]]</paper-card>
-                    </a>
-                  </li>
+              <paper-listbox
+                id="indicatorsList"
+                slot="dropdown-content">
+                <template
+                  is="dom-repeat"
+                  items="{{indicators}}"
+                  as="indicator">
+                  <a href="/products/[[item.slug]]/sli/[[indicator.name]]">
+                    <paper-item>{{indicator.name}}</paper-item>
+                  </a>
                 </template>
-                <li hidden="{{indicators.length}}">
-                  <p class="no-items">No items to show</p>
-                </li>
-              </ul>
+              </paper-listbox>
             </div>
           </div>
         </form>
