@@ -41,7 +41,7 @@ build_steps:
     cmd: |
       docker build -f dockerfiles/Dockerfile.frontend -t registry-write.opensource.zalan.do/zmon/service-level-reports-frontend:refactor .
 
-  - desc: "Push Docker Image (if on master)"
+  - desc: "Push Docker Image (if on master only)"
     cmd: |
       IS_PR_BUILD=${CDP_PULL_REQUEST_NUMBER+"true"}
       if [[ ${IS_PR_BUILD} != "true" ]]
