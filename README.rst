@@ -17,6 +17,9 @@ Idea:
 Server local setup
 ==================
 
+Development
+-----------
+
 Prepare the database
 
 .. code-block:: bash
@@ -52,6 +55,17 @@ Configuration parameters:
     PostgreSQL database connection string.
 ``KAIROSDB_URL``
     KairosDB base URL.
+
+
+Docker compose
+--------------
+
+You can deploy a server environment with ``docker-compose``
+
+.. code-block:: bash
+
+    $ docker-compose up
+
 
 Generating Reports
 ==================

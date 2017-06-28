@@ -12,4 +12,4 @@ COPY swagger.yaml /
 
 ENV FLASK_APP /app/main.py
 
-CMD python -m app.main
+CMD python -m app
