@@ -73,11 +73,6 @@
         width: 100%;
       }
 
-      .no-items {
-        opacity: 0.66;
-        font-style: italic;
-      }
-
     </style>
 
     <app-route
@@ -93,7 +88,7 @@
       on-response="handleSloResponse"
       on-error="handleSloErrorResponse"
       debounce-duration="300"
-      loading={{loading}}></iron-ajax>
+      loading="{{loading}}"></iron-ajax>
 
     <iron-ajax
       id="ajaxSli"
@@ -102,35 +97,36 @@
       on-response="handleSliResponse"
       on-error="handleSliErrorResponse"
       debounce-duration="300"
-      loading={{loading}}></iron-ajax>
+      loading="{{loading}}"></iron-ajax>
 
     <slr-objective-view
       id="objectiveView"
-      item={{selectedObjective}}
-      product={{item}}
-      objectives={{objectives}}
-      opened={{objectiveViewOpened}}
-      loading={{loading}}
-      route={{subroute}}
-      route-data={{routeData}}
-      visible={{visible}}
-      edit-mode={{objectiveViewEditMode}}></slr-objective-view>
+      item="{{selectedObjective}}"
+      product="{{item}}"
+      objectives="{{objectives}}"
+      indicators="{{indicators}}"
+      opened="{{objectiveViewOpened}}"
+      loading="{{loading}}"
+      route="{{subroute}}"
+      route-data="{{routeData}}"
+      visible="{{visible}}"
+      edit-mode="{{objectiveViewEditMode}}"></slr-objective-view>
 
     <slr-indicator-view
       id="indicatorView"
-      item={{selectedObjective}}
-      product={{item}}
-      indicators={{indicators}}
-      opened={{indicatorViewOpened}}
-      loading={{loading}}
-      route={{subroute}}
-      route-data={{routeData}}
-      visible={{visible}}
-      edit-mode={{indicatorViewEditMode}}></slr-indicator-view>
+      item="{{selectedObjective}}"
+      product="{{item}}"
+      indicators="{{indicators}}"
+      opened="{{indicatorViewOpened}}"
+      loading="{{loading}}"
+      route="{{subroute}}"
+      route-data="{{routeData}}"
+      visible="{{visible}}"
+      edit-mode="{{indicatorViewEditMode}}"></slr-indicator-view>
 
     <paper-dialog
       id="deleteModal"
-      opened={{deleteModalOpened}}>
+      opened="{{deleteModalOpened}}">
       <h2>Delete Product</h2>
       <p>Are you sure you want to delete "{{item.name}}"?</p>
       <div class="buttons">
@@ -141,10 +137,10 @@
     <slr-dialog
       id="productModal"
       title="Product"
-      item={{item}}
-      opened={{opened}}
-      edit-mode={{editMode}}
-      loading={{loading}}>
+      item="{{item}}"
+      opened="{{opened}}"
+      edit-mode="{{editMode}}"
+      loading="{{loading}}">
       <div slot="close">
         <paper-icon-button
           icon="close"
@@ -167,13 +163,14 @@
       <iron-form id="productForm" headers="{{headers}}">
         <form class="form" method="{{method}}" action="{{action}}">
             <div class="column">
-              <paper-input  type="text"
-                            name="name"
-                            label="Name" always-float-label
-                            autofocus="true"
-                            disabled="{{!editMode}}"
-                            value="{{item.name}}"
-                            required></paper-input>
+              <paper-input
+                type="text"
+                name="name"
+                label="Name" always-float-label
+                autofocus="true"
+                disabled="{{!editMode}}"
+                value="{{item.name}}"
+                required></paper-input>
               <paper-dropdown-menu
                 label="Product Group"
                 always-float-label
@@ -198,7 +195,7 @@
                 hidden
                 value="[[item.product_group_uri]]"></input>
             </div>
-            <div class="column" hidden$={{!item.uri}}>
+            <div class="column" hidden$="{{!item.uri}}">
               <iron-label>Objectives</iron-label>
               <paper-button
                 hidden$="{{!editMode}}"
@@ -220,7 +217,7 @@
                 </li>
               </ul>
             </div>
-            <div class="column" hidden$={{!item.uri}}>
+            <div class="column" hidden$="{{!item.uri}}">
               <iron-label>Indicators</iron-label>
               <paper-button
                 hidden$="{{!editMode}}"

@@ -2,7 +2,6 @@
 <link rel="import" href="../bower_components/paper-styles/typography.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <dom-module id="slr-product-card">
   <template>
@@ -44,15 +43,21 @@
       <div class="card-content">
         <div class="product-group-header">{{item.name}}
           <div class="product-group-favorite">
-            <iron-icon icon="star-border" class="star-border" hidden$="{{item.favorite}}" on-click="toggleFavorite" title="Add to Favorite"></iron-icon>
-            <iron-icon icon="star" class="star" hidden$="{{!item.favorite}}" on-click="toggleFavorite" title="Remove from Favorites"></iron-icon>
+            <iron-icon
+              icon="star-border"
+              class="star-border"
+              hidden$="{{item.favorite}}"
+              on-click="toggleFavorite"
+              title="Add to Favorite"></iron-icon>
+            <iron-icon
+              icon="star"
+              class="star"
+              hidden$="{{!item.favorite}}"
+              on-click="toggleFavorite"
+              title="Remove from Favorites"></iron-icon>
           </div>
         </div>
         <p>{{item.product_group_name}}</p>
-      <!-- <div class="card-actions">
-        <paper-icon-button icon="create" on-click="editProductGroup"></paper-icon-button>
-        <paper-icon-button icon="delete" on-click="removeProductGroup"></paper-icon-button>
-      </div> -->
       </div>
     </paper-card>
 
