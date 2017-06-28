@@ -16,7 +16,8 @@ services:
   slr-migrate:
     build:
       context: .
-      dockerfile: dockerfiles/Dockerfile.migrate
+      dockerfile: dockerfiles/Dockerfile
+    command: ["sh", "-c", "./migrate.py"]
     depends_on:
       - slr-db
     restart: on-failure
