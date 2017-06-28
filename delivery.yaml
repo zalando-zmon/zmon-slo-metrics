@@ -2,9 +2,9 @@ build_steps:
   - desc: "Update"
     cmd: apt-get -qq update
 
-    - desc: "Install Docker"
-    cmd: |
-      curl -sSL https://delivery.cloud.zalando.com/utils/ensure-docker | sh
+  - desc: "Install Docker"
+  cmd: |
+    curl -sSL https://delivery.cloud.zalando.com/utils/ensure-docker | sh
 
   - desc: "Install build dependencies"
     cmd: |
