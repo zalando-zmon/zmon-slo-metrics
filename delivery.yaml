@@ -1,0 +1,54 @@
+build_steps:
+  - desc: "Update"
+    cmd: apt-get -qq update
+
+    - desc: "Install Docker"
+    cmd: |
+      curl -sSL https://delivery.cloud.zalando.com/utils/ensure-docker | sh
+
+  - desc: "Install build dependencies"
+    cmd: |
+      apt-get install -q -y --no-install-recommends \
+        python3.6 \
+        python3.6-dev \
+        python3-pip \
+        python3-setuptools \
+        python3-wheel \
+        gcc \
+        libffi-dev \
+        libssl-dev \
+        libpq-dev \
+        tox
+
+  - desc: "Install Python dependencies"
+    cmd: |
+      pip3 install -r requirements.txt
+      pip3 install -U flake8
+
+  - desc: "Tox"
+    cmd: |
+      tox
+
+  - desc: "Build SLR backend"
+    cmd: |
+      docker build -f dockerfiles/Dockerfile -t registry-write.opensource.zalan.do/zmon/service-level-reports:refactor .
+
+  - desc: "Build SLR migrate"
+    cmd: |
+      docker build -f Dockerfile.migrate -t registry-write.opensource.zalan.do/zmon/service-level-reports-migrate:refactor .
+
+  - desc: "Build SLR frontend"
+    cmd: |
+      docker build -f dockerfiles/Dockerfile.frontend -t registry-write.opensource.zalan.do/zmon/service-level-reports-frontend:refactor .
+
+  - desc: "Push Docker Image (if on master)"
+    cmd: |
+      IS_PR_BUILD=${CDP_PULL_REQUEST_NUMBER+"true"}
+      if [[ ${IS_PR_BUILD} != "true" ]]
+      then
+        docker push registry-write.opensource.zalan.do/zmon/service-level-reports:refactor
+        docker push registry-write.opensource.zalan.do/zmon/service-level-reports-frontend:refactor
+        docker push registry-write.opensource.zalan.do/zmon/service-level-reports-migrate:refactor
+      else
+        echo "Image not pushed because the build is not a push to master"
+      fi
