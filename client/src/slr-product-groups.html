@@ -1,5 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <link rel="import" href="./slr-product-group-card.html">
@@ -12,7 +14,6 @@
     <style include="common-styles">
       :host {
         display: block;
-        @apply --slr-content;
       }
 
       .add {
@@ -25,11 +26,17 @@
     <iron-ajax
       id="ajax"
       url="/api/product-groups"
+      params="{{params}}"
       handle-as="json"
       on-response="handleResponse"
       on-error="handleErrorResponse"
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
+
+    <iron-scroll-threshold id="scrollTheshold"
+              lower-threshold="500"
+              on-lower-threshold="load"
+              scroll-target="document"></iron-scroll-threshold>
 
     <slr-product-group-view
       id="view"
@@ -40,18 +47,17 @@
       route={{route}}
       visible={{visible}}></slr-product-group-view>
 
-    <template
-      is="dom-repeat"
-      items="{{productGroups}}"
-      sort="sort"
-      observe="favorite"
-      filter={{computeFilter(searchStr)}}>
-      <a href="/product-groups/{{item.slug}}">
-        <slr-product-group-card
-          item={{item}}
-          favorite={{item.favorite}}></slr-product-group-card>
-      </a>
-    </template>
+    <iron-list grid
+      items="[[productGroups]]"
+      scroll-target="document">
+      <template>
+        <a href="/product-groups/{{item.slug}}">
+          <slr-product-group-card
+            item={{item}}
+            favorite={{item.favorite}}></slr-product-group-card>
+        </a>
+      </template>
+    </iron-list>
 
     <paper-fab
       class="add"
@@ -92,8 +98,24 @@
           },
           selectedItem: {
             type: Object
+          },
+          params: {
+            type: Object,
+            computed: 'computeParams(page_size, page)'
+          },
+          page_size: {
+            type: Number,
+            value: 10
+          },
+          page: {
+            type: Number,
+            value: 1
           }
         }
+      }
+
+      computeParams(page_size, page) {
+        return { page_size, page }
       }
 
       static get observers() { return [
@@ -113,14 +135,16 @@
 
       routeChanged(route, visible) {
         // always fetch product groups (needed in Products also)
-        this.$.ajax.generateRequest()
+        // this.$.ajax.generateRequest()
       }
 
       handleResponse(e) {
         try {
-          this.set('productGroups', e.detail.response.data)
+          let productGroups = e.detail.response.data.sort(this.sort)
+          productGroups.forEach((pg) => this.push('productGroups', pg))
+          this.$.scrollTheshold.clearTriggers();
         } catch(e) {
-          console.error('Error loading Product Groups')
+          console.error('Error loading Product Groups', e)
           this.notify("Can't Load Product Groups", () =>
                                               this.$.ajax.generateRequest())
         }
@@ -146,6 +170,11 @@
 
       sort(a, b) {
         return SlrUtils.favoriteSort(a, b)
+      }
+
+      load() {
+        this.$.ajax.generateRequest()
+        this.set('page', this.page+1)
       }
 
       notify(message, action, duration) {
