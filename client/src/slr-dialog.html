@@ -56,9 +56,7 @@
                   no-cancel-on-esc-key={{editMode}}>
 
       <app-toolbar>
-        <a href={{closeUrl}}>
-          <paper-icon-button icon="{{icon}}" title="{{icon}}" dialog-dismiss></paper-icon-button>
-        </a>
+        <slot name="close"></slot>
         <div main-title>{{title}}</div>
         <paper-fab mini icon="create" title="edit" on-click="toggleEditMode" hidden$="{{editMode}}"></paper-fab>
           <div hidden={{!loading}}>
@@ -106,6 +104,7 @@
           opened: {
             type: Boolean,
             value: false,
+            observer: 'openedChanged',
             notify: true
           },
           editMode: {
@@ -118,10 +117,6 @@
           },
           closeUrl: {
             type: String
-          },
-          route: {
-            type: Object,
-            notify: true
           }
         }
       }
@@ -130,10 +125,11 @@
         return [ 'itemPropsChanged(item.slo, item.sli)' ]
       }
 
-      ready() {
-        super.ready();
-        this.addEventListener('iron-overlay-opened', this.whenOpened)
-        this.addEventListener('iron-overlay-closed', this.whenClosed)
+      openedChanged(opened) {
+        if (opened) {
+          return this.whenOpened()
+        }
+        this.whenClosed()
       }
 
       whenOpened() {
@@ -146,7 +142,6 @@
         this.reset()
         this.set('editMode', false)
         this.dispatchEvent(new CustomEvent('slr-dialog-closed'))
-        this.set('route.path', '')
       }
 
       itemChanged() {

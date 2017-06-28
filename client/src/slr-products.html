@@ -37,18 +37,22 @@
 
     <slr-product-view id="view"
                       item="{{selectedItem}}"
+                      products="{{products}}"
+                      product-groups="{{productGroups}}"
                       opened={{viewOpened}}
                       loading={{loading}}
-                      edit-mode={{editMode}}></slr-product-view>
+                      route={{route}}
+                      visible={{visible}}></slr-product-view>
 
     <template is="dom-repeat"
               items="{{products}}"
               sort="sort"
               observe="favorite"
               filter={{computeFilter(searchStr)}}>
-      <slr-product-card item={{item}}
-                        favorite={{item.favorite}}
-                        on-click="openView"></slr-product-card>
+      <a href="/products/{{item.slug}}">
+        <slr-product-card item={{item}}
+                          favorite={{item.favorite}}></slr-product-card>
+      </a>
     </template>
 
     <paper-fab class="add"
@@ -71,36 +75,42 @@
             notify: true
           },
           route: {
-            type: Object,
-            observer: 'routeChanged'
+            type: Object
+          },
+          visible: {
+            type: Boolean
           },
           products: {
             type: Array,
             value: []
+          },
+          productGroups: {
+            type: Array
           },
           searchStr: {
             type: String
           },
           selectedItem: {
             type: String
-          },
-          editMode: {
-            type: Boolean
           }
+        }
+      }
+
+      static get observers() { return [
+        'routeChanged(route, visible)',
+      ]}
+
+      routeChanged(route, visible) {
+        if (visible) {
+          this.$.ajax.generateRequest()
         }
       }
 
       ready() {
         super.ready()
-        this.$.view.addEventListener('slr-product-added', () => {
+        this.$.view.addEventListener('slr-product-submitted', () => {
           this.$.ajax.generateRequest()
         })
-      }
-
-      routeChanged() {
-        if (this.route.prefix === '/products') {
-          this.$.ajax.generateRequest()
-        }
       }
 
       handleResponse(e) {
@@ -108,44 +118,28 @@
           this.set('products', e.detail.response.data)
         } catch(e) {
           console.error('Error loading Products')
-          this.dispatchEvent(
-            new CustomEvent('slr-notify', {
-              detail: {
-                message: "Can't Load Products",
-                duration: 0,
-                action: () => this.$.ajax.generateRequest()
-              },
-              bubbles: true,
-              composed: true
-            })
-          )
+          this.notify("Can't Load Products", () =>
+                                              this.$.ajax.generateRequest(), 0)
         }
       }
 
       handleErrorResponse(e) {
-        console.error('Error loading Products')
-        this.dispatchEvent(
-          new CustomEvent('slr-notify', {
-            detail: {
-              message: "Can't load Products.",
-              duration: 0,
-              action: () => this.$.ajax.generateRequest()
-            },
-            bubbles: true,
-            composed: true
-          })
-        )
-      }
+        try {
+          if (e.detail.request.xhr.response.status === 401) {
+            this.dispatchEvent(
+              new CustomEvent('slr-authenticate', {bubbles: true, composed: true})
+            )
+            return
+          }
+        } catch(e) {}
 
-      openView(e) {
-        this.set('viewOpened', true)
-        this.set('selectedItem', e.model.item)
+        console.error('Error loading Products')
+        this.notify("Can't Load Products", () =>
+                                            this.$.ajax.generateRequest(), 0)
       }
 
       addProduct() {
-        this.set('selectedItem', {})
-        this.set('viewOpened', true)
-        this.set('editMode', true)
+        this.$.view.new()
       }
 
       sort(a, b) {
@@ -154,6 +148,17 @@
 
       computeFilter(str) {
         return SlrUtils.filterCollection(str)
+      }
+
+      notify(message, action, duration) {
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: { message, action, duration },
+            duration,
+            bubbles: true,
+            composed: true
+          })
+        )
       }
     }
 
