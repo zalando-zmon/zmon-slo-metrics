@@ -495,7 +495,7 @@ def target_create(obj, slo_uri, sli_name, target_from, target_to, target_file):
         validate_target(target, act)
 
         if not act.errors:
-            t = client.target_create(slo, target['sli_uri'], target_from=target['from'], target_to=target['to'])
+            t = client.target_create(slo, target['sli_uri'], target_from=target.get('from'), target_to=target.get('to'))
 
             print(json.dumps(t, indent=4))
 

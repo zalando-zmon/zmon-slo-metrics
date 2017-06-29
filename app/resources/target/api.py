@@ -34,8 +34,8 @@ class TargetResource(ResourceHandler):
     def new_object(self, target: dict, **kwargs) -> Target:
         fields = self.get_object_fields(target, **kwargs)
 
-        fields['target_from'] = target.get('from', 0.0)
-        fields['target_to'] = target.get('to', 0.0)
+        fields['target_from'] = target.get('from')
+        fields['target_to'] = target.get('to')
 
         product_id = kwargs.get('product_id')
         objective_id = kwargs.get('slo_id')
@@ -67,8 +67,8 @@ class TargetResource(ResourceHandler):
         for field, val in fields.items():
             setattr(obj, field, val)
 
-        obj.target_from = target.get('from', 0.0)
-        obj.target_to = target.get('to', 0.0)
+        obj.target_from = target.get('from')
+        obj.target_to = target.get('to')
 
         product_id = kwargs.get('product_id')
         objective_id = kwargs.get('slo_id')
