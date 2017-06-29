@@ -23,8 +23,6 @@ RUN npm run-script build
 
 RUN cp -rf build/default /var/www/app
 
-COPY scm-source.json /
-
 # Define working directory.
 WORKDIR /etc/nginx
 

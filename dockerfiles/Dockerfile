@@ -16,8 +16,6 @@ COPY app /app
 
 COPY swagger.yaml /
 
-COPY scm-source.json /
-
 ENV FLASK_APP /app/main.py
 
 CMD python -m app
