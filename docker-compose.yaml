@@ -7,7 +7,7 @@ services:
       - "6379:6379"
 
   slr-db:
-    image: postgres:9.6.1
+    image: postgres:9.6.3
     ports:
        - "5432:5432"
     environment:
@@ -17,12 +17,14 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile
-    command: ["sh", "-c", "./migrate.py"]
+    command: ["sh", "-c", "until nslookup slr-db; do echo waiting for database; sleep 2; done; ./migrate.py"]
     depends_on:
       - slr-db
     restart: on-failure
     environment:
       DATABASE_URI: postgresql://postgres:db-password@slr-db/slr
+      DATABASE_USER: slr_user
+      DATABASE_PASSWORD: slr-user-password
 
   slr-backend:
     build:
@@ -38,12 +40,12 @@ services:
     # wait until migration is done!
     command: ["sh", "-c", "sleep 5 ; python -m app.main"]
     environment:
-      DATABASE_URI: postgresql://postgres:db-password@slr-db/slr
+      DATABASE_URI: postgresql://slr_user:slr-user-password@slr-db/slr
       KAIROSDB_URL: https://data-service.zmon.zalan.do/kairosdb-proxy
       # TOKENINFO_URL: https://info.services.auth.zalando.com/oauth2/tokeninfo
       SLR_PRESHARED_TOKEN: 'SLR-TOKEN'
       SLR_LOCAL_ENV: "true"
-      SLR_APP_URL: http://localhost:8000
+      SLR_APP_URL: http://localhost:8000/
       # SESSION
       SLR_SESSION_TYPE: redis
       SLR_SESSION_REDIS_HOST: slr-redis
@@ -57,7 +59,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile.frontend
-    command: ["sh", "-c", "sleep 5 ; nginx"]
+    command: ["sh", "-c", "until nslookup slr-backend; do echo waiting for backend; sleep 2; done; nginx"]
     restart: on-failure
     depends_on:
       - slr-backend
