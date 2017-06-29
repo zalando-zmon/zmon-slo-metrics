@@ -1,6 +1,6 @@
 build_steps:
   - desc: "Update"
-    cmd: apt-get -qq update
+    cmd: apt-get update
 
   - desc: "Install Docker"
     cmd: |
@@ -8,6 +8,9 @@ build_steps:
 
   - desc: "Install build dependencies"
     cmd: |
+      apt-get install -y --no-install-recommends software-properties-common
+      add-apt-repository -y ppa:fkrull/deadsnakes
+      apt-get update
       apt-get install -q -y --no-install-recommends \
         python3.6 \
         python3.6-dev \
