@@ -1,0 +1,88 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-styles/typography.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+
+<dom-module id="slr-product-card">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: inline-block;
+        width: 400px;
+        margin: 20px;
+        text-align: left;
+      }
+
+      paper-card {
+        width: 100%;
+      }
+
+      iron-icon { cursor: pointer; }
+
+      iron-icon.star-border {
+        visibility: hidden;
+        color: var(--paper-grey-500);
+      }
+
+      paper-card:hover iron-icon.star-border {
+        visibility: visible;
+      }
+
+      iron-icon.star { color: var(--paper-amber-500); }
+
+      .product-group-header { @apply --paper-font-headline; }
+
+      .product-group-favorite {
+        font-size: 15px;
+        float: right;
+        vertical-align: middle;
+      }
+    </style>
+
+    <paper-card>
+      <div class="card-content">
+        <div class="product-group-header">{{item.name}}
+          <!-- <div class="product-group-favorite">
+            <iron-icon
+              icon="star-border"
+              class="star-border"
+              hidden$="{{item.favorite}}"
+              on-click="toggleFavorite"
+              title="Add to Favorite"></iron-icon>
+            <iron-icon
+              icon="star"
+              class="star"
+              hidden$="{{!item.favorite}}"
+              on-click="toggleFavorite"
+              title="Remove from Favorites"></iron-icon>
+          </div> -->
+        </div>
+        <p>{{item.product_group_name}}</p>
+      </div>
+    </paper-card>
+
+  </template>
+  <script>
+    class SlrProductCard extends Polymer.Element {
+      static get is() { return 'slr-product-card' }
+
+      static get properties() {
+        return {
+          item: {
+            type: Object
+          },
+          favorite: {
+            type: Boolean
+          }
+        }
+      }
+
+      toggleFavorite(e) {
+        e.stopPropagation();
+        this.set('item.favorite', !this.item.favorite)
+      }
+    }
+
+    window.customElements.define(SlrProductCard.is, SlrProductCard)
+  </script>
+</dom-module>
