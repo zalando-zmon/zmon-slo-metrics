@@ -85,7 +85,7 @@ def upgrade():
                     )
     op.create_table('indicatorvalue',
                     sa.Column('timestamp', sa.DateTime(), nullable=False),
-                    sa.Column('value', sa.Numeric(), nullable=False),
+                    sa.Column('value', sa.Float(), nullable=False),
                     sa.Column('indicator_id', sa.Integer(), nullable=False),
                     sa.ForeignKeyConstraint(
                         ['indicator_id'], ['indicator.id'], ondelete='CASCADE'),
@@ -94,8 +94,8 @@ def upgrade():
                     )
     op.create_table('target',
                     sa.Column('id', sa.Integer(), nullable=False),
-                    sa.Column('target_from', sa.Numeric(), nullable=True),
-                    sa.Column('target_to', sa.Numeric(), nullable=True),
+                    sa.Column('target_from', sa.Float(), nullable=True),
+                    sa.Column('target_to', sa.Float(), nullable=True),
                     sa.Column('indicator_id', sa.Integer(), nullable=False),
                     sa.Column('objective_id', sa.Integer(), nullable=False),
                     sa.Column('username', sa.String(
