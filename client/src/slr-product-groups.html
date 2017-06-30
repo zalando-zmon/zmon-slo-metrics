@@ -1,0 +1,193 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+
+<link rel="import" href="./slr-product-group-card.html">
+<link rel="import" href="./slr-product-group-view.html">
+<link rel="import" href="./slr-utils.html">
+<link rel="import" href="./common-styles.html">
+
+<dom-module id="slr-product-groups">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: block;
+      }
+
+      .add {
+        position: fixed;
+        right: 5%;
+        bottom: 8%;
+      }
+    </style>
+
+    <iron-ajax
+      id="ajax"
+      url="/api/product-groups"
+      handle-as="json"
+      on-response="handleResponse"
+      on-error="handleErrorResponse"
+      debounce-duration="300"
+      loading={{loading}}></iron-ajax>
+
+    <iron-scroll-threshold id="scrollTheshold"
+              lower-threshold="500"
+              on-lower-threshold="load"
+              scroll-target="document"></iron-scroll-threshold>
+
+    <slr-product-group-view
+      id="view"
+      item="{{selectedItem}}"
+      opened={{viewIsOpen}}
+      loading={{loading}}
+      product-groups={{productGroups}}
+      route={{route}}
+      visible={{visible}}></slr-product-group-view>
+
+    <iron-list grid
+      items="[[productGroups]]"
+      scroll-target="document">
+      <template>
+        <a href="/product-groups/{{item.slug}}">
+          <slr-product-group-card
+            item={{item}}
+            favorite={{item.favorite}}></slr-product-group-card>
+        </a>
+      </template>
+    </iron-list>
+
+    <paper-fab
+      class="add"
+      icon="add"
+      title="add"
+      on-click="addProductGroup"
+      hidden$={{viewIsOpen}}></paper-fab>
+
+  </template>
+
+  <script>
+    class SlrProductGroups extends Polymer.Element {
+      static get is() { return 'slr-product-groups' }
+
+      static get properties() {
+        return {
+          productGroups: {
+            type: Array,
+            value: [],
+            notify: true
+          },
+          route: {
+            type: Object
+          },
+          visible: {
+            type: Boolean
+          },
+          loading: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          viewIsOpen: {
+            type: Boolean
+          },
+          searchStr: {
+            type: String
+          },
+          selectedItem: {
+            type: Object
+          },
+          params: {
+            type: Object,
+            computed: 'computeParams(page_size, page)'
+          },
+          page_size: {
+            type: Number,
+            value: 10
+          },
+          page: {
+            type: Number,
+            value: 1
+          }
+        }
+      }
+
+      computeParams(page_size, page) {
+        return { page_size, page }
+      }
+
+      static get observers() { return [
+        'routeChanged(route, visible)'
+      ]}
+
+      ready() {
+        super.ready()
+        this.$.view.addEventListener('slr-product-group-submitted', () => {
+          this.$.ajax.generateRequest()
+        })
+      }
+
+      computeFilter(str) {
+        return SlrUtils.filterCollection(str)
+      }
+
+      routeChanged(route, visible) {
+        this.$.ajax.generateRequest()
+      }
+
+      handleResponse(e) {
+        try {
+          // let productGroups = e.detail.response.data.sort(this.sort)
+          // productGroups.forEach((pg) => this.push('productGroups', pg))
+          this.set('productGroups', e.detail.response.data.sort(this.sort))
+          this.$.scrollTheshold.clearTriggers();
+        } catch(e) {
+          console.error('Error loading Product Groups', e)
+          this.notify("Can't Load Product Groups", () =>
+                                              this.$.ajax.generateRequest())
+        }
+      }
+
+      handleErrorResponse(e) {
+        try {
+          if (e.detail.request.xhr.response.status === 401) {
+            this.dispatchEvent(
+              new CustomEvent('slr-authenticate', {bubbles: true, composed: true})
+            )
+            return
+          }
+        } catch(e) {}
+        console.error('Error loading Product Groups')
+        this.notify("Can't Load Product Groups.", () =>
+                                              this.$.ajax.generateRequest(), 0)
+      }
+
+      addProductGroup() {
+        this.$.view.new()
+      }
+
+      sort(a, b) {
+        return SlrUtils.favoriteSort(a, b)
+      }
+
+      load() {
+        // this.$.ajax.generateRequest()
+        this.set('page', this.page+1)
+      }
+
+      notify(message, action, duration) {
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: { message, action, duration },
+            duration,
+            bubbles: true,
+            composed: true
+          })
+        )
+      }
+    }
+
+    window.customElements.define(SlrProductGroups.is, SlrProductGroups)
+  </script>
+</dom-module>
