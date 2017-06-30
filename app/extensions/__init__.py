@@ -6,13 +6,13 @@ from .oauth import oauth
 
 
 __all__ = (
-    cache,
-    db,
-    limiter,
-    migrate,
-    oauth,
-    session,
+    'cache',
+    'db',
+    'limiter',
+    'migrate',
+    'oauth',
+    'session',
 
-    get_token_info,
-    set_token_info,
+    'get_token_info',
+    'set_token_info',
 )

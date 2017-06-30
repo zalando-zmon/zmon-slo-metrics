@@ -140,4 +140,4 @@ def fetch_token_info(token_info_url, token):
             token_response=token_request
         )
 
-    return token_request.json()  # type: dict
+    return token_request.json()
