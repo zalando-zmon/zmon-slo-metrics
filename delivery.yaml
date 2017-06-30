@@ -44,6 +44,11 @@ build_steps:
     cmd: |
       docker build -f dockerfiles/Dockerfile.frontend -t registry-write.opensource.zalan.do/zmon/service-level-reports-frontend:refactor-#{CDP_BUILD_VERSION} .
 
+  - desc: "Push Docker Image (test!)"
+    cmd: |
+      docker push registry-write.opensource.zalan.do/zmon/service-level-reports:refactor-#{CDP_BUILD_VERSION}
+      docker push registry-write.opensource.zalan.do/zmon/service-level-reports-frontend:refactor-#{CDP_BUILD_VERSION}
+
   - desc: "Push Docker Image (if on master)"
     cmd: |
       IS_PR_BUILD=${CDP_PULL_REQUEST_NUMBER+"true"}
