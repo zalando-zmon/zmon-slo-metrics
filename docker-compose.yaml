@@ -42,7 +42,7 @@ services:
     environment:
       DATABASE_URI: postgresql://slr_user:slr-user-password@slr-db/slr
       KAIROSDB_URL: https://data-service.zmon.zalan.do/kairosdb-proxy
-      # TOKENINFO_URL: https://info.services.auth.zalando.com/oauth2/tokeninfo
+      TOKENINFO_URL: https://info.services.auth.zalando.com/oauth2/tokeninfo
       SLR_PRESHARED_TOKEN: 'SLR-TOKEN'
       SLR_LOCAL_ENV: "true"
       SLR_APP_URL: http://localhost:8000/
@@ -50,7 +50,7 @@ services:
       SLR_SESSION_TYPE: redis
       SLR_SESSION_REDIS_HOST: slr-redis
       # CACHE
-      SLR_CACHE_TYPE: RedisCache
+      SLR_CACHE_TYPE: redis
       SLR_CACHE_REDIS_HOST: slr-redis
       # THROTTLING
       SLR_RATE_LIMIT_STORAGE: redis://slr-redis:6379
