@@ -6,8 +6,8 @@ from app.extensions import db
 class Target(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
-    target_from = db.Column(db.Numeric(), default=0.0)
-    target_to = db.Column(db.Numeric(), default=0.0)
+    target_from = db.Column(db.Float(), default=float('-inf'))
+    target_to = db.Column(db.Float(), default=float('inf'))
 
     indicator_id = db.Column(db.Integer(), db.ForeignKey('indicator.id'), nullable=False)
     objective_id = db.Column(db.Integer(), db.ForeignKey('objective.id'), nullable=False)

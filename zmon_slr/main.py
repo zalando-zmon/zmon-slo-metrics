@@ -464,8 +464,8 @@ def target_list(obj, slo_uri):
 @target.command('create')
 @click.argument('slo_uri')
 @click.option('--sli-name', '-s', help='SLI name')
-@click.option('--target-from', '-r', type=float, help='Target "from" value')
-@click.option('--target-to', '-t', type=float, help='Target "to" value')
+@click.option('--target-from', '-r', type=float, default=float('-inf'), help='Target "from" value')
+@click.option('--target-to', '-t', type=float, default=float('inf'), help='Target "to" value')
 @click.option('--target-file', '-f', type=click.File('r'), help='Target definition JSON file.')
 @click.pass_obj
 def target_create(obj, slo_uri, sli_name, target_from, target_to, target_file):
@@ -495,7 +495,7 @@ def target_create(obj, slo_uri, sli_name, target_from, target_to, target_file):
         validate_target(target, act)
 
         if not act.errors:
-            t = client.target_create(slo, target['sli_uri'], target_from=target['from'], target_to=target['to'])
+            t = client.target_create(slo, target['sli_uri'], target_from=target.get('from'), target_to=target.get('to'))
 
             print(json.dumps(t, indent=4))
 

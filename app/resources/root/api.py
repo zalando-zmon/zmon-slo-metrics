@@ -10,9 +10,9 @@ class APIRoot(ResourceHandler):
     @classmethod
     def get(cls, **kwargs) -> dict:
         return {
-            'health_uri': urljoin(request.base_url, 'health'),
-            'product_groups_uri': urljoin(request.base_url, 'product-groups'),
-            'products_uri': urljoin(request.base_url, 'products'),
+            'health_uri': urljoin(request.api_url, 'health'),
+            'product_groups_uri': urljoin(request.api_url, 'product-groups'),
+            'products_uri': urljoin(request.api_url, 'products'),
         }
 
     @classmethod

@@ -11,3 +11,4 @@ client/build
 *.egg-info
 build/
 dist/
+.mypy_cache/

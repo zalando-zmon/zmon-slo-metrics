@@ -12,7 +12,7 @@ def get_authorization() -> Authorization:
 
 
 __all__ = (
-    Authorization,
-    CommunityAuthorization,
-    get_authorization,
+    'Authorization',
+    'CommunityAuthorization',
+    'get_authorization',
 )

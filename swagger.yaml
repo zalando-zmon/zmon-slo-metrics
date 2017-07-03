@@ -688,6 +688,7 @@ paths:
             required:
               - name
               - source
+              - unit
       responses:
         201:
           description: CREATED
