@@ -4,6 +4,7 @@
 <link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
+<link rel="import" href="./slr-product-groups-data.html">
 <link rel="import" href="./slr-product-group-card.html">
 <link rel="import" href="./slr-product-group-view.html">
 <link rel="import" href="./slr-utils.html">
@@ -23,14 +24,12 @@
       }
     </style>
 
-    <iron-ajax
-      id="ajax"
-      url="/api/product-groups"
-      handle-as="json"
-      on-response="handleResponse"
-      on-error="handleErrorResponse"
-      debounce-duration="300"
-      loading={{loading}}></iron-ajax>
+    <slr-product-groups-data
+      id="productGroupsData"
+      slug="{{selectedSlug}}"
+      item="{{selectedItem}}"
+      product-groups="{{productGroups}}"
+      loading="{{loading}}"></slr-product-groups-data>
 
     <iron-scroll-threshold id="scrollTheshold"
               lower-threshold="500"
@@ -40,6 +39,7 @@
     <slr-product-group-view
       id="view"
       item="{{selectedItem}}"
+      slug="{{selectedSlug}}"
       opened={{viewIsOpen}}
       loading={{loading}}
       product-groups={{productGroups}}
@@ -98,6 +98,9 @@
           selectedItem: {
             type: Object
           },
+          selectedSlug: {
+            type: String
+          },
           params: {
             type: Object,
             computed: 'computeParams(page_size, page)'
@@ -124,7 +127,7 @@
       ready() {
         super.ready()
         this.$.view.addEventListener('slr-product-group-submitted', () => {
-          this.$.ajax.generateRequest()
+          this.$.productGroupsData.fetch()
         })
       }
 
@@ -133,7 +136,9 @@
       }
 
       routeChanged(route, visible) {
-        this.$.ajax.generateRequest()
+        if (visible) {
+          this.$.productGroupsData.fetch()
+        }
       }
 
       handleResponse(e) {
@@ -145,7 +150,7 @@
         } catch(e) {
           console.error('Error loading Product Groups', e)
           this.notify("Can't Load Product Groups", () =>
-                                              this.$.ajax.generateRequest())
+                                              this.$.productGroupsData.fetch())
         }
       }
 
@@ -160,7 +165,7 @@
         } catch(e) {}
         console.error('Error loading Product Groups')
         this.notify("Can't Load Product Groups.", () =>
-                                              this.$.ajax.generateRequest(), 0)
+                                              this.$.productGroups.fetch(), 0)
       }
 
       addProductGroup() {
@@ -172,7 +177,7 @@
       }
 
       load() {
-        // this.$.ajax.generateRequest()
+        // this.$.productGroupsData.fetch()
         this.set('page', this.page+1)
       }
 

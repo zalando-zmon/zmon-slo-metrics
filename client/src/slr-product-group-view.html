@@ -26,15 +26,6 @@
       data="{{routeData}}"
       tail="{{subroute}}"></app-route>
 
-      <iron-ajax
-        id="ajax"
-        url="/api/product-groups"
-        handle-as="json"
-        on-response="handleResponse"
-        on-error="handleErrorResponse"
-        debounce-duration="300"
-        loading={{loading}}></iron-ajax>
-
     <paper-dialog id="deleteModal" opened={{deleteModalIsOpen}}>
       <h2>Delete Product Group</h2>
       <p>Are you sure you want to delete "{{item.name}}"?</p>
@@ -104,8 +95,13 @@
 
       static get properties() {
         return {
+          slug: {
+            type: String,
+            notify: true
+          },
           item: {
-            type: Object
+            type: Object,
+            observer: 'itemChanged'
           },
           route: {
             type: Object
@@ -159,22 +155,17 @@
       }
 
       routeDataChanged(slug, visible) {
-        if (!visible) {
+        if (slug && visible) {
+          this.set('slug', slug)
+          this.set('opened', true)
           return
         }
 
-        // TODO fix when productGroups is empty
-        if (slug) {
-          let ix = this.productGroups.findIndex((pg) => pg.slug === slug)
-          if (ix > -1) {
-            this.set('item', this.productGroups[ix])
-            this.set('opened', true)
-          } else {
-            // TODO Fix 404
-            console.log('Product slug not found, 404')
-            this.routeData.page = '404'
-          }
-        } else {
+        return this.set('opened', false)
+      }
+
+      itemChanged() {
+        if (!this.item) {
           this.set('opened', false)
         }
       }
