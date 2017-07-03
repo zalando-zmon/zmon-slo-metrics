@@ -73,6 +73,20 @@
         width: 100%;
       }
 
+      paper-item:hover {
+        background-color: var(--app-secondary-color);
+      }
+
+      paper-item paper-icon-button {
+        position: absolute;
+        right: 10px;
+        display: none;
+      }
+
+      paper-item:hover paper-icon-button {
+        display: block;
+      }
+
     </style>
 
     <app-route
@@ -162,7 +176,7 @@
 
       <iron-form id="productForm" headers="{{headers}}">
         <form class="form" method="{{method}}" action="{{action}}">
-            <div class="column">
+            <div>
               <paper-input
                 type="text"
                 name="name"
@@ -197,10 +211,10 @@
             </div>
             <div class="column" hidden$="{{!item.uri}}">
               <iron-label>Objectives</iron-label>
-              <paper-button
+              <paper-icon-button
+                icon="add"
                 hidden$="{{!editMode}}"
-                on-click="addObjective"
-                raised>Add Objective</paper-button>
+                on-click="addObjective"></paper-icon-button>
                 <paper-listbox
                   id="objectivesList"
                   slot="dropdown-content">
@@ -212,14 +226,15 @@
                       <paper-item>{{objective.title}}</paper-item>
                     </a>
                   </template>
+                  <paper-item disabled class="no-items" hidden="{{objectives.length}}">No objectives...</paper-item>
                 </paper-listbox>
             </div>
             <div class="column" hidden$="{{!item.uri}}">
               <iron-label>Indicators</iron-label>
-              <paper-button
+              <paper-icon-button
+                icon="add"
                 hidden$="{{!editMode}}"
-                on-click="addIndicator"
-                raised>Add Indicator</paper-button>
+                on-click="addIndicator"></paper-icon-button>
               <paper-listbox
                 id="indicatorsList"
                 slot="dropdown-content">
@@ -231,6 +246,7 @@
                     <paper-item>{{indicator.name}}</paper-item>
                   </a>
                 </template>
+                <paper-item disabled class="no-items" hidden="{{indicators.length}}">No indicators...</paper-item>
               </paper-listbox>
             </div>
           </div>

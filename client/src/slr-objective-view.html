@@ -107,21 +107,31 @@
                         required></paper-input>
         </form>
       </iron-form>
-      <iron-label>Targets</iron-label>
-      <paper-button
-        raised hidden$="{{!editMode}}"
-        on-click="addTarget">Add Target</paper-button>
-      <ul>
-        <template
-          is="dom-repeat"
-          items="{{item.targets}}"
-          as="target">
-          <li>
-            <slr-target uri="{{target}}" objective="[[item]]" targets="{{item.targets}}" indicators="[[indicators]]"></slr-target>
-          </li>
-        </template>
-        <li hidden="{{item.targets.length}}"><p class="no-items">No targets...</p></li>
-      </ul>
+      <div hidden$="{{!item.uri}}">
+        <iron-label>Targets</iron-label>
+        <ul>
+          <template
+            is="dom-repeat"
+            items="{{item.targets}}"
+            as="target">
+            <li>
+              <slr-target
+                uri="{{target}}"
+                objective="[[item]]"
+                targets="{{item.targets}}"
+                indicators="[[indicators]]"
+                allow-edit-mode="[[editMode]]"></slr-target>
+            </li>
+          </template>
+          <li hidden="{{item.targets.length}}"><p class="no-items">No targets...</p></li>
+        </ul>
+
+        <paper-button
+          raised
+          hidden$="{{!editMode}}"
+          on-click="addTarget">Add Target</paper-button>
+      </div>
+
     </slr-dialog>
   </template>
   <script>
@@ -215,10 +225,6 @@
             this.set('routeData.objectiveId', null)
             this.initForm()
           })
-
-        this.addEventListener('slr-target-removed', () => {
-          this.$.ajax.generateRequest()
-        })
 
         this.$.objectiveForm
           .addEventListener('iron-form-presubmit', () => {
@@ -350,6 +356,17 @@
         } catch(e) {}
         console.error('Error loading Objective')
         this.notify("Can't Load Objective.", () => this.$.ajax.generateRequest())
+      }
+
+      notify(message, action, duration) {
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: { message, action, duration },
+            duration,
+            bubbles: true,
+            composed: true
+          })
+        )
       }
     }
     window.customElements.define(SlrObjectiveView.is, SlrObjectiveView)
