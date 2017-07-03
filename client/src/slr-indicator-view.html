@@ -206,17 +206,9 @@
               'default': 'save'
             }
 
-            this.dispatchEvent(
-              new CustomEvent('slr-notify', {
-                detail: {
-                  message: `Can't ${m[method]} Indicator.`,
-                  action: () => this.$.indicatorForm.submit()
-                },
-                bubbles: true,
-                composed: true
-              })
-            )
-
+            this.notify()
+            this.dispatchEvent(`Can't ${m[method]} Indicator.`, () =>
+                                                  this.$.indicatorForm.submit())
             this.initForm()
           })
 
@@ -233,13 +225,7 @@
               'default': 'saved'
             }
 
-            this.dispatchEvent(new CustomEvent('slr-notify', {
-                detail: { message: `Indicator ${m[method]}.` },
-                bubbles: true,
-                composed: true
-              })
-            )
-
+            this.notify(`Indicator ${m[method]}.`)
             this.initForm()
 
             if (method === 'DELETE') {
@@ -268,7 +254,7 @@
           try {
             json = JSON.parse(this.$.source.value)
           } catch(e) {
-            console.log('error parsing json')
+            console.error('Error parsing "source" as JSON')
           }
         }
         return json
@@ -297,6 +283,17 @@
       deleteConfirm() {
         this.set('method', 'DELETE')
         this.$.indicatorForm.submit()
+      }
+
+      notify(message, action, duration) {
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: { message, action, duration },
+            duration,
+            bubbles: true,
+            composed: true
+          })
+        )
       }
     }
     window.customElements.define(SlrIndicatorView.is, SlrIndicatorView)
