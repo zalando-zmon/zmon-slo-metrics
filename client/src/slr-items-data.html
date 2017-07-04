@@ -1,0 +1,155 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="slr-items-data">
+  <template>
+    <iron-ajax
+      id="ajax"
+      url="{{url}}"
+      handle-as="json"
+      on-response="handleResponse"
+      on-error="handleErrorResponse"
+      debounce-duration="300"
+      loading={{loading}}></iron-ajax>
+  </template>
+
+  <script>
+    class SlrItemsData extends Polymer.Element {
+      static get is() { return 'slr-items-data' }
+
+      static get properties() {
+        return {
+          item: {
+            type: Object,
+            notify: true
+          },
+          itemType: {
+            type: String,
+            value: 'Item'
+          },
+          idName: {
+            type: String,
+            value: 'slug'
+          },
+          slug: {
+            type: String,
+            observer: 'slugChanged'
+          },
+          items: {
+            type: Array,
+            value: null,
+            notify: true
+          },
+          loading: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          url: {
+            type: String
+          },
+          pageSize: {
+            type: Number,
+            value: 10
+          },
+          page: {
+            type: Number,
+            value: 1
+          },
+          fetchAttempts: {
+            type: Number,
+            value: 0
+          }
+        }
+      }
+
+      handleResponse(e) {
+        try {
+          this.set('items', e.detail.response.data.sort(this.sort))
+        } catch(e) {
+          console.error('Error loading' + this.itemType)
+          this.notify("Can't Load "+ this.itemType, () => this.fetch(), 0)
+        }
+      }
+
+      handleErrorResponse(e) {
+        try {
+          if (e.detail.request.xhr.response.status === 401) {
+            this.dispatchEvent(
+              new CustomEvent('slr-authenticate', {bubbles: true, composed: true})
+            )
+            return
+          }
+        } catch(e) {}
+
+        console.error('Error loading ' + this.itemType)
+        this.notify("Can't Load " + this.itemType, () => this.fetch(), 0)
+      }
+
+      fetch() {
+        if (!this.url) {
+          return
+        }
+
+        if (this.fetchAttempts > 3) {
+          return this.notify("Can't fetch " + this.itemType, () => this.fetch, 0)
+        }
+
+        let ajax = this.$.ajax.generateRequest();
+        this.set('fetchAttempts', this.fetchAttempts+1)
+        Promise.all([ajax.completes]).then( (reqs) => {
+          this.set('items', reqs[0].response.data)
+          this.fetchAttempts = 0;
+          if (this.slug && this.items.length) {
+            this.findAndSetItem()
+          }
+        })
+      }
+
+      slugChanged() {
+        if (!this.slug) {
+          return
+        }
+
+        if (!this.items) {
+          return this.fetch()
+        }
+
+        if (this.items.length === 0 && this.fetchAttempts === 0) {
+          return this.fetch()
+        }
+
+        if (this.items.length) {
+          this.findAndSetItem()
+        }
+      }
+
+      findAndSetItem() {
+        let ix = this.items.findIndex( (p) => ''+p[this.idName] === ''+this.slug)
+        if (this.itemType === 'Indicator') {
+          console.log('ix', this.idName, this.slug, this.items)
+        }
+        if (ix > -1) {
+          this.fetchAttempts = 0;
+          this.set('item', this.items[ix])
+        } else {
+          this.notify(this.itemType + ' not found')
+          this.set('item', null)
+        }
+      }
+
+      notify(message, action, duration) {
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: { message, action, duration },
+            duration,
+            bubbles: true,
+            composed: true
+          })
+        )
+      }
+    }
+
+    window.customElements.define(SlrItemsData.is, SlrItemsData)
+  </script>
+</dom-module>

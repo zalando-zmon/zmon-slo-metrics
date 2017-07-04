@@ -17,28 +17,6 @@
         @apply --slr-content;
         text-align: left;
       }
-
-      paper-dialog {
-        max-width: var(--app-content-max-width);
-        min-width: 500px;
-        max-height: 80%;
-      }
-
-      iron-label {
-        font-family: var(--paper-font-caption_-_font-family);
-        -webkit-font-smoothing: var(--paper-font-caption_-_webkit-font-smoothing);
-        white-space: var(--paper-font-caption_-_white-space);
-        overflow: var(--paper-font-caption_-_overflow);
-        text-overflow: var(--paper-font-caption_-_overflow);
-        font-size: var(--paper-font-caption_-_font-size);
-        font-weight: var(--paper-font-caption_-_font-weight);
-        letter-spacing: var(--paper-font-caption_-_letter-spacing);
-        line-height: var(--paper-font-caption_-_line-height);
-        color: var(--paper-input-container-color, var(--secondary-text-color));
-        opacity: 0.66;
-        position: relative;
-        top: 8px;
-      }
     </style>
 
     <app-route
@@ -150,10 +128,16 @@
             type: Array
           },
           item: {
-            type: Object
+            type: Object,
+            observer: 'itemChanged'
+          },
+          selectedObjectiveId: {
+            type: String,
+            notify: true
           },
           opened: {
-            type: Boolean
+            type: Boolean,
+            notify: true
           },
           editMode: {
             type: Boolean,
@@ -199,20 +183,17 @@
       }
 
       routeDataChanged(objectiveId, visible) {
-        if (!visible) {
+        if (objectiveId && visible) {
+          this.set('selectedObjectiveId', objectiveId)
+          this.set('opened', true)
           return
         }
 
-        if (objectiveId) {
-          let ix = this.objectives.findIndex((o) =>
-                                              o.id === parseInt(objectiveId))
-          if (ix > -1) {
-            this.set('item', this.objectives[ix])
-            this.set('opened', true)
-          } else {
-            this.routeData.page = '404'
-          }
-        } else {
+        return this.set('opened', false)
+      }
+
+      itemChanged() {
+        if (!this.item) {
           this.set('opened', false)
         }
       }
@@ -318,8 +299,7 @@
       }
 
       close() {
-        this.set('opened', false)
-        this.set('routeData.objectiveId', '')
+        window.history.back()
       }
 
       initForm() {

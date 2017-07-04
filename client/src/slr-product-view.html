@@ -11,6 +11,7 @@
 <link rel="import" href="../bower_components/iron-label/iron-label.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 
+<link rel="import" href="./slr-items-data.html">
 <link rel="import" href="./slr-dialog.html">
 <link rel="import" href="./slr-objective-view.html">
 <link rel="import" href="./slr-indicator-view.html">
@@ -22,28 +23,6 @@
         display: block;
         @apply --slr-content;
         text-align: left;
-      }
-
-      paper-dialog {
-        max-width: var(--app-content-max-width);
-        min-width: 500px;
-        max-height: 80%;
-      }
-
-      iron-label {
-        font-family: var(--paper-font-caption_-_font-family);
-        -webkit-font-smoothing: var(--paper-font-caption_-_webkit-font-smoothing);
-        white-space: var(--paper-font-caption_-_white-space);
-        overflow: var(--paper-font-caption_-_overflow);
-        text-overflow: var(--paper-font-caption_-_overflow);
-        font-size: var(--paper-font-caption_-_font-size);
-        font-weight: var(--paper-font-caption_-_font-weight);
-        letter-spacing: var(--paper-font-caption_-_letter-spacing);
-        line-height: var(--paper-font-caption_-_line-height);
-        color: var(--paper-input-container-color, var(--secondary-text-color));
-        opacity: 0.66;
-        position: relative;
-        top: 8px;
       }
 
       paper-card {
@@ -67,6 +46,10 @@
         position: absolute;
         bottom: 10px;
         right: 15px;
+      }
+
+      paper-item {
+        opacity: 0.66;
       }
 
       paper-dropdown-menu {
@@ -95,48 +78,50 @@
       data="{{routeData}}"
       tail="{{subroute}}"></app-route>
 
-    <iron-ajax
-      id="ajaxSlo"
-      url="{{item.product_slo_uri}}"
-      handle-as="json"
-      on-response="handleSloResponse"
-      on-error="handleSloErrorResponse"
-      debounce-duration="300"
-      loading="{{loading}}"></iron-ajax>
+    <slr-items-data
+      id="objectivesData"
+      id-name="id"
+      slug="{{selectedObjectiveId}}"
+      item="{{selectedObjective}}"
+      items="{{objectives}}"
+      url="[[item.product_slo_uri]]"
+      item-type="Objective"
+      loading="{{loading}}"></slr-items-data>
 
-    <iron-ajax
-      id="ajaxSli"
-      url="{{item.product_sli_uri}}"
-      handle-as="json"
-      on-response="handleSliResponse"
-      on-error="handleSliErrorResponse"
-      debounce-duration="300"
-      loading="{{loading}}"></iron-ajax>
+    <slr-items-data
+      id="indicatorsData"
+      id-name="name"
+      slug="{{selectedIndicatorId}}"
+      item="{{selectedIndicator}}"
+      items="{{indicators}}"
+      url="[[item.product_sli_uri]]"
+      item-type="Indicator"
+      loading="{{loading}}"></slr-items-data>
 
     <slr-objective-view
       id="objectiveView"
+      selected-objective-id="{{selectedObjectiveId}}"
       item="{{selectedObjective}}"
       product="{{item}}"
       objectives="{{objectives}}"
       indicators="{{indicators}}"
-      opened="{{objectiveViewOpened}}"
       loading="{{loading}}"
       route="{{subroute}}"
       route-data="{{routeData}}"
-      visible="{{visible}}"
-      edit-mode="{{objectiveViewEditMode}}"></slr-objective-view>
+      opened="{{objectiveViewOpened}}"
+      visible="{{visible}}"></slr-objective-view>
 
     <slr-indicator-view
       id="indicatorView"
-      item="{{selectedObjective}}"
+      selected-indicator-id="{{selectedIndicatorId}}"
+      item="{{selectedIndicator}}"
       product="{{item}}"
       indicators="{{indicators}}"
       opened="{{indicatorViewOpened}}"
       loading="{{loading}}"
       route="{{subroute}}"
       route-data="{{routeData}}"
-      visible="{{visible}}"
-      edit-mode="{{indicatorViewEditMode}}"></slr-indicator-view>
+      visible="{{visible}}"></slr-indicator-view>
 
     <paper-dialog
       id="deleteModal"
@@ -262,7 +247,12 @@
       static get properties() {
         return {
           item: {
-            type: Object
+            type: Object,
+            observer: 'itemChanged'
+          },
+          slug: {
+            type: String,
+            notify: true
           },
           products: {
             type: Array
@@ -294,6 +284,9 @@
             value: false,
             notify: true
           },
+          objectiveViewOpened: {
+            type: Boolean
+          },
           loading: {
             type: Boolean,
             notify: true
@@ -318,14 +311,6 @@
               'content-type': 'application/json'
             }
           },
-          objectiveViewOpened: {
-            type: Boolean,
-            value: false
-          },
-          objectiveViewEditMode: {
-            type: Boolean,
-            value: false
-          },
           indicatorViewOpened: {
             type: Boolean,
             value: false
@@ -337,8 +322,17 @@
           selectedObjective: {
             type: Object
           },
+          selectedObjectiveId: {
+            type: String
+          },
           selectedIndicator: {
             type: Object
+          },
+          selectedIndicatorId: {
+            type: String
+          },
+          objectiveViewOpened: {
+            type: Boolean
           },
           deleteModalOpened: {
             type: Boolean,
@@ -351,66 +345,29 @@
         return uri ? uri : '/api/products'
       }
 
-      computeSelectedProductGroup(ix) {
-        if (ix > 0) {
-          return this.productGroups[ix]
-        }
-        return null
-      }
-
-      computeSelectedProductGroupUri(productGroup) {
-        if (productGroup) {
-          return productGroup.uri
-        }
-        return ''
-      }
-
-      computeSelectedProductGroupIndex(item, productGroups) {
-        if (item && productGroups) {
-          return productGroups.findIndex( (pg) => item.product_group_uri === pg.uri )
-        }
-        return -1
-      }
-
       static get observers() {
         return [ 'routeDataChanged(routeData.slug, visible)' ]
       }
 
       routeDataChanged(slug, visible) {
-        if (!visible) {
-          return
-        }
-
-        // TODO Fix when Product arr is empty
-        if (slug) {
-          // // make sure we got the collection before we display an item
-          // let ajax = this.$.ajax.generateRequest();
-          // Promise.all([ajax.completes]).then((reqs) => {
-          //
-          let ix = this.products.findIndex((p) => p.slug === slug)
-          if (ix > -1) {
-            this.set('item', this.products[ix])
-            this.set('opened', true)
-          } else {
-            // TODO Fix 404
-            this.routeData.page = '404'
-          }
+        if (slug && visible) {
+          this.set('slug', slug)
         } else {
+          this.set('slug', null)
           this.set('opened', false)
+        }
+      }
+
+      itemChanged() {
+        this.fetchData()
+        if (this.slug && this.item.slug
+          && !this.objectiveViewOpened && !this.indicatorViewOpened) {
+          this.set('opened', true)
         }
       }
 
       ready() {
         super.ready()
-
-        this.$.productModal
-          .addEventListener('slr-dialog-opened', () => { this.whenOpened() })
-
-        this.$.productModal
-          .addEventListener('slr-dialog-closed', () => {
-            this.set('routeData.slug', null)
-            this.initForm()
-          })
 
         this.$.productForm
           .addEventListener('iron-form-presubmit', () => {
@@ -468,17 +425,20 @@
 
         this.$.objectiveView
           .addEventListener('slr-objective-submitted', () =>
-                                            this.$.ajaxSlo.generateRequest())
+                                            this.$.objectivesData.fetch())
 
         this.$.indicatorView
           .addEventListener('slr-indicator-submitted', () =>
-                                            this.$.ajaxSli.generateRequest())
+                                            this.$.indicatorsData.fetch())
       }
 
-      whenOpened() {
-        if (this.item.uri) {
-          this.$.ajaxSlo.generateRequest()
-          this.$.ajaxSli.generateRequest()
+      fetchData() {
+        if (this.item.product_slo_uri) {
+          this.$.objectivesData.fetch()
+        }
+
+        if (this.item.product_sli_uri) {
+          this.$.indicatorsData.fetch()
         }
       }
 
@@ -493,68 +453,6 @@
           return
         }
         this.$.productForm.submit()
-      }
-
-      handleSloResponse(e) {
-        try {
-          this.set('objectives', e.detail.response.data)
-        } catch(e) {
-          console.error('Error loading Product Objectives', e)
-          this.dispatchEvent(
-            new CustomEvent('slr-notify', {
-              detail: {
-                message: "Can't Load Product Objectives",
-                duration: 5000,
-                action: () => this.$.ajaxSlo.generateRequest()
-              },
-              bubbles: true,
-              composed: true
-            })
-          )
-        }
-      }
-
-      handleSliResponse(e) {
-        try {
-          this.set('indicators', e.detail.response.data)
-        } catch(e) {
-          console.error('Error loading Product Indicators')
-          this.dispatchEvent(
-            new CustomEvent('slr-notify', {
-              detail: {
-                message: "Can't Load Product Indicators",
-                duration: 5000,
-                action: () => this.$.ajaxSli.generateRequest()
-              },
-              bubbles: true,
-              composed: true
-            })
-          )
-        }
-      }
-
-      handleSloErrorResponse(e) {
-        if (e.detail.request.xhr.response.status === 401) {
-          this.dispatchEvent(
-            new CustomEvent('slr-authenticate', {bubbles: true, composed: true})
-          )
-          return
-        }
-        console.error('Error loading Product Objectives')
-        this.notify("Can't load Product Objectives.", () =>
-                                        this.$.ajaxSlo.generateRequest(), 5000)
-      }
-
-      handleSliErrorResponse(e) {
-        if (e.detail.request.xhr.response.status === 401) {
-          this.dispatchEvent(
-            new CustomEvent('slr-authenticate', {bubbles: true, composed: true})
-          )
-          return
-        }
-        console.error('Error loading Product Indicators')
-        this.notify("Can't load Product Indicators.", () =>
-                                        this.$.ajaxSli.generateRequest(), 5000)
       }
 
       addObjective() {

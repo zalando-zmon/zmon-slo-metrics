@@ -3,6 +3,7 @@
 <link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
+<link rel="import" href="./slr-items-data.html">
 <link rel="import" href="./slr-product-card.html">
 <link rel="import" href="./slr-product-view.html">
 <link rel="import" href="./slr-utils.html">
@@ -27,14 +28,14 @@
       }
     </style>
 
-    <iron-ajax
-      id="ajax"
+    <slr-items-data
+      id="productsData"
+      slug="{{selectedSlug}}"
+      item="{{selectedItem}}"
+      items="{{products}}"
       url="/api/products"
-      handle-as="json"
-      on-response="handleResponse"
-      on-error="handleErrorResponse"
-      debounce-duration="300"
-      loading={{loading}}></iron-ajax>
+      item-type="Product"
+      loading="{{loading}}"></slr-items-data>
 
     <iron-scroll-threshold id="scrollTheshold"
               lower-threshold="500"
@@ -43,6 +44,7 @@
 
     <slr-product-view id="view"
                       item="{{selectedItem}}"
+                      slug="{{selectedSlug}}"
                       products="{{products}}"
                       product-groups="{{productGroups}}"
                       opened={{viewOpened}}
@@ -60,16 +62,6 @@
         </a>
       </template>
     </iron-list>
-    <!-- <template is="dom-repeat"
-              items="{{products}}"
-              sort="sort"
-              observe="favorite"
-              filter={{computeFilter(searchStr)}}>
-      <a href="/products/{{item.slug}}">
-        <slr-product-card item={{item}}
-                          favorite={{item.favorite}}></slr-product-card>
-      </a>
-    </template> -->
 
     <paper-fab class="add"
                 icon="add"
@@ -97,8 +89,7 @@
             type: Boolean
           },
           products: {
-            type: Array,
-            value: []
+            type: Array
           },
           productGroups: {
             type: Array
@@ -107,6 +98,9 @@
             type: String
           },
           selectedItem: {
+            type: String
+          },
+          selectedSlug: {
             type: String
           },
           params: {
@@ -134,43 +128,15 @@
 
       routeChanged(route, visible) {
         if (visible) {
-          this.$.ajax.generateRequest()
+          this.$.productsData.fetch()
         }
       }
 
       ready() {
         super.ready()
         this.$.view.addEventListener('slr-product-submitted', () => {
-          this.$.ajax.generateRequest()
+          this.$.productsData.fetch()
         })
-      }
-
-      handleResponse(e) {
-        try {
-          // let products = e.detail.response.data.sort(this.sort)
-          // products.forEach((pg) => this.push('products', pg))
-          this.set('products', e.detail.response.data.sort(this.sort))
-          this.$.scrollTheshold.clearTriggers();
-        } catch(e) {
-          console.error('Error loading Products')
-          this.notify("Can't Load Products", () =>
-                                              this.$.ajax.generateRequest(), 0)
-        }
-      }
-
-      handleErrorResponse(e) {
-        try {
-          if (e.detail.request.xhr.response.status === 401) {
-            this.dispatchEvent(
-              new CustomEvent('slr-authenticate', {bubbles: true, composed: true})
-            )
-            return
-          }
-        } catch(e) {}
-
-        console.error('Error loading Products')
-        this.notify("Can't Load Products", () =>
-                                            this.$.ajax.generateRequest(), 0)
       }
 
       addProduct() {
@@ -182,7 +148,7 @@
       }
 
       load() {
-        // this.$.ajax.generateRequest()
+        // this.$.productsData.fetch()
         this.set('page', this.page+1)
       }
 

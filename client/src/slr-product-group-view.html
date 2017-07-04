@@ -158,10 +158,10 @@
         if (slug && visible) {
           this.set('slug', slug)
           this.set('opened', true)
-          return
+        } else {
+          this.set('slug', null)
+          this.set('opened', false)
         }
-
-        return this.set('opened', false)
       }
 
       itemChanged() {

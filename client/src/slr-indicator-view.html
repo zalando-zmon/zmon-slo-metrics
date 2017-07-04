@@ -101,7 +101,12 @@
             type: Array
           },
           item: {
-            type: Object
+            type: Object,
+            observer: 'itemChanged'
+          },
+          selectedIndicatorId: {
+            type: String,
+            notify: true
           },
           opened: {
             type: Boolean
@@ -153,20 +158,18 @@
         return [ 'routeDataChanged(routeData.indicatorId, visible)' ]
       }
 
-      routeDataChanged(indicatorId, visible) {
-        if (!visible) {
+      routeDataChanged(objectiveId, visible) {
+        if (objectiveId && visible) {
+          this.set('selectedObjectiveId', objectiveId)
+          this.set('opened', true)
           return
         }
 
-        if (indicatorId) {
-          let ix = this.indicators.findIndex((o) => o.name === indicatorId)
-          if (ix > -1) {
-            this.set('item', this.indicators[ix])
-            this.set('opened', true)
-          } else {
-            this.routeData.page = '404'
-          }
-        } else {
+        return this.set('opened', false)
+      }
+
+      itemChanged() {
+        if (!this.item) {
           this.set('opened', false)
         }
       }
@@ -273,8 +276,7 @@
       }
 
       close() {
-        this.set('opened', false)
-        this.set('routeData.indicatorId', '')
+        window.history.back()
       }
 
       initForm() {
