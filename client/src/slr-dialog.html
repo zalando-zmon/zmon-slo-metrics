@@ -70,10 +70,10 @@
         <slot></slot>
       </paper-dialog-scrollable>
 
-      <div class="buttons">
-        <div hidden$={{loading}}>
+      <div class="buttons" hidden$="{{loading}}">
+        <!-- <div hidden$={{loading}}>
           <paper-button hidden$="{{!editMode}}" on-click="cancel">Cancel</paper-button>
-        </div>
+        </div> -->
         <slot name="actions"></slot>
       </div>
     </paper-dialog>
@@ -156,11 +156,6 @@
       toggleEditMode() {
         this.set('editMode', !this.editMode)
         this.center()
-      }
-
-      cancel() {
-        this.reset()
-        this.set('editMode', false)
       }
 
       reset() {

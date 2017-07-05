@@ -43,12 +43,13 @@
         <paper-button dialog-confirm on-click="deleteConfirm">Delete</paper-button>
       </div></paper-dialog>
 
-    <slr-dialog id="objectiveModal"
-                    title="Objective"
-                    item={{item}}
-                    opened={{opened}}
-                    edit-mode={{editMode}}
-                    loading={{loading}}>
+    <slr-dialog
+      id="objectiveModal"
+      title="Objective"
+      item={{item}}
+      opened={{opened}}
+      edit-mode={{editMode}}
+      loading={{loading}}>
       <div slot="close">
         <paper-icon-button
           icon="arrow-back"
@@ -62,27 +63,32 @@
           on-click="delete"></paper-icon-button>
       </div>
       <div slot="actions" hidden$="{{!editMode}}">
-        <paper-button id="action"
-                      hidden$="{{loading}}"
-                      on-click="submit"
-                      autofocus>Save</paper-button>
+        <paper-button
+          on-click="cancel">Cancel</paper-button>
+        <paper-button
+          on-click="submit"
+          autofocus>Save</paper-button>
       </div>
 
       <iron-form id="objectiveForm" headers="{{headers}}">
         <form class="form" method="{{method}}" action="{{action}}">
-          <paper-input  type="text"
-                        name="title"
-                        label="Title" always-float-label
-                        autofocus="true"
-                        disabled="{{!editMode}}"
-                        value="{{item.title}}"
-                        required></paper-input>
-          <paper-input  type="text"
-                        name="description"
-                        label="Description" always-float-label
-                        disabled="{{!editMode}}"
-                        value="{{item.description}}"
-                        required></paper-input>
+          <paper-input
+            type="text"
+            id="title"
+            name="title"
+            label="Title" always-float-label
+            autofocus="true"
+            disabled="{{!editMode}}"
+            value="{{item.title}}"
+            required></paper-input>
+          <paper-input
+            type="text"
+            id="description"
+            name="description"
+            label="Description" always-float-label
+            disabled="{{!editMode}}"
+            value="{{item.description}}"
+            required></paper-input>
         </form>
       </iron-form>
       <div hidden$="{{!item.uri}}">
@@ -302,9 +308,20 @@
         window.history.back()
       }
 
+      cancel() {
+        this.set('editMode', false)
+        this.$.objectiveModal.reset()
+        this.initForm()
+      }
+
       initForm() {
         this.set('method', 'POST')
         this.set('action', '/api/products')
+
+        // manually reset invalid state since iron-form does not support
+        // reset() yet... (as of 07.2017)
+        this.$.title.$.input.invalid = false
+        this.$.description.$.input.invalid = false
       }
 
       delete() {

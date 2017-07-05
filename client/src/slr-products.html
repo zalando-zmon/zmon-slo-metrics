@@ -1,30 +1,16 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <link rel="import" href="./slr-items-data.html">
-<link rel="import" href="./slr-product-card.html">
+<link rel="import" href="./slr-card.html">
 <link rel="import" href="./slr-product-view.html">
-<link rel="import" href="./slr-utils.html">
-<link rel="import" href="./common-styles.html">
 
 <dom-module id="slr-products">
   <template>
     <style include="common-styles">
       :host {
         display: block;
-      }
-
-      paper-dialog {
-        max-width: var(--app-content-max-width);
-        min-width: 500px;
-      }
-
-      .add {
-        position: fixed;
-        right: 5%;
-        bottom: 8%;
       }
     </style>
 
@@ -33,41 +19,43 @@
       slug="{{selectedSlug}}"
       item="{{selectedItem}}"
       items="{{products}}"
+      filtered-items="{{filteredProducts}}"
+      search="[[searchStr]]"
       url="/api/products"
       item-type="Product"
       loading="{{loading}}"></slr-items-data>
 
-    <iron-scroll-threshold id="scrollTheshold"
-              lower-threshold="500"
-              on-lower-threshold="load"
-              scroll-target="document"></iron-scroll-threshold>
+    <slr-product-view
+      id="view"
+      item="{{selectedItem}}"
+      slug="{{selectedSlug}}"
+      products="{{products}}"
+      product-groups="{{productGroups}}"
+      opened={{viewOpened}}
+      loading={{loading}}
+      route={{route}}
+      visible={{visible}}></slr-product-view>
 
-    <slr-product-view id="view"
-                      item="{{selectedItem}}"
-                      slug="{{selectedSlug}}"
-                      products="{{products}}"
-                      product-groups="{{productGroups}}"
-                      opened={{viewOpened}}
-                      loading={{loading}}
-                      route={{route}}
-                      visible={{visible}}></slr-product-view>
-    <iron-list grid
-      items="[[products]]"
+    <iron-list
+      grid
+      items="[[filteredProducts]]"
       scroll-target="document">
       <template>
         <a href="/products/{{item.slug}}">
-          <slr-product-card
-            item={{item}}
-            favorite={{item.favorite}}></slr-product-card>
+          <slr-card
+            title="[[item.name]]"
+            description="[[item.product_group_name]]"
+            favorite="{{item.favorite}}"></slr-card>
         </a>
       </template>
     </iron-list>
 
-    <paper-fab class="add"
-                icon="add"
-                title="add"
-                on-click="addProduct"
-                hidden$={{viewOpened}}></paper-fab>
+    <paper-fab
+      class="add"
+      icon="add"
+      title="add"
+      on-click="addProduct"
+      hidden$={{viewOpened}}></paper-fab>
 
   </template>
 
@@ -77,10 +65,12 @@
 
       static get properties() {
         return {
-          loading: {
-            type: Boolean,
-            value: true,
-            notify: true
+          products: {
+            type: Array,
+            value: []
+          },
+          productGroups: {
+            type: Array
           },
           route: {
             type: Object
@@ -88,38 +78,24 @@
           visible: {
             type: Boolean
           },
-          products: {
-            type: Array
-          },
-          productGroups: {
-            type: Array
+          loading: {
+            type: Boolean,
+            value: true,
+            notify: true
           },
           searchStr: {
             type: String
+          },
+          filteredProducts: {
+            type: Array
           },
           selectedItem: {
             type: String
           },
           selectedSlug: {
             type: String
-          },
-          params: {
-            type: Object,
-            computed: 'computeParams(page_size, page)'
-          },
-          page_size: {
-            type: Number,
-            value: 10
-          },
-          page: {
-            type: Number,
-            value: 1
           }
         }
-      }
-
-      computeParams(page_size, page) {
-        return { page_size, page }
       }
 
       static get observers() { return [
@@ -143,28 +119,8 @@
         this.$.view.new()
       }
 
-      sort(a, b) {
-        return SlrUtils.favoriteSort(a, b);
-      }
-
-      load() {
-        // this.$.productsData.fetch()
-        this.set('page', this.page+1)
-      }
-
       computeFilter(str) {
         return SlrUtils.filterCollection(str)
-      }
-
-      notify(message, action, duration) {
-        this.dispatchEvent(
-          new CustomEvent('slr-notify', {
-            detail: { message, action, duration },
-            duration,
-            bubbles: true,
-            composed: true
-          })
-        )
       }
     }
 

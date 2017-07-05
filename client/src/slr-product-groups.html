@@ -1,26 +1,16 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <link rel="import" href="./slr-items-data.html">
-<link rel="import" href="./slr-product-group-card.html">
+<link rel="import" href="./slr-card.html">
 <link rel="import" href="./slr-product-group-view.html">
-<link rel="import" href="./slr-utils.html">
-<link rel="import" href="./common-styles.html">
 
 <dom-module id="slr-product-groups">
   <template>
     <style include="common-styles">
       :host {
         display: block;
-      }
-
-      .add {
-        position: fixed;
-        right: 5%;
-        bottom: 8%;
       }
     </style>
 
@@ -29,14 +19,11 @@
       slug="{{selectedSlug}}"
       item="{{selectedItem}}"
       items="{{productGroups}}"
+      filtered-items="{{filteredProductGroups}}"
       url="/api/product-groups"
+      search="[[searchStr]]"
       item-type="Product Group"
       loading="{{loading}}"></slr-items-data>
-
-    <iron-scroll-threshold id="scrollTheshold"
-              lower-threshold="500"
-              on-lower-threshold="load"
-              scroll-target="document"></iron-scroll-threshold>
 
     <slr-product-group-view
       id="view"
@@ -48,13 +35,14 @@
       visible={{visible}}></slr-product-group-view>
 
     <iron-list grid
-      items="[[productGroups]]"
+      items="[[filteredProductGroups]]"
       scroll-target="document">
       <template>
         <a href="/product-groups/{{item.slug}}">
-          <slr-product-group-card
-            item={{item}}
-            favorite={{item.favorite}}></slr-product-group-card>
+          <slr-card
+            title="[[item.name]]"
+            description="[[item.department]]"
+            favorite={{item.favorite}}></slr-card>
         </a>
       </template>
     </iron-list>
@@ -96,29 +84,16 @@
           searchStr: {
             type: String
           },
+          filteredProductGroups: {
+            type: Array
+          },
           selectedItem: {
             type: Object
           },
           selectedSlug: {
             type: String
-          },
-          params: {
-            type: Object,
-            computed: 'computeParams(page_size, page)'
-          },
-          page_size: {
-            type: Number,
-            value: 10
-          },
-          page: {
-            type: Number,
-            value: 1
           }
         }
-      }
-
-      computeParams(page_size, page) {
-        return { page_size, page }
       }
 
       static get observers() { return [
@@ -132,35 +107,12 @@
         })
       }
 
-      computeFilter(str) {
-        return SlrUtils.filterCollection(str)
-      }
-
       routeChanged(route, visible) {
         this.$.productGroupsData.fetch()
       }
 
       addProductGroup() {
         this.$.view.new()
-      }
-
-      sort(a, b) {
-        return SlrUtils.favoriteSort(a, b)
-      }
-
-      load() {
-        this.set('page', this.page+1)
-      }
-
-      notify(message, action, duration) {
-        this.dispatchEvent(
-          new CustomEvent('slr-notify', {
-            detail: { message, action, duration },
-            duration,
-            bubbles: true,
-            composed: true
-          })
-        )
       }
     }
 

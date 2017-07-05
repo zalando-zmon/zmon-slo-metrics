@@ -57,15 +57,17 @@
           on-click="delete"></paper-icon-button>
       </div>
       <div slot="actions" hidden$="{{!editMode}}">
-        <paper-button id="action"
-                      hidden$="{{loading}}"
-                      on-click="submit"
-                      autofocus>Save</paper-button>
+        <paper-button
+          on-click="cancel">Cancel</paper-button>
+        <paper-button
+          on-click="submit"
+          autofocus>Save</paper-button>
       </div>
 
       <iron-form id="indicatorForm" headers={{headers}}>
         <form class="form" method="{{method}}" action="{{action}}">
           <paper-input  type="text"
+                        id="name"
                         name="name"
                         label="Name" always-float-label
                         autofocus="true"
@@ -73,6 +75,7 @@
                         value="{{item.name}}"
                         required></paper-input>
           <paper-input  type="text"
+                        id="unit"
                         name="unit"
                         label="Unit" always-float-label
                         disabled={{!editMode}}
@@ -109,7 +112,8 @@
             notify: true
           },
           opened: {
-            type: Boolean
+            type: Boolean,
+            notify: true
           },
           editMode: {
             type: Boolean,
@@ -158,13 +162,12 @@
         return [ 'routeDataChanged(routeData.indicatorId, visible)' ]
       }
 
-      routeDataChanged(objectiveId, visible) {
-        if (objectiveId && visible) {
-          this.set('selectedObjectiveId', objectiveId)
+      routeDataChanged(indicatorId, visible) {
+        if (indicatorId && visible) {
+          this.set('selectedIndicatorId', indicatorId)
           this.set('opened', true)
           return
         }
-
         return this.set('opened', false)
       }
 
@@ -282,6 +285,19 @@
       initForm() {
         this.set('method', 'POST')
         this.set('action', '/api/products')
+
+        // manually reset invalid state since iron-form does not support
+        // reset() yet... (as of 07.2017)
+        this.$.name.$.input.invalid = false
+        this.$.unit.$.input.invalid = false
+        this.$.source.shadowRoot
+          .querySelector('iron-autogrow-textarea').invalid = false
+      }
+
+      cancel() {
+        this.set('editMode', false)
+        this.$.indicatorModal.reset()
+        this.initForm()
       }
 
       delete() {

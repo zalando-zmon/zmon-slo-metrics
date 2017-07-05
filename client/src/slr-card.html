@@ -3,7 +3,7 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 
-<dom-module id="slr-product-group-card">
+<dom-module id="slr-card">
   <template>
     <style include="common-styles">
       :host {
@@ -30,9 +30,9 @@
 
       iron-icon.star { color: var(--paper-amber-500); }
 
-      .product-group-header { @apply --paper-font-headline; }
+      .header { @apply --paper-font-headline; }
 
-      .product-group-favorite {
+      .favorite {
         font-size: 15px;
         float: right;
         vertical-align: middle;
@@ -41,33 +41,36 @@
 
     <paper-card>
       <div class="card-content">
-        <div class="product-group-header">{{item.name}}
-          <!-- <div class="product-group-favorite">
+        <div class="header">[[title]]
+          <!-- <div class="-favorite">
             <iron-icon  icon="star-border"
                         class="star-border"
-                        hidden$="{{item.favorite}}"
+                        hidden$="{{favorite}}"
                         on-click="toggleFavorite"
                         title="Add to Favorite"></iron-icon>
             <iron-icon  icon="star"
                         class="star"
-                        hidden$="{{!item.favorite}}"
+                        hidden$="{{!favorite}}"
                         on-click="toggleFavorite"
                         title="Remove from Favorites"></iron-icon>
           </div> -->
         </div>
-        <p>{{item.department}}</p>
+        <p>[[description]]</p>
       </div>
     </paper-card>
 
   </template>
   <script>
-    class SlrProductGroupCard extends Polymer.Element {
-      static get is() { return 'slr-product-group-card' }
+    class SlrCard extends Polymer.Element {
+      static get is() { return 'slr-card' }
 
       static get properties() {
         return {
-          item: {
-            type: Object
+          title: {
+            type: String
+          },
+          description: {
+            type: String
           },
           favorite: {
             type: Boolean
@@ -77,10 +80,10 @@
 
       toggleFavorite(e) {
         e.stopPropagation();
-        this.set('item.favorite', !this.item.favorite)
+        this.set('favorite', !this.favorite)
       }
     }
 
-    window.customElements.define(SlrProductGroupCard.is, SlrProductGroupCard)
+    window.customElements.define(SlrCard.is, SlrCard)
   </script>
 </dom-module>

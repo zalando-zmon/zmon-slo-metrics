@@ -60,8 +60,8 @@
 
       <div slot="actions" hidden$="{{!editMode}}">
         <paper-button
-          id="action"
-          hidden$="{{loading}}"
+          on-click="cancel">Cancel</paper-button>
+        <paper-button
           on-click="submit"
           autofocus>Save</paper-button>
       </div>
@@ -69,6 +69,7 @@
       <iron-form id="form" headers={{headers}}>
         <form class="form" method="{{method}}" action="{{action}}">
           <paper-input
+            id="name"
             name="name"
             type="text"
             label="Name"
@@ -77,6 +78,7 @@
             value="{{item.name}}"
             required></paper-input>
           <paper-input
+            id="department"
             name="department"
             type="text"
             label="Department" always-float-label
@@ -244,6 +246,11 @@
         this.set('method', 'POST')
         this.set('action', '/api/product-groups')
         this.$.form.reset()
+
+        // manually reset invalid state since iron-form does not support
+        // reset() yet... (as of 07.2017)
+        this.$.name.$.input.invalid = false
+        this.$.department.$.input.invalid = false
       }
 
       submit() {
@@ -266,6 +273,12 @@
         this.set('item', {})
         this.set('opened', true)
         this.set('editMode', true)
+      }
+
+      cancel() {
+        this.set('editMode', false)
+        this.$.productGroupModal.reset()
+        this.initForm()
       }
 
       close() {

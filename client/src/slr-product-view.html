@@ -153,16 +153,18 @@
           on-click="delete"></paper-icon-button>
       </div>
       <div slot="actions" hidden$="{{!editMode}}">
-        <paper-button id="action"
-                      hidden$="{{loading}}"
-                      on-click="submit"
-                      autofocus>Save</paper-button>
+        <paper-button
+          on-click="cancel">Cancel</paper-button>
+        <paper-button
+          on-click="submit"
+          autofocus>Save</paper-button>
       </div>
 
       <iron-form id="productForm" headers="{{headers}}">
         <form class="form" method="{{method}}" action="{{action}}">
             <div>
               <paper-input
+                id="name"
                 type="text"
                 name="name"
                 label="Name" always-float-label
@@ -171,6 +173,7 @@
                 value="{{item.name}}"
                 required></paper-input>
               <paper-dropdown-menu
+                id="productGroup"
                 label="Product Group"
                 always-float-label
                 disabled="{{!editMode}}"
@@ -359,7 +362,12 @@
       }
 
       itemChanged() {
+        if (!this.item) {
+          return
+        }
+
         this.fetchData()
+
         if (this.slug && this.item.slug
           && !this.objectiveViewOpened && !this.indicatorViewOpened) {
           this.set('opened', true)
@@ -368,6 +376,12 @@
 
       ready() {
         super.ready()
+
+        this.$.productModal
+          .addEventListener('slr-dialog-closed', () => {
+            this.set('routeData.slug', null)
+            this.initForm()
+          })
 
         this.$.productForm
           .addEventListener('iron-form-presubmit', () => {
@@ -446,6 +460,20 @@
         this.set('method', 'POST')
         this.set('action', '/api/products')
         this.$.productForm.reset()
+
+        // manually reset invalid state since iron-form does not support
+        // reset() yet... (as of 07.2017)
+        this.$.name.$.input.invalid = false
+        let input = this.$.productGroup
+                        .$.menuButton.querySelector('paper-input')
+                        .$.input
+        input.invalid = false
+      }
+
+      cancel() {
+        this.set('editMode', false)
+        this.$.productModal.reset()
+        this.initForm()
       }
 
       submit() {

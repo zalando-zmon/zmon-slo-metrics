@@ -6,11 +6,11 @@
     <iron-ajax
       id="ajax"
       url="{{url}}"
+      loading="{{loading}}"
       handle-as="json"
       on-response="handleResponse"
       on-error="handleErrorResponse"
-      debounce-duration="300"
-      loading={{loading}}></iron-ajax>
+      debounce-duration="300"></iron-ajax>
   </template>
 
   <script>
@@ -40,6 +40,15 @@
             value: null,
             notify: true
           },
+          search: {
+            type: String,
+            observer: 'searchChanged'
+          },
+          filteredItems: {
+            type: Array,
+            value: null,
+            notify: true
+          },
           loading: {
             type: Boolean,
             value: false,
@@ -48,14 +57,6 @@
           url: {
             type: String
           },
-          pageSize: {
-            type: Number,
-            value: 10
-          },
-          page: {
-            type: Number,
-            value: 1
-          },
           fetchAttempts: {
             type: Number,
             value: 0
@@ -63,11 +64,16 @@
         }
       }
 
+      searchChanged() {
+        this.set('filteredItems', this.filter())
+      }
+
       handleResponse(e) {
         try {
-          this.set('items', e.detail.response.data.sort(this.sort))
+          this.set('items', e.detail.response.data)
+          this.set('filteredItems', this.filter())
         } catch(e) {
-          console.error('Error loading' + this.itemType)
+          console.error('Error loading' + this.itemType, e)
           this.notify("Can't Load "+ this.itemType, () => this.fetch(), 0)
         }
       }
@@ -92,7 +98,7 @@
         }
 
         if (this.fetchAttempts > 3) {
-          return this.notify("Can't fetch " + this.itemType, () => this.fetch, 0)
+          return this.notify("Can't load " + this.itemType, () => this.fetch, 0)
         }
 
         let ajax = this.$.ajax.generateRequest();
@@ -126,16 +132,52 @@
 
       findAndSetItem() {
         let ix = this.items.findIndex( (p) => ''+p[this.idName] === ''+this.slug)
-        if (this.itemType === 'Indicator') {
-          console.log('ix', this.idName, this.slug, this.items)
-        }
         if (ix > -1) {
-          this.fetchAttempts = 0;
           this.set('item', this.items[ix])
         } else {
           this.notify(this.itemType + ' not found')
           this.set('item', null)
         }
+      }
+
+      filter() {
+        if (!this.items) {
+          return
+        }
+
+        if (!this.search) {
+          return this.items;
+        }
+
+        let items = this.items.filter( (item) => {
+          let content = []
+          for (var key in item) {
+            if (item[key].toLowerCase)
+            content.push(item[key].toLowerCase())
+          }
+          return (content.join('').indexOf(this.search) != -1)
+        })
+        return items
+      }
+
+      favoriteSort(a, b) {
+        let nameA = a.name.toUpperCase();
+        let nameB = b.name.toUpperCase();
+
+        if (a.favorite) {
+          return -1;
+        }
+        if (b.favorite) {
+          return 1;
+        }
+        if (nameA < nameB) {
+          return -1
+        }
+        if (nameA > nameB) {
+          return 1
+        }
+        // names must be equal
+        return 0
       }
 
       notify(message, action, duration) {
