@@ -8,12 +8,11 @@
 <link rel="import" href="../bower_components/paper-styles/typography.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="./slr-product-groups.html">
 <link rel="import" href="./slr-products.html">
 <link rel="import" href="./slr-notifications.html">
+<link rel="import" href="./slr-search.html">
 <link rel="import" href="./common-styles.html">
 
 <dom-module id="slr-app">
@@ -81,17 +80,8 @@
         padding: 9px 5px;
       }
 
-      .search {
+      slr-search {
         width: 30%;
-        margin-left: auto;
-        margin-right: 0;
-        text-align: left;
-      }
-
-      .searchInput {
-        --paper-input-container-color: rgba(255, 255, 255, 0.3);
-        --paper-input-container-focus-color: white;
-        --paper-input-container-input-color: white;
       }
     </style>
 
@@ -106,30 +96,7 @@
 
       <app-toolbar class="main-title">
         <div main-title>Service Levels</div>
-
-        <div class="search" hidden$={{!searchMode}}>
-          <paper-input  type="text"
-                        name="search"
-                        class="searchInput"
-                        placeholder="product name"
-                        autofocus="true"
-                        value="{{searchStr}}">
-                        <paper-icon-button  icon="search"
-                                            slot="prefix"></paper-icon-button>
-                        <paper-icon-button  icon="clear"
-                                            slot="suffix"
-                                            on-click="closeSearch">
-                                            </paper-icon-button>
-          </paper-input>
-
-        </div>
-
-        <div class="search-btn-container"
-            hidden$="{{searchMode}}">
-          <paper-icon-button  icon="search"
-                              on-click="onSearchClick"></paper-icon-button>
-        </div>
-
+        <slr-search search-str="{{searchStr}}"></slr-search>
       </app-toolbar>
 
       <app-toolbar class="tabs-bar">
@@ -179,15 +146,9 @@
   <script>
     class SlrApp extends Polymer.Element {
       static get is() { return 'slr-app'; }
+
       static get properties() {
         return {
-          searchMode: {
-            type: Boolean,
-            value: false
-          },
-          searchStr: {
-            type: String,
-          },
           route: {
             type: Object
           },
@@ -203,7 +164,7 @@
           productGroups: {
             type: Array
           }
-        };
+        }
       }
 
       static get observers() { return [
@@ -269,16 +230,6 @@
       showLogin() {
         this.set('routeData.page', 'login')
       }
-
-      onSearchClick() {
-        this.searchMode = true
-      }
-
-      closeSearch() {
-        this.searchStr = ''
-        this.searchMode = false
-      }
-
     }
 
     window.customElements.define(SlrApp.is, SlrApp);
