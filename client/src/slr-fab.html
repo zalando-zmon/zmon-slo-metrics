@@ -1,0 +1,46 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+
+<dom-module id="slr-fab">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: block;
+      }
+
+      paper-fab {
+        bottom: calc(-5vh - 56px);
+        transition: bottom 0.1s ease-in-out;
+      }
+
+      paper-fab[visible] {
+        bottom: 0;
+      }
+    </style>
+
+    <paper-fab
+      icon="add"
+      title="add"
+      visible$="[[!hidden]]"></paper-fab>
+  </template>
+  <script>
+    class SlrFab extends Polymer.Element {
+      static get is() { return 'slr-fab' }
+
+      static get properties() {
+        return {
+          hidden: {
+            type: String,
+            observer: 'hiddenChanged'
+          }
+        }
+      }
+
+      hiddenChanged() {
+        console.log('=>', this.hide)
+      }
+    }
+
+    window.customElements.define(SlrFab.is, SlrFab)
+  </script>
+</dom-module>

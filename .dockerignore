@@ -11,4 +11,6 @@ tox.ini
 .tox
 .eggs/
 *.egg-info
+build/
 
+client/build/

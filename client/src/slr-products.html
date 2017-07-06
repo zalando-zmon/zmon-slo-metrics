@@ -1,0 +1,130 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+
+<link rel="import" href="./slr-fab.html">
+<link rel="import" href="./slr-items-data.html">
+<link rel="import" href="./slr-card.html">
+<link rel="import" href="./slr-product-view.html">
+
+<dom-module id="slr-products">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: block;
+      }
+    </style>
+
+    <slr-items-data
+      id="productsData"
+      slug="{{selectedSlug}}"
+      item="{{selectedItem}}"
+      items="{{products}}"
+      filtered-items="{{filteredProducts}}"
+      search="[[searchStr]]"
+      url="/api/products"
+      item-type="Product"
+      loading="{{loading}}"></slr-items-data>
+
+    <slr-product-view
+      id="view"
+      item="{{selectedItem}}"
+      slug="{{selectedSlug}}"
+      products="{{products}}"
+      product-groups="{{productGroups}}"
+      opened={{viewOpened}}
+      loading={{loading}}
+      route={{route}}
+      visible={{visible}}></slr-product-view>
+
+    <iron-list
+      grid
+      items="[[filteredProducts]]"
+      scroll-target="document">
+      <template>
+        <a href="/products/{{item.slug}}">
+          <slr-card
+            title="[[item.name]]"
+            description="[[item.product_group_name]]"
+            favorite="{{item.favorite}}"></slr-card>
+        </a>
+      </template>
+    </iron-list>
+
+    <slr-fab
+      on-click="addProduct"
+      hidden="{{viewIsOpen}}"></slr-fab>
+
+  </template>
+
+  <script>
+    class SlrProducts extends Polymer.Element {
+      static get is() { return 'slr-products' }
+
+      static get properties() {
+        return {
+          products: {
+            type: Array,
+            value: []
+          },
+          productGroups: {
+            type: Array
+          },
+          route: {
+            type: Object
+          },
+          visible: {
+            type: Boolean
+          },
+          loading: {
+            type: Boolean,
+            value: true,
+            notify: true
+          },
+          viewIsOpen: {
+            type: Boolean
+          },
+          searchStr: {
+            type: String
+          },
+          filteredProducts: {
+            type: Array
+          },
+          selectedItem: {
+            type: String
+          },
+          selectedSlug: {
+            type: String
+          }
+        }
+      }
+
+      static get observers() { return [
+        'routeChanged(route, visible)',
+      ]}
+
+      routeChanged(route, visible) {
+        if (visible) {
+          this.$.productsData.fetch()
+        }
+      }
+
+      ready() {
+        super.ready()
+        this.$.view.addEventListener('slr-product-submitted', () => {
+          this.$.productsData.fetch()
+        })
+      }
+
+      addProduct() {
+        this.$.view.new()
+      }
+
+      computeFilter(str) {
+        return SlrUtils.filterCollection(str)
+      }
+    }
+
+    window.customElements.define(SlrProducts.is, SlrProducts)
+  </script>
+</dom-module>
