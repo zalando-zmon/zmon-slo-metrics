@@ -11,7 +11,7 @@
       }
 
       h1 {
-        margin-top: 15%;
+        margin-top: 15vh;
       }
     </style>
 
@@ -22,21 +22,6 @@
   <script>
     class SlrLogin extends Polymer.Element {
       static get is() { return 'slr-login' }
-
-      static get properties() {
-        return {
-          loading: {
-            type: Boolean,
-            value: false,
-            notify: true
-          }
-        }
-      }
-
-      ready() {
-        super.ready()
-        this.set('loading', false)
-      }
     }
 
     window.customElements.define(SlrLogin.is, SlrLogin)

@@ -92,7 +92,10 @@
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
-    <app-header reveals class="main-header" slot="header">
+    <app-header
+      reveals
+      class="main-header"
+      slot="header">
 
       <app-toolbar class="main-title">
         <div main-title>Service Levels</div>
@@ -111,10 +114,10 @@
         </paper-tabs>
       </app-toolbar>
 
-      <paper-progress indeterminate
-                      class="slow red"
-                      hidden$={{!loading}}></paper-progress>
-
+      <paper-progress
+        indeterminate
+        class="slow red"
+        hidden$="{{!loading}}"></paper-progress>
     </app-header>
 
     <iron-pages
@@ -122,21 +125,29 @@
       attr-for-selected="name"
       selected-attribute="visible"
       fallback-selection="404">
-      <slr-product-groups id="productGroups"
-                          name="product-groups"
-                          route={{subroute}}
-                          loading={{loading}}
-                          product-groups={{productGroups}}
-                          search-str={{searchStr}}></slr-product-groups>
-      <slr-products id="products"
-                    name="products"
-                    route={{subroute}}
-                    loading={{loading}}
-                    product-groups={{productGroups}}
-                    search-str={{searchStr}}></slr-products>
-      <slr-login name="login" loading={{loading}}></slr-login>
-      <slr-404 name="404" loading={{loading}}></slr-404>
-      <slr-error name="error" loading={{loading}}></slr-error>
+
+      <slr-product-groups
+        id="productGroups"
+        name="product-groups"
+        route="{{subroute}}"
+        loading="{{loading}}"
+        product-groups="{{productGroups}}"
+        search-str="{{searchStr}}"></slr-product-groups>
+
+      <slr-products
+        id="products"
+        name="products"
+        route="{{subroute}}"
+        loading="{{loading}}"
+        product-groups="{{productGroups}}"
+        search-str="{{searchStr}}"></slr-products>
+
+      <slr-login name="login"></slr-login>
+
+      <slr-404 name="404"></slr-404>
+
+      <slr-error name="error"></slr-error>
+
     </iron-pages>
 
     <slr-notifications id="notif"></slr-notifications>

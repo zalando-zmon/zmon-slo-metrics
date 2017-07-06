@@ -66,7 +66,7 @@
           autofocus>Save</paper-button>
       </div>
 
-      <iron-form id="form" headers={{headers}}>
+      <iron-form id="form" headers="{{headers}}">
         <form class="form" method="{{method}}" action="{{action}}">
           <paper-input
             id="name"
@@ -74,7 +74,7 @@
             type="text"
             label="Name"
             always-float-label
-            disabled={{!editMode}}
+            disabled="{{!editMode}}"
             value="{{item.name}}"
             required></paper-input>
           <paper-input
@@ -82,7 +82,7 @@
             name="department"
             type="text"
             label="Department" always-float-label
-            disabled={{!editMode}}
+            disabled="{{!editMode}}"
             value="{{item.department}}"
             required></paper-input>
         </form>

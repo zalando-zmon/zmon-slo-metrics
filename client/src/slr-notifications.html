@@ -7,15 +7,20 @@
 <dom-module id="slr-notifications">
   <template>
     <style include="common-styles">
+      :host {
+        display: block;
+      }
+
       paper-button {
         color: var(--app-accent-color);
       }
     </style>
 
     <paper-toast id="toast">
-      <paper-button id="toastButton"
-                    on-click="action"
-                    hidden>retry</paper-button>
+      <paper-button
+        id="toastButton"
+        on-click="action"
+        hidden>Retry</paper-button>
     </paper-toast>
   </template>
 
@@ -37,7 +42,7 @@
         this.$.toast.close()
 
         if (!message) {
-          console.error('Error showing notification, no message given.')
+          return console.error('Error showing notification, no message given.')
           return;
         }
 

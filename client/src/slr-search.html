@@ -30,7 +30,10 @@
       }
     </style>
 
-    <iron-a11y-keys id="a11y" keys="esc" on-keys-pressed="onEsc"></iron-a11y-keys>
+    <iron-a11y-keys
+      id="a11y"
+      on-keys-pressed="onEsc"
+      keys="esc"></iron-a11y-keys>
 
     <div class="search" hidden$={{!searchMode}}>
       <paper-input
@@ -40,19 +43,23 @@
         placeholder="product name"
         autofocus="true"
         value="{{searchStr}}">
-        <paper-icon-button  icon="search"
-                            slot="prefix"></paper-icon-button>
-        <paper-icon-button  icon="clear"
-                            slot="suffix"
-                            on-click="closeSearch"></paper-icon-button>
+        <paper-icon-button
+          icon="search"
+          slot="prefix"></paper-icon-button>
+        <paper-icon-button
+          icon="clear"
+          slot="suffix"
+          on-click="closeSearch"></paper-icon-button>
       </paper-input>
     </div>
 
-    <div class="search-btn-container"
-        hidden$="{{searchMode}}">
-      <paper-icon-button  icon="search"
-                          class="closedBtn"
-                          on-click="onSearchClick"></paper-icon-button>
+    <div
+      class="search-btn-container"
+      hidden$="{{searchMode}}">
+      <paper-icon-button
+        icon="search"
+        class="closedBtn"
+        on-click="onSearchClick"></paper-icon-button>
     </div>
 
   </template>

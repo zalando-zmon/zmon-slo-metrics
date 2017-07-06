@@ -19,21 +19,6 @@
   <script>
     class Slr404 extends Polymer.Element {
       static get is() { return 'slr-404' }
-
-      static get properties() {
-        return {
-          loading: {
-            type: Boolean,
-            value: false,
-            notify: true
-          }
-        }
-      }
-
-      ready() {
-        super.ready()
-        this.set('loading', false)
-      }
     }
 
     window.customElements.define(Slr404.is, Slr404)

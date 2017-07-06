@@ -19,21 +19,6 @@
   <script>
     class SlrError extends Polymer.Element {
       static get is() { return 'slr-error' }
-
-      static get properties() {
-        return {
-          loading: {
-            type: Boolean,
-            value: false,
-            notify: true
-          }
-        }
-      }
-
-      ready() {
-        super.ready();
-        this.set('loading', false)
-      }
     }
 
     window.customElements.define(SlrError.is, SlrError)
