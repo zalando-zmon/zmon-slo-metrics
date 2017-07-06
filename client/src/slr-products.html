@@ -2,6 +2,7 @@
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
+<link rel="import" href="./slr-fab.html">
 <link rel="import" href="./slr-items-data.html">
 <link rel="import" href="./slr-card.html">
 <link rel="import" href="./slr-product-view.html">
@@ -50,12 +51,9 @@
       </template>
     </iron-list>
 
-    <paper-fab
-      class="add"
-      icon="add"
-      title="add"
+    <slr-fab
       on-click="addProduct"
-      hidden$={{viewOpened}}></paper-fab>
+      hidden="{{viewIsOpen}}"></slr-fab>
 
   </template>
 
@@ -82,6 +80,9 @@
             type: Boolean,
             value: true,
             notify: true
+          },
+          viewIsOpen: {
+            type: Boolean
           },
           searchStr: {
             type: String
