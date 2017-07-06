@@ -276,6 +276,9 @@
       }
 
       cancel() {
+        if (!this.item.uri) {
+          this.set('opened', false)
+        }
         this.set('editMode', false)
         this.$.productGroupModal.reset()
         this.initForm()

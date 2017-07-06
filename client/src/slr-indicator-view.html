@@ -295,6 +295,9 @@
       }
 
       cancel() {
+        if (!this.item.uri) {
+          this.set('opened', false)
+        }
         this.set('editMode', false)
         this.$.indicatorModal.reset()
         this.initForm()

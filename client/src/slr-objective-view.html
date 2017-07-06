@@ -93,6 +93,11 @@
       </iron-form>
       <div hidden$="{{!item.uri}}">
         <iron-label>Targets</iron-label>
+        <paper-icon-button
+          icon="add"
+          title="Add Target"
+          hidden$="{{!editMode}}"
+          on-click="addTarget"></paper-icon-button>
         <ul>
           <template
             is="dom-repeat"
@@ -109,11 +114,6 @@
           </template>
           <li hidden="{{item.targets.length}}"><p class="no-items">No targets...</p></li>
         </ul>
-
-        <paper-button
-          raised
-          hidden$="{{!editMode}}"
-          on-click="addTarget">Add Target</paper-button>
       </div>
 
     </slr-dialog>
@@ -309,6 +309,9 @@
       }
 
       cancel() {
+        if (!this.item.uri) {
+          this.set('opened', false)
+        }
         this.set('editMode', false)
         this.$.objectiveModal.reset()
         this.initForm()

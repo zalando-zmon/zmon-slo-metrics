@@ -203,19 +203,19 @@
                 icon="add"
                 hidden$="{{!editMode}}"
                 on-click="addObjective"></paper-icon-button>
-                <paper-listbox
-                  id="objectivesList"
-                  slot="dropdown-content">
-                  <template
-                    is="dom-repeat"
-                    items="{{objectives}}"
-                    as="objective">
-                    <a href="/products/[[item.slug]]/slo/[[objective.id]]">
-                      <paper-item>{{objective.title}}</paper-item>
-                    </a>
-                  </template>
-                  <paper-item disabled class="no-items" hidden="{{objectives.length}}">No objectives...</paper-item>
-                </paper-listbox>
+              <paper-listbox
+                id="objectivesList"
+                slot="dropdown-content">
+                <template
+                  is="dom-repeat"
+                  items="{{objectives}}"
+                  as="objective">
+                  <a href="/products/[[item.slug]]/slo/[[objective.id]]">
+                    <paper-item>{{objective.title}}</paper-item>
+                  </a>
+                </template>
+                <paper-item disabled class="no-items" hidden="{{objectives.length}}">No objectives...</paper-item>
+              </paper-listbox>
             </div>
             <div class="column" hidden$="{{!item.uri}}">
               <iron-label>Indicators</iron-label>
@@ -471,6 +471,9 @@
       }
 
       cancel() {
+        if (!this.item.uri) {
+          this.set('opened', false)
+        }
         this.set('editMode', false)
         this.$.productModal.reset()
         this.initForm()
