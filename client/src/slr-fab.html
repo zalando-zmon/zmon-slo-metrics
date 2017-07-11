@@ -30,14 +30,9 @@
       static get properties() {
         return {
           hidden: {
-            type: String,
-            observer: 'hiddenChanged'
+            type: String
           }
         }
-      }
-
-      hiddenChanged() {
-        console.log('=>', this.hide)
       }
     }
 

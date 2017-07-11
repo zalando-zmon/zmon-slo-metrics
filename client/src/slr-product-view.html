@@ -210,7 +210,7 @@
                   is="dom-repeat"
                   items="{{objectives}}"
                   as="objective">
-                  <a href="/products/[[item.slug]]/slo/[[objective.id]]">
+                  <a href="/products/[[item.slug]]/slo/[[objective.id]]" on-click="openObjectiveView">
                     <paper-item>{{objective.title}}</paper-item>
                   </a>
                 </template>
@@ -230,7 +230,7 @@
                   is="dom-repeat"
                   items="{{indicators}}"
                   as="indicator">
-                  <a href="/products/[[item.slug]]/sli/[[indicator.name]]">
+                  <a href="/products/[[item.slug]]/sli/[[indicator.name]]" on-click="openIndicatorView">
                     <paper-item>{{indicator.name}}</paper-item>
                   </a>
                 </template>
@@ -323,7 +323,7 @@
             value: false
           },
           selectedObjective: {
-            type: Object
+            type: Object,
           },
           selectedObjectiveId: {
             type: String
@@ -484,6 +484,16 @@
           return
         }
         this.$.productForm.submit()
+      }
+
+      openObjectiveView(e) {
+        this.set('selectedObjectiveId', e.model.objective.id)
+        this.$.objectiveView.open()
+      }
+
+      openIndicatorView(e) {
+        this.set('selectedIndicatorId', e.model.indicator.name)
+        this.$.indicatorView.open()
       }
 
       addObjective() {

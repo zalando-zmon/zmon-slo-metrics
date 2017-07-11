@@ -1,5 +1,4 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
@@ -18,11 +17,6 @@
         text-align: left;
       }
     </style>
-
-    <app-route
-      route="{{route}}"
-      pattern="/slo/:objectiveId"
-      data="{{routeData}}"></app-route>
 
     <iron-ajax
       id="ajax"
@@ -134,12 +128,7 @@
             type: Array
           },
           item: {
-            type: Object,
-            observer: 'itemChanged'
-          },
-          selectedObjectiveId: {
-            type: String,
-            notify: true
+            type: Object
           },
           opened: {
             type: Boolean,
@@ -181,26 +170,6 @@
             type: Boolean,
             value: false
           }
-        }
-      }
-
-      static get observers() {
-        return [ 'routeDataChanged(routeData.objectiveId, visible)' ]
-      }
-
-      routeDataChanged(objectiveId, visible) {
-        if (objectiveId && visible) {
-          this.set('selectedObjectiveId', objectiveId)
-          this.set('opened', true)
-          return
-        }
-
-        return this.set('opened', false)
-      }
-
-      itemChanged() {
-        if (!this.item) {
-          this.set('opened', false)
         }
       }
 
@@ -304,8 +273,12 @@
         this.push('item.targets', '')
       }
 
+      open() {
+        this.set('opened', true)
+      }
+
       close() {
-        window.history.back()
+        this.set('opened', false)
       }
 
       cancel() {

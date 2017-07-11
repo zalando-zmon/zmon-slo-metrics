@@ -32,10 +32,10 @@
       slug="{{selectedSlug}}"
       products="{{products}}"
       product-groups="{{productGroups}}"
-      opened={{viewOpened}}
-      loading={{loading}}
-      route={{route}}
-      visible={{visible}}></slr-product-view>
+      opened="{{viewIsOpen}}"
+      loading="{{loading}}"
+      route="{{route}}"
+      visible="{{visible}}"></slr-product-view>
 
     <iron-list
       grid
@@ -74,7 +74,8 @@
             type: Object
           },
           visible: {
-            type: Boolean
+            type: Boolean,
+            value: false
           },
           loading: {
             type: Boolean,

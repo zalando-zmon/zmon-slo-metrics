@@ -97,15 +97,15 @@
         'routeChanged(route, visible)'
       ]}
 
+      routeChanged(route, visible) {
+        this.$.productGroupsData.fetch()
+      }
+
       ready() {
         super.ready()
         this.$.view.addEventListener('slr-product-group-submitted', () => {
           this.$.productGroupsData.fetch()
         })
-      }
-
-      routeChanged(route, visible) {
-        this.$.productGroupsData.fetch()
       }
 
       addProductGroup() {

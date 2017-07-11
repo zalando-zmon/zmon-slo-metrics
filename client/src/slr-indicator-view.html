@@ -1,5 +1,4 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-input/paper-textarea.html">
@@ -22,11 +21,6 @@
         max-height: 80%;
       }
     </style>
-
-    <app-route
-      route="{{route}}"
-      pattern="/sli/:indicatorId"
-      data="{{routeData}}"></app-route>
 
     <paper-dialog
       id="deleteModal"
@@ -104,12 +98,7 @@
             type: Array
           },
           item: {
-            type: Object,
-            observer: 'itemChanged'
-          },
-          selectedIndicatorId: {
-            type: String,
-            notify: true
+            type: Object
           },
           opened: {
             type: Boolean,
@@ -155,25 +144,6 @@
             type: Boolean,
             value: false
           }
-        }
-      }
-
-      static get observers() {
-        return [ 'routeDataChanged(routeData.indicatorId, visible)' ]
-      }
-
-      routeDataChanged(indicatorId, visible) {
-        if (indicatorId && visible) {
-          this.set('selectedIndicatorId', indicatorId)
-          this.set('opened', true)
-          return
-        }
-        return this.set('opened', false)
-      }
-
-      itemChanged() {
-        if (!this.item) {
-          this.set('opened', false)
         }
       }
 
@@ -278,8 +248,12 @@
         this.set('editMode', true)
       }
 
+      open() {
+        this.set('opened', true)
+      }
+
       close() {
-        window.history.back()
+        this.set('opened', false)
       }
 
       initForm() {
