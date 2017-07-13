@@ -50,13 +50,13 @@
 
     <paper-card>
       <div class="card-content" hidden$="{{editMode}}">
-        <div class="header">[[item.name]]
+        <div class="header">[[_item.name]]
             <div class="actions">
               <paper-icon-button icon="delete" on-click="delete"></paper-icon-button>
               <paper-icon-button icon="create" on-click="toggleEditMode"></paper-icon-button>
             </div>
         </div>
-        <p>[[item.department]]</p>
+        <p>[[_item.department]]</p>
       </div>
 
       <div class="card-content" hidden$="{{!editMode}}">
@@ -70,7 +70,7 @@
                 label="Name"
                 autofocus="true"
                 disabled="{{!editMode}}"
-                value="{{item.name}}"
+                value="{{_item.name}}"
                 required></paper-input>
             </div>
             <paper-input
@@ -79,7 +79,7 @@
               type="text"
               label="Department"
               disabled="{{!editMode}}"
-              value="{{item.department}}"
+              value="{{_item.department}}"
               required></paper-input>
           </form>
         </iron-form>
@@ -107,6 +107,11 @@
             type: Object,
             notify: true,
             observer: 'itemChanged'
+          },
+          // save copy to reset form since iron-form
+          // and paper-input have issues
+          _item: {
+            type: Object
           },
           editMode: {
             type: Boolean,
@@ -137,6 +142,8 @@
 
       ready() {
         super.ready()
+
+        this.copyItem()
 
         this.$.form
           .addEventListener('iron-form-presubmit', () => {
@@ -172,9 +179,14 @@
 
         this.$.form
           .addEventListener('iron-form-response', (e) => {
-            this.dispatchEvent(new CustomEvent('slr-product-group-card-submitted'))
 
             this.set('item', e.detail.response)
+            this.copyItem()
+
+            this.dispatchEvent(new CustomEvent('slr-product-group-card-submitted',
+              {
+                detail: { item: e.detail.request
+              }, bubbles: true, composed: true }))
 
             let method = this.$.form.request.method
             let m = {
@@ -227,8 +239,7 @@
 
       delete() {
         this.dispatchEvent(new CustomEvent('slr-product-group-card-delete',
-          { detail: { item: this.item }, bubbles: true, composed: true })
-        )
+          { detail: { item: this.item }, bubbles: true, composed: true }))
       }
 
       deleteConfirm() {
@@ -239,6 +250,7 @@
       cancel() {
         this.set('editMode', false)
         this.initForm()
+        this.reset()
         this.dispatchEvent(new CustomEvent('slr-product-group-card-cancelled',
           { detail: { item: this.item }, bubbles: true, composed: true })
         )
@@ -247,10 +259,19 @@
       toggleEditMode() {
         this.set('editMode', !this.editMode)
         if (this.editMode) {
+          this.copyItem()
           this.dispatchEvent(new CustomEvent('slr-product-group-card-edit',
             { detail: { item: this.item }, bubbles: true, composed: true })
           )
         }
+      }
+
+      copyItem() {
+        this.set('_item', Object.assign({}, this.item))
+      }
+
+      reset() {
+        this.set('_item', Object.assign({}, this.item))
       }
 
       notify(message, action, duration) {
