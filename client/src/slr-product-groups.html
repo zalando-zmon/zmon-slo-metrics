@@ -1,0 +1,183 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="./slr-fab.html">
+<link rel="import" href="./slr-items-data.html">
+<link rel="import" href="./slr-product-group-card.html">
+
+<dom-module id="slr-product-groups">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: block;
+        max-width: 1440px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+
+    <slr-items-data
+      id="productGroupsData"
+      items="{{productGroups}}"
+      filtered-items="{{filteredProductGroups}}"
+      url="/api/product-groups"
+      search="[[searchStr]]"
+      item-type="Product Group"
+      loading="{{loading}}"></slr-items-data>
+
+    <iron-ajax
+      id="ajax"
+      url="{{selectedProductGroup.uri}}"
+      method="DELETE"
+      handle-as="json"
+      on-response="handleResponse"
+      on-error="handleErrorResponse"
+      debounce-duration="300"
+      loading={{loading}}></iron-ajax>
+
+
+    <paper-dialog id="delete">
+      <h2>Delete Product Group</h2>
+      <p>Are you sure you want to delete "{{selectedProductGroup.name}}"?</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button
+          dialog-confirm
+          on-click="deleteProductGroup">Delete</paper-button>
+      </div></paper-dialog>
+
+    <template is="dom-repeat" items="[[filteredProductGroups]]">
+      <slr-product-group-card item="{{item}}"></slr-product-group-card>
+    </template>
+
+    <slr-fab
+      id="fab"
+      visible
+      on-click="addProductGroup"></slr-fab>
+
+  </template>
+
+  <script>
+    class SlrProductGroups extends Polymer.Element {
+      static get is() { return 'slr-product-groups' }
+
+      static get properties() {
+        return {
+          productGroups: {
+            type: Array,
+            value: [],
+            notify: true
+          },
+          route: {
+            type: Object
+          },
+          visible: {
+            type: Boolean
+          },
+          loading: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          editMode: {
+            type: Boolean
+          },
+          searchStr: {
+            type: String
+          },
+          filteredProductGroups: {
+            type: Array
+          }
+        }
+      }
+
+      static get observers() { return [
+        'routeChanged(route, visible)'
+      ]}
+
+      routeChanged(route, visible) {
+        this.$.productGroupsData.fetch()
+      }
+
+      ready() {
+        super.ready()
+
+        this.addEventListener('slr-product-group-card-cancelled', (e) => {
+          if (e.detail.item) {
+            this.set('selectedProductGroup', null)
+            this.$.fab.show()
+            if (!e.detail.item.uri) {
+              this.pop('productGroups')
+            }
+          }
+        })
+
+        this.addEventListener('slr-product-group-card-edit', (e) => {
+          this.set('selectedProductGroup', e.detail.item)
+          this.$.fab.hide()
+        })
+
+        this.addEventListener('slr-product-group-card-delete', (e) => {
+          this.set('selectedProductGroup', e.detail.item)
+          this.$.delete.opened = true;
+        })
+
+        this.addEventListener('slr-product-group-card-submitted', (e) => {
+          this.set('selectedProductGroup', e.detail.item)
+          this.$.fab.show()
+        })
+      }
+
+      addProductGroup() {
+        this.push('productGroups', {})
+        this.$.fab.hide()
+      }
+
+      deleteProductGroup() {
+        if (this.selectedProductGroup.uri) {
+          this.$.ajax.generateRequest()
+        }
+      }
+
+      handleResponse(e) {
+        try {
+          this.$.productGroupsData.fetch()
+          this.set('selectedProductGroup', null)
+        } catch(e) {
+          console.error('Error Deleting Product Group')
+          this.notify("Can't delete Product Group.", () =>
+                                                this.$.ajax.generateRequest())
+        }
+      }
+
+      handleErrorResponse(e) {
+        try {
+          if (e.detail.request.xhr.response.status === 401) {
+            this.dispatchEvent(
+              new CustomEvent('slr-authenticate',
+                {bubbles: true, composed: true})
+            )
+            return
+          }
+        } catch(e) {}
+        console.error('Error deleting Product Group')
+        this.notify("Can't delete Product Group.", () =>
+                                                this.$.ajax.generateRequest())
+      }
+
+      notify(message, action, duration) {
+        this.dispatchEvent(
+          new CustomEvent('slr-notify', {
+            detail: { message, action, duration },
+            duration,
+            bubbles: true,
+            composed: true
+          })
+        )
+      }
+    }
+
+    window.customElements.define(SlrProductGroups.is, SlrProductGroups)
+  </script>
+</dom-module>
