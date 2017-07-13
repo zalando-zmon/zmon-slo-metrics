@@ -51,7 +51,13 @@
       slr-fab {
         position: fixed;
         right: 3vw;
+        bottom: calc(-5vh - 56px);
+        transition: bottom 0.2s ease-in-out;
+      }
+
+      slr-fab[visible] {
         bottom: 5vh;
+        transition: bottom 0.2s ease-in-out;
       }
     </style>
   </template>

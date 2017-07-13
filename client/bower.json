@@ -27,7 +27,7 @@
     "paper-listbox": "PolymerElements/paper-listbox#2.0.0",
     "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#2.0.0",
     "iron-scroll-threshold": "PolymerElements/iron-scroll-threshold#^2.0.0",
-    "iron-a11y-keys": "^2.0.0"
+    "iron-a11y-keys": "^2.0.0",
   },
   "devDependencies": {
     "web-component-tester": "^6.0.0-prerelease.5",

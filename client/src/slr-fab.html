@@ -3,25 +3,15 @@
 
 <dom-module id="slr-fab">
   <template>
-    <style include="common-styles">
+    <style>
       :host {
         display: block;
-      }
-
-      paper-fab {
-        bottom: calc(-5vh - 56px);
-        transition: bottom 0.1s ease-in-out;
-      }
-
-      paper-fab[visible] {
-        bottom: 0;
       }
     </style>
 
     <paper-fab
       icon="add"
-      title="add"
-      visible$="[[!hidden]]"></paper-fab>
+      title="add"></paper-fab>
   </template>
   <script>
     class SlrFab extends Polymer.Element {
@@ -29,10 +19,19 @@
 
       static get properties() {
         return {
-          hidden: {
-            type: String
+          visible: {
+            type: Boolean,
+            reflectToAttribute: true
           }
         }
+      }
+
+      show() {
+        this.set('visible', true)
+      }
+
+      hide() {
+        this.set('visible', false)
       }
     }
 

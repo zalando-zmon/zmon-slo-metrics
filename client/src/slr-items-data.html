@@ -64,6 +64,16 @@
         }
       }
 
+      static get observers() {
+        return [
+          'itemsChanged(items.*)'
+        ]
+      }
+
+      itemsChanged() {
+        this.set('filteredItems', this.filter())
+      }
+
       searchChanged() {
         this.set('filteredItems', this.filter())
       }
@@ -145,11 +155,13 @@
           return
         }
 
-        if (!this.search) {
-          return this.items;
-        }
-
         let items = this.items.filter( (item) => {
+
+          //add new items {}
+          if (!item.uri || !this.search) {
+            return true
+          }
+
           let content = []
           for (var key in item) {
             if (item[key].toLowerCase)
