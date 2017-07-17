@@ -86,6 +86,7 @@
       handleResponse(e) {
         try {
           this.set('items', e.detail.response.data)
+          this.sort()
           this.set('filteredItems', this.filter())
         } catch(e) {
           console.error('Error loading' + this.itemType, e)
@@ -177,9 +178,15 @@
         return items
       }
 
+      sort() {
+        console.log('sort', this.itemType, this.items)
+        let sorted = [].concat(this.items.sort( (a, b) => this.favoriteSort(a, b)))
+        this.set('items', sorted)
+      }
+
       favoriteSort(a, b) {
-        let nameA = a.name.toUpperCase();
-        let nameB = b.name.toUpperCase();
+        let nameA = (a.name || a.title || a.slug || a.id).toUpperCase();
+        let nameB = (b.name || b.title || b.slug || b.id).toUpperCase();
 
         if (a.favorite) {
           return -1;
