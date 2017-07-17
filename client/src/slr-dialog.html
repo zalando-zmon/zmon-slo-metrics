@@ -137,13 +137,15 @@
       whenOpened() {
         this.copyItem()
         this.reset()
-        this.dispatchEvent(new CustomEvent('slr-dialog-opened'))
+        this.dispatchEvent(new CustomEvent('slr-dialog-opened',
+          { bubble:true, composed: true }))
       }
 
       whenClosed() {
         this.reset()
         this.set('editMode', false)
-        this.dispatchEvent(new CustomEvent('slr-dialog-closed'))
+        this.dispatchEvent(new CustomEvent('slr-dialog-closed',
+          { bubble:true, composed: true }))
       }
 
       itemChanged() {

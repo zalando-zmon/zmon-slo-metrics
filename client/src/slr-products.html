@@ -52,8 +52,9 @@
     </iron-list>
 
     <slr-fab
-      on-click="addProduct"
-      hidden="{{viewIsOpen}}"></slr-fab>
+      id="fab"
+      visible
+      on-click="addProduct"></slr-fab>
 
   </template>
 
@@ -113,13 +114,25 @@
       ready() {
         super.ready()
         this.$.view.addEventListener('slr-product-submitted', () => {
+          this.set('selectedSlug', null)
           this.$.productsData.fetch()
+        })
+
+        this.addEventListener('slr-dialog-opened', (e) => {
+          this.$.fab.hide()
+        })
+
+        this.addEventListener('slr-dialog-closed', (e) => {
+          this.set('selectedSlug', null)
+          this.$.fab.show()
         })
       }
 
       addProduct() {
         this.$.view.new()
+        this.$.fab.hide()
       }
+
 
       computeFilter(str) {
         return SlrUtils.filterCollection(str)
