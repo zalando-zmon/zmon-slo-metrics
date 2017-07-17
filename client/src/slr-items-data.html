@@ -4,6 +4,7 @@
 <dom-module id="slr-items-data">
   <template>
     <iron-ajax
+      auto="{{auto}}"
       id="ajax"
       url="{{url}}"
       loading="{{loading}}"
@@ -60,6 +61,10 @@
           fetchAttempts: {
             type: Number,
             value: 0
+          },
+          auto: {
+            type: Boolean,
+            value: false
           }
         }
       }

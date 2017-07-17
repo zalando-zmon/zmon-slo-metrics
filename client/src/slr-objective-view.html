@@ -223,18 +223,20 @@
         this.$.objectiveForm
           .addEventListener('iron-form-response', (e) => {
             this.set('loading', false)
-            this.dispatchEvent(new CustomEvent('slr-objective-submitted'))
+            this.dispatchEvent(new CustomEvent('slr-objective-submitted',
+              { detail: { item: e.detail.response }, bubble:true, composed: true })
+            )
 
             let method = this.$.objectiveForm.request.method || 'default'
             let m = {
-              'POST': 'added',
-              'PUT': 'updated',
-              'DELETE': 'deleted',
-              'default': 'saved'
+              'POST': 'Added',
+              'PUT': 'Updated',
+              'DELETE': 'Deleted',
+              'default': 'Saved'
             }
 
             this.dispatchEvent(new CustomEvent('slr-notify', {
-                detail: { message: `Objective ${m[method]}.` },
+                detail: { message: `${m[method]} Objective.` },
                 bubbles: true,
                 composed: true
               })
@@ -244,7 +246,6 @@
 
             if (method === 'DELETE') {
               this.set('opened', false)
-              this.set('route.path', '')
             } else {
               this.set('editMode', false)
               this.set('item', e.detail.response)

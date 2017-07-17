@@ -171,7 +171,9 @@
             }
 
             // Parse Source Textarea value into JSON to submit as Object.
-            this.$.indicatorForm.request.body.source = this.getSourceJson()
+            if (this.$.indicatorForm.request.method !== 'DELETE') {
+              this.$.indicatorForm.request.body.source = this.getSourceJson()
+            }
 
             console.log('Form submitted:', this.$.indicatorForm.serializeForm())
           })
@@ -188,26 +190,27 @@
               'default': 'save'
             }
 
-            this.notify()
-            this.dispatchEvent(`Can't ${m[method]} Indicator.`, () =>
-                                                  this.$.indicatorForm.submit())
+            this.notify(`Can't ${m[method]} Indicator.`)
             this.initForm()
           })
 
         this.$.indicatorForm
           .addEventListener('iron-form-response', (e) => {
             this.set('loading', false)
-            this.dispatchEvent(new CustomEvent('slr-indicator-submitted'))
+            this.dispatchEvent(new CustomEvent('slr-indicator-submitted',
+              { detail: { item: e.detail.response }, bubble:true, composed: true })
+            )
+
 
             let method = this.$.indicatorForm.request.method || 'default'
             let m = {
-              'POST': 'added',
-              'PUT': 'updated',
-              'DELETE': 'deleted',
-              'default': 'saved'
+              'POST': 'Added',
+              'PUT': 'Updated',
+              'DELETE': 'Deleted',
+              'default': 'Saved'
             }
 
-            this.notify(`Indicator ${m[method]}.`)
+            this.notify(`${m[method]} Indicator.`)
             this.initForm()
 
             if (method === 'DELETE') {

@@ -79,6 +79,7 @@
       tail="{{subroute}}"></app-route>
 
     <slr-items-data
+      auto
       id="objectivesData"
       id-name="id"
       slug="{{selectedObjectiveId}}"
@@ -89,6 +90,7 @@
       loading="{{loading}}"></slr-items-data>
 
     <slr-items-data
+      auto="true"
       id="indicatorsData"
       id-name="name"
       slug="{{selectedIndicatorId}}"
@@ -366,8 +368,6 @@
           return
         }
 
-        this.fetchData()
-
         if (this.slug && this.item.slug
           && !this.objectiveViewOpened && !this.indicatorViewOpened) {
           this.set('opened', true)
@@ -438,12 +438,24 @@
           })
 
         this.$.objectiveView
-          .addEventListener('slr-objective-submitted', () =>
-                                            this.$.objectivesData.fetch())
+          .addEventListener('slr-objective-submitted', (e) => {
+            if (e.detail.item && e.detail.item.id) {
+              this.set('selectedObjectiveId', e.detail.item.id)
+            } else {
+              this.set('selectedObjectiveId', null)
+            }
+            this.$.objectivesData.fetch()
+          })
 
         this.$.indicatorView
-          .addEventListener('slr-indicator-submitted', () =>
-                                            this.$.indicatorsData.fetch())
+          .addEventListener('slr-indicator-submitted', (e) => {
+            if (e.detail.item && e.detail.item.name) {
+              this.set('selectedIndicatorId', e.detail.item.name)
+            } else {
+              this.set('selectedIndicatorId', null)
+            }
+            this.$.indicatorsData.fetch()
+          })
       }
 
       fetchData() {
