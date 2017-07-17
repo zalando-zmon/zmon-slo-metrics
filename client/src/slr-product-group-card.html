@@ -8,6 +8,7 @@
 <link rel="import" href="../bower_components/iron-label/iron-label.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
 
 <dom-module id="slr-product-group-card">
   <template>
@@ -15,7 +16,7 @@
       :host {
         display: block;
         width: 400px;
-        margin: 20px;
+        margin: 15px;
         text-align: left;
         float: left;
       }
@@ -36,28 +37,25 @@
 
       }
 
-      .text-light {
-        opacity: 0.66;
-      }
-
-      .header { @apply --paper-font-headline; }
-
-      .actions {
-        float: right;
-      }
-
     </style>
 
     <paper-card>
-      <div class="card-content" hidden$="{{editMode}}">
-        <div class="header">[[_item.name]]
-            <div class="actions">
-              <paper-icon-button icon="delete" on-click="delete"></paper-icon-button>
-              <paper-icon-button icon="create" on-click="toggleEditMode"></paper-icon-button>
-            </div>
+      <paper-icon-item class="card-header" hidden$="{{editMode}}">
+        <paper-item-body two-line>
+          <div>[[item.name]]</div>
+          <div secondary>[[item.department]]</div>
+        </paper-item-body>
+        <div class="actions">
+          <paper-icon-button
+            item-icon
+            icon="delete"
+            on-click="delete"></paper-icon-button>
+          <paper-icon-button
+            item-icon
+            icon="create"
+            on-click="toggleEditMode"></paper-icon-button>
         </div>
-        <p>[[_item.department]]</p>
-      </div>
+      </paper-icon-item>
 
       <div class="card-content" hidden$="{{!editMode}}">
         <iron-form id="form" headers="{{headers}}">
@@ -70,7 +68,7 @@
                 label="Name"
                 autofocus="true"
                 disabled="{{!editMode}}"
-                value="{{_item.name}}"
+                value="{{item.name}}"
                 required></paper-input>
             </div>
             <paper-input
@@ -79,7 +77,7 @@
               type="text"
               label="Department"
               disabled="{{!editMode}}"
-              value="{{_item.department}}"
+              value="{{item.department}}"
               required></paper-input>
           </form>
         </iron-form>
@@ -180,7 +178,7 @@
         this.$.form
           .addEventListener('iron-form-response', (e) => {
 
-            this.set('item', e.detail.response)
+            this.set('item.uri', e.detail.response.uri)
             this.copyItem()
 
             this.dispatchEvent(new CustomEvent('slr-product-group-card-submitted',
@@ -210,7 +208,7 @@
       }
 
       itemChanged() {
-        if (!this.item.uri) {
+        if (!this.item.name) {
           this.set('editMode', true)
         }
       }
@@ -237,14 +235,9 @@
         this.$.form.submit()
       }
 
-      delete() {
+      delete(e) {
         this.dispatchEvent(new CustomEvent('slr-product-group-card-delete',
           { detail: { item: this.item }, bubbles: true, composed: true }))
-      }
-
-      deleteConfirm() {
-        this.set('method', 'DELETE')
-        this.$.form.submit()
       }
 
       cancel() {
@@ -259,7 +252,6 @@
       toggleEditMode() {
         this.set('editMode', !this.editMode)
         if (this.editMode) {
-          this.copyItem()
           this.dispatchEvent(new CustomEvent('slr-product-group-card-edit',
             { detail: { item: this.item }, bubbles: true, composed: true })
           )
@@ -271,7 +263,7 @@
       }
 
       reset() {
-        this.set('_item', Object.assign({}, this.item))
+        this.set('item', Object.assign({}, this._item))
       }
 
       notify(message, action, duration) {

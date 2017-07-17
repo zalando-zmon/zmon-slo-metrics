@@ -28,7 +28,7 @@
 
     <iron-ajax
       id="ajax"
-      url="{{selectedProductGroup.uri}}"
+      url="[[selectedProductGroup.uri]]"
       method="DELETE"
       handle-as="json"
       on-response="handleResponse"
@@ -39,7 +39,7 @@
 
     <paper-dialog id="delete">
       <h2>Delete Product Group</h2>
-      <p>Are you sure you want to delete "{{selectedProductGroup.name}}"?</p>
+      <p>Are you sure you want to delete "[[selectedProductGroup.name]]"?</p>
       <div class="buttons">
         <paper-button dialog-dismiss>Cancel</paper-button>
         <paper-button
@@ -80,9 +80,6 @@
             value: false,
             notify: true
           },
-          editMode: {
-            type: Boolean
-          },
           searchStr: {
             type: String
           },
@@ -104,13 +101,11 @@
         super.ready()
 
         this.addEventListener('slr-product-group-card-cancelled', (e) => {
-          if (e.detail.item) {
-            this.set('selectedProductGroup', null)
-            this.$.fab.show()
-            if (!e.detail.item.uri) {
-              this.pop('productGroups')
-            }
+          this.set('selectedProductGroup', e.detail.item)
+          if (!e.detail.item.uri) {
+            this.pop('productGroups')
           }
+          this.$.fab.show()
         })
 
         this.addEventListener('slr-product-group-card-edit', (e) => {
@@ -124,7 +119,7 @@
         })
 
         this.addEventListener('slr-product-group-card-submitted', (e) => {
-          this.set('selectedProductGroup', e.detail.item)
+          this.set('selectedProductGroup', null)
           this.$.fab.show()
         })
       }
