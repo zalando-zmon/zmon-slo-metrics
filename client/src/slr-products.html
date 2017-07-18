@@ -1,6 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
-<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <link rel="import" href="./slr-fab.html">
 <link rel="import" href="./slr-items-data.html">
@@ -18,7 +17,7 @@
     <slr-items-data
       id="productsData"
       slug="{{selectedSlug}}"
-      item="{{selectedItem}}"
+      item="{{selectedProduct}}"
       items="{{products}}"
       filtered-items="{{filteredProducts}}"
       search="[[searchStr]]"
@@ -28,7 +27,7 @@
 
     <slr-product-view
       id="view"
-      item="{{selectedItem}}"
+      item="{{selectedProduct}}"
       slug="{{selectedSlug}}"
       products="{{products}}"
       product-groups="{{productGroups}}"
@@ -42,11 +41,11 @@
       items="[[filteredProducts]]"
       scroll-target="document">
       <template>
-        <a href="/products/{{item.slug}}">
+        <a href="/products/[[item.slug]]">
           <slr-card
+            hidden$="[[!item.name]]"
             title="[[item.name]]"
-            description="[[item.product_group_name]]"
-            favorite="{{item.favorite}}"></slr-card>
+            description="[[item.product_group_name]]"></slr-card>
         </a>
       </template>
     </iron-list>
@@ -92,8 +91,8 @@
           filteredProducts: {
             type: Array
           },
-          selectedItem: {
-            type: String
+          selectedProduct: {
+            type: Object
           },
           selectedSlug: {
             type: String
@@ -113,9 +112,22 @@
 
       ready() {
         super.ready()
-        this.$.view.addEventListener('slr-product-submitted', () => {
-          this.set('selectedSlug', null)
+
+        this.addEventListener('slr-product-view-submitted', (e) => {
+          this.set('selectedProduct', null)
+          if (e.detail.item && e.detail.item.slug) {
+            this.set('selectedSlug', e.detail.item.slug)
+          } else {
+            this.set('selectedSlug', null)
+          }
           this.$.productsData.fetch()
+          this.$.fab.show()
+        })
+
+        this.addEventListener('slr-product-view-cancelled', (e) => {
+          if (!e.detail.item.name) {
+            this.pop('products')
+          }
         })
 
         this.addEventListener('slr-dialog-opened', (e) => {
@@ -132,7 +144,6 @@
         this.$.view.new()
         this.$.fab.hide()
       }
-
 
       computeFilter(str) {
         return SlrUtils.filterCollection(str)

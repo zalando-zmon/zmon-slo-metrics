@@ -147,6 +147,9 @@
       }
 
       findAndSetItem() {
+        if (!this.slug) {
+          return this.set('item', null)
+        }
         let ix = this.items.findIndex( (p) => ''+p[this.idName] === ''+this.slug)
         if (ix > -1) {
           this.set('item', this.items[ix])
@@ -179,8 +182,8 @@
       }
 
       sort() {
-        console.log('sort', this.itemType, this.items)
-        let sorted = [].concat(this.items.sort( (a, b) => this.favoriteSort(a, b)))
+        let sorted = [].concat(this.items.sort( (a, b) =>
+                                                  this.favoriteSort(a, b)))
         this.set('items', sorted)
       }
 

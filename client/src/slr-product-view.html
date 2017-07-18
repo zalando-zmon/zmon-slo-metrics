@@ -1,13 +1,11 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
-<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
 <link rel="import" href="../bower_components/iron-label/iron-label.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 
@@ -102,7 +100,6 @@
 
     <slr-objective-view
       id="objectiveView"
-      selected-objective-id="{{selectedObjectiveId}}"
       item="{{selectedObjective}}"
       product="{{item}}"
       objectives="{{objectives}}"
@@ -115,7 +112,6 @@
 
     <slr-indicator-view
       id="indicatorView"
-      selected-indicator-id="{{selectedIndicatorId}}"
       item="{{selectedIndicator}}"
       product="{{item}}"
       indicators="{{indicators}}"
@@ -415,7 +411,15 @@
         this.$.productForm
           .addEventListener('iron-form-response', (e) => {
             this.set('loading', false)
-            this.dispatchEvent(new CustomEvent('slr-product-submitted'))
+            if (e.detail.response && e.detail.response.slug) {
+              this.set('item.slug', e.detail.response.slug)
+            }
+
+            this.dispatchEvent(new CustomEvent('slr-product-view-submitted',
+              {
+                detail: { item: e.detail.response
+              }, bubbles: true, composed: true }))
+
 
             let method = this.$.productForm.request.method
             let m = {
@@ -425,7 +429,6 @@
             }
 
             this.notify(`${m[method]} Product.`)
-            this.initForm()
 
             if (method === 'DELETE') {
               this.set('opened', false)
@@ -435,6 +438,7 @@
               this.set('routeData.slug', e.detail.response.slug)
               this.set('item', e.detail.response)
             }
+            this.initForm()
           })
 
         this.$.objectiveView
@@ -489,6 +493,9 @@
         this.set('editMode', false)
         this.$.productModal.reset()
         this.initForm()
+        this.dispatchEvent(new CustomEvent('slr-product-view-cancelled',
+          { detail: { item: this.item }, bubbles: true, composed: true })
+        )
       }
 
       submit() {
@@ -527,6 +534,7 @@
 
       new() {
         this.set('item', {})
+        this.push('products', this.item)
         this.set('objectives', [])
         this.set('indicators', [])
         this.set('opened', true)
@@ -534,6 +542,9 @@
       }
 
       close() {
+        if (!this.item.name) {
+          this.cancel()
+        }
         this.set('opened', false)
         this.set('routeData.slug', '')
       }
