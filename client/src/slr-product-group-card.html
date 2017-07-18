@@ -4,11 +4,11 @@
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/iron-label/iron-label.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../bower_components/paper-item/paper-item-body.html">
 
 <dom-module id="slr-product-group-card">
   <template>
@@ -57,9 +57,9 @@
         </div>
       </paper-icon-item>
 
-      <div class="card-content" hidden$="{{!editMode}}">
-        <iron-form id="form" headers="{{headers}}">
-          <form class="form" method="{{method}}" action="{{action}}">
+      <div class="card-content" hidden$="[[!editMode]]">
+        <iron-form id="form" headers="[[headers]]">
+          <form class="form" method="[[method]]" action="[[action]]">
             <div class="header">
               <paper-input
                 id="name"
@@ -67,7 +67,7 @@
                 type="text"
                 label="Name"
                 autofocus="true"
-                disabled="{{!editMode}}"
+                disabled="[[!editMode]]"
                 value="{{item.name}}"
                 required></paper-input>
             </div>
@@ -76,14 +76,14 @@
               name="department"
               type="text"
               label="Department"
-              disabled="{{!editMode}}"
+              disabled="[[!editMode]]"
               value="{{item.department}}"
               required></paper-input>
           </form>
         </iron-form>
       </div>
 
-      <div class="card-actions" hidden$="{{!editMode}}">
+      <div class="card-actions" hidden$="[[!editMode]]">
         <div class="horizontal justified">
           <paper-button
             on-click="cancel">Cancel</paper-button>
@@ -177,13 +177,15 @@
 
         this.$.form
           .addEventListener('iron-form-response', (e) => {
-
-            this.set('item.uri', e.detail.response.uri)
+            this.set('loading', false)
+            if (e.detail.response && e.detail.response.uri) {
+              this.set('item.uri', e.detail.response.uri)
+            }
             this.copyItem()
 
             this.dispatchEvent(new CustomEvent('slr-product-group-card-submitted',
               {
-                detail: { item: e.detail.request
+                detail: { item: e.detail.response
               }, bubbles: true, composed: true }))
 
             let method = this.$.form.request.method
@@ -220,10 +222,10 @@
       initForm() {
         this.set('method', 'POST')
         this.set('action', '/api/product-groups')
-        this.$.form.reset()
 
         // manually reset invalid state since iron-form does not support
         // reset() yet... (as of 07.2017)
+        // this.$.form.reset()
         this.$.name.$.input.invalid = false
         this.$.department.$.input.invalid = false
       }
@@ -243,7 +245,7 @@
       cancel() {
         this.set('editMode', false)
         this.initForm()
-        this.reset()
+        this.resetItem()
         this.dispatchEvent(new CustomEvent('slr-product-group-card-cancelled',
           { detail: { item: this.item }, bubbles: true, composed: true })
         )
@@ -262,7 +264,7 @@
         this.set('_item', Object.assign({}, this.item))
       }
 
-      reset() {
+      resetItem() {
         this.set('item', Object.assign({}, this._item))
       }
 

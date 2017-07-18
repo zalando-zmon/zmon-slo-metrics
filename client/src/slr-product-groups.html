@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 
 <link rel="import" href="./slr-fab.html">
 <link rel="import" href="./slr-items-data.html">
@@ -53,8 +54,8 @@
 
     <slr-fab
       id="fab"
-      visible
-      on-click="addProductGroup"></slr-fab>
+      on-click="addProductGroup"
+      visible></slr-fab>
 
   </template>
 
@@ -68,6 +69,9 @@
             type: Array,
             value: [],
             notify: true
+          },
+          selectedProductGroup: {
+            type: Object
           },
           route: {
             type: Object
@@ -135,30 +139,21 @@
         }
       }
 
-      handleResponse(e) {
-        try {
-          this.$.productGroupsData.fetch()
-          this.set('selectedProductGroup', null)
-        } catch(e) {
-          console.error('Error Deleting Product Group')
-          this.notify("Can't delete Product Group.", () =>
-                                                this.$.ajax.generateRequest())
-        }
+      handleResponse() {
+        this.set('selectedProductGroup', null)
+        this.notify('Deleted Product Group.')
+        this.$.productGroupsData.fetch()
       }
 
       handleErrorResponse(e) {
-        try {
-          if (e.detail.request.xhr.response.status === 401) {
-            this.dispatchEvent(
-              new CustomEvent('slr-authenticate',
-                {bubbles: true, composed: true})
-            )
-            return
-          }
-        } catch(e) {}
+        if (e.detail.request.xhr.response.status === 401) {
+          return this.dispatchEvent(
+            new CustomEvent('slr-authenticate', {bubbles: true, composed: true})
+          )
+        }
         console.error('Error deleting Product Group')
-        this.notify("Can't delete Product Group.", () =>
-                                                this.$.ajax.generateRequest())
+        this.notify("Can't delete Product Group.",
+          () => this.$.ajax.generateRequest())
       }
 
       notify(message, action, duration) {
