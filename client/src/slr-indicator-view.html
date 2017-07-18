@@ -80,6 +80,7 @@
                           label="Source" always-float-label
                           value="{{source}}"
                           disabled="{{!editMode}}"
+                          invalid="{{!isValidJson}}"
                           required></paper-input>
         </form>
       </iron-form>
@@ -109,8 +110,7 @@
             value: false
           },
           source: {
-            type: String,
-            computed: 'computedSource(item.source)'
+            type: String
           },
           method: {
             type: String,
@@ -143,12 +143,32 @@
           deleteModalOpened: {
             type: Boolean,
             value: false
+          },
+          isValidJson: {
+            type: Boolean,
+            value: true,
+            computed: 'computeIsValidJson(source)'
           }
         }
       }
 
-      computedSource(json) {
-        return JSON.stringify(json, null, '  ')
+      static get observers() {
+        return [
+          'itemSourceChanged(item.source)'
+        ]
+      }
+
+      itemSourceChanged() {
+        this.set('source', JSON.stringify(this.item.source, null, '    '))
+      }
+
+      computeIsValidJson(source) {
+        try {
+          JSON.parse(source)
+        } catch(e) {
+          return false
+        }
+        return true
       }
 
       ready() {
@@ -267,6 +287,7 @@
         // reset() yet... (as of 07.2017)
         this.$.name.$.input.invalid = false
         this.$.unit.$.input.invalid = false
+        this.$.source.invalid = false
         this.$.source.shadowRoot
           .querySelector('iron-autogrow-textarea').invalid = false
       }
