@@ -8,7 +8,7 @@
 <link rel="import" href="../bower_components/paper-styles/typography.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="./slr-product-groups.html">
 <link rel="import" href="./slr-products.html">
@@ -26,24 +26,13 @@
         --app-accent-color: var(--paper-orange-400);
         --accent-color: var(--paper-orange-400);
         --app-content-max-width: 1440px;
-
-        --slr-content: {
-          max-width: var(--app-content-max-width);
-          margin-left: auto;
-          margin-right: auto;
-          text-align: center;
-        }
-      }
-
-      .main-header {
-        box-shadow: 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
-        margin-bottom: 20px;
       }
 
       app-toolbar {
         @apply --paper-font-common-base;
         background-color: var(--app-primary-color);
         color: white;
+        display: flex;
       }
 
       paper-progress {
@@ -54,22 +43,34 @@
         --paper-progress-secondary-color: var(--app-secondary-color);
       }
 
+      .main-header {
+        box-shadow: 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+        margin-bottom: 20px;
+      }
+
       .main-title {
         --app-toolbar-font-size: var(--paper-font-title);
         text-align: left;
         padding-left: 30px;
       }
 
-      .main-title a {
-        text-decoration: none;
-        /* required for IE 11, so this <a> can receive pointer events */
-        display: inline-block;
-        pointer-events: auto;
-      }
-
       paper-tabs {
         --paper-tabs-selection-bar-color: white;
         height: 100%;
+      }
+
+      .flex-horizontal {
+        @apply --layout-horizontal;
+        @apply --layout-wrap;
+      }
+
+      .flex-equal-justified {
+        @apply --layout-horizontal;
+        @apply --layout-justified;
+      }
+
+      .flexchild {
+        @apply --layout-flex;
       }
 
       paper-tabs a {
@@ -79,10 +80,6 @@
         color: white;
         height: 20px;
         padding: 9px 5px;
-      }
-
-      slr-search {
-        width: 30%;
       }
     </style>
 
@@ -98,9 +95,9 @@
       class="main-header"
       slot="header">
 
-      <app-toolbar class="main-title">
-        <div main-title>Service Levels</div>
-        <slr-search search-str="{{searchStr}}"></slr-search>
+      <app-toolbar class="main-title flex-horizontal flex-equal-justified">
+        <div>Service Levels</div>
+        <slr-search class="flexchild" search-str="{{searchStr}}"></slr-search>
       </app-toolbar>
 
       <app-toolbar class="tabs-bar">
