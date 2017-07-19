@@ -13,9 +13,7 @@
     <style include="common-styles iron-flex iron-flex-alignment">
       :host {
         display: block;
-        max-width: 1440px;
-        margin-left: auto;
-        margin-right: auto;
+        @apply --slr-content;
       }
     </style>
 
@@ -106,29 +104,33 @@
 
       ready() {
         super.ready()
+        this.addEventListener('product-group-cancel', (e) => this.onCancel(e))
+        this.addEventListener('product-group-edit', (e) => this.onEdit(e))
+        this.addEventListener('product-group-delete', (e) => this.onDelete(e))
+        this.addEventListener('product-group-submit', (e) => this.onSubmit(e))
+      }
 
-        this.addEventListener('slr-product-group-card-cancelled', (e) => {
-          this.set('selectedProductGroup', e.detail.item)
-          if (!e.detail.item.uri) {
-            this.pop('productGroups')
-          }
-          this.$.fab.show()
-        })
+      onCancel(e) {
+        this.set('selectedProductGroup', e.detail.item)
+        if (!e.detail.item.uri) {
+          this.pop('productGroups')
+        }
+        this.$.fab.show()
+      }
 
-        this.addEventListener('slr-product-group-card-edit', (e) => {
-          this.set('selectedProductGroup', e.detail.item)
-          this.$.fab.hide()
-        })
+      onEdit(e) {
+        this.set('selectedProductGroup', e.detail.item)
+        this.$.fab.hide()
+      }
 
-        this.addEventListener('slr-product-group-card-delete', (e) => {
-          this.set('selectedProductGroup', e.detail.item)
-          this.$.delete.opened = true;
-        })
+      onDelete(e) {
+        this.set('selectedProductGroup', e.detail.item)
+        this.$.delete.opened = true;
+      }
 
-        this.addEventListener('slr-product-group-card-submitted', (e) => {
-          this.set('selectedProductGroup', null)
-          this.$.fab.show()
-        })
+      onSubmit(e) {
+        this.set('selectedProductGroup', null)
+        this.$.fab.show()
       }
 
       addProductGroup() {
