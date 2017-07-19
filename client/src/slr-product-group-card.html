@@ -42,7 +42,7 @@
     </style>
 
     <paper-card>
-      <paper-icon-item class="card-header" hidden$="{{editMode}}">
+      <paper-icon-item class="card-header" hidden$="[[editMode]]">
         <paper-item-body two-line>
           <div>[[item.name]]</div>
           <div secondary>[[item.department]]</div>
@@ -93,7 +93,6 @@
             on-click="submit"
             autofocus>Save</paper-button>
       </div>
-
     </paper-card>
 
   </template>

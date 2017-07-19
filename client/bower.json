@@ -20,7 +20,6 @@
     "iron-form": "PolymerElements/iron-form#2.0-preview",
     "paper-fab": "PolymerElements/paper-fab#2.0.0",
     "iron-label": "PolymerElements/iron-label#^2.0.0",
-    "iron-list": "PolymerElements/iron-list#2.0.0",
     "paper-toast": "PolymerElements/paper-toast#2.0.0",
     "paper-spinner": "PolymerElements/paper-spinner#2.0.0",
     "paper-item": "PolymerElements/paper-item#2.0.0",
@@ -28,7 +27,8 @@
     "paper-dropdown-menu": "PolymerElements/paper-dropdown-menu#2.0.0",
     "iron-scroll-threshold": "PolymerElements/iron-scroll-threshold#^2.0.0",
     "iron-a11y-keys": "^2.0.0",
-    "iron-flex-layout": "^2.0.0"
+    "iron-flex-layout": "^2.0.0",
+    "iron-media-query": "^2.0.0"
   },
   "devDependencies": {
     "web-component-tester": "^6.0.0-prerelease.5",
