@@ -1,0 +1,248 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/app-layout/app-layout.html">
+<link rel="import" href="../bower_components/paper-styles/color.html">
+<link rel="import" href="../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../bower_components/paper-styles/typography.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="./slr-product-groups.html">
+<link rel="import" href="./slr-products.html">
+<link rel="import" href="./slr-notifications.html">
+<link rel="import" href="./slr-search.html">
+<link rel="import" href="./common-styles.html">
+
+<dom-module id="slr-app">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: block;
+        --app-primary-color: var(--paper-grey-800);
+        --app-secondary-color: var(--paper-grey-100);
+        --app-accent-color: var(--paper-orange-400);
+        --accent-color: var(--paper-orange-400);
+        --app-content-max-width: 1440px;
+
+        --slr-content: {
+          max-width: var(--app-content-max-width);
+          margin-left: auto;
+          margin-right: auto;
+          text-align: center;
+        }
+      }
+
+      .main-header {
+        box-shadow: 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+        margin-bottom: 20px;
+      }
+
+      app-toolbar {
+        @apply --paper-font-common-base;
+        background-color: var(--app-primary-color);
+        color: white;
+      }
+
+      paper-progress {
+        display: block;
+        width: 100%;
+        margin-top: -4px;
+        --paper-progress-active-color: var(--app-accent-color);
+        --paper-progress-secondary-color: var(--app-secondary-color);
+      }
+
+      .main-title {
+        --app-toolbar-font-size: var(--paper-font-title);
+        text-align: left;
+        padding-left: 30px;
+      }
+
+      .main-title a {
+        text-decoration: none;
+        /* required for IE 11, so this <a> can receive pointer events */
+        display: inline-block;
+        pointer-events: auto;
+      }
+
+      paper-tabs {
+        --paper-tabs-selection-bar-color: white;
+        height: 100%;
+      }
+
+      paper-tabs a {
+        text-decoration: none;
+        display: inline-block;
+        pointer-events: auto;
+        color: white;
+        height: 20px;
+        padding: 9px 5px;
+      }
+
+      slr-search {
+        width: 30%;
+      }
+    </style>
+
+    <app-location route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="/:page"
+        data="{{routeData}}"
+        tail="{{subroute}}"></app-route>
+
+    <app-header
+      reveals
+      class="main-header"
+      slot="header">
+
+      <app-toolbar class="main-title">
+        <div main-title>Service Levels</div>
+        <slr-search search-str="{{searchStr}}"></slr-search>
+      </app-toolbar>
+
+      <app-toolbar class="tabs-bar">
+        <!-- Nav on desktop: tabs -->
+        <paper-tabs selected="{{routeData.page}}" attr-for-selected="name">
+          <paper-tab name="product-groups">
+            <a href="/product-groups">Product Groups</a>
+          </paper-tab>
+          <paper-tab name="products">
+            <a href="/products">Products</a>
+          </paper-tab>
+        </paper-tabs>
+      </app-toolbar>
+
+      <paper-progress
+        indeterminate
+        class="slow red"
+        hidden$="{{!loading}}"></paper-progress>
+    </app-header>
+
+    <iron-pages
+      selected="{{routeData.page}}"
+      attr-for-selected="name"
+      selected-attribute="visible">
+
+      <slr-product-groups
+        id="productGroups"
+        name="product-groups"
+        route="{{subroute}}"
+        loading="{{loading}}"
+        product-groups="{{productGroups}}"
+        search-str="{{searchStr}}"></slr-product-groups>
+
+      <slr-products
+        id="products"
+        name="products"
+        route="{{subroute}}"
+        loading="{{loading}}"
+        product-groups="{{productGroups}}"
+        search-str="{{searchStr}}"></slr-products>
+
+      <slr-auth name="auth"></slr-auth>
+
+      <slr-404 name="404"></slr-404>
+
+      <slr-error name="error"></slr-error>
+
+    </iron-pages>
+
+    <slr-notifications id="notif"></slr-notifications>
+
+  </template>
+
+  <script>
+    class SlrApp extends Polymer.Element {
+      static get is() { return 'slr-app'; }
+
+      static get properties() {
+        return {
+          route: {
+            type: Object
+          },
+          subroute: {
+            type: Object
+          },
+          routeData: {
+            type: Object
+          },
+          loading: {
+            type: Boolean
+          },
+          productGroups: {
+            type: Array
+          }
+        }
+      }
+
+      static get observers() { return [
+        'routePageChanged(routeData.page)'
+      ]}
+
+      ready() {
+        super.ready()
+        this.addEventListener('slr-authenticate', (n) => this.showAuth())
+        this.addEventListener('slr-notify', (n) => this.$.notif.open(n.detail))
+        this.addEventListener('slr-error', () => this.showError())
+      }
+
+      routePageChanged(page) {
+        if (page == null) {
+          return
+        }
+
+        if (page === '') {
+          return this.set('routeData.page', 'product-groups')
+        }
+
+        if (page === 'product-groups') {
+          return this.pageLoaded()
+        }
+
+        // lazy loading
+        let cb = this.pageLoaded.bind(this)
+        let show404 = () => {
+          this.show404()
+        }
+        Polymer.importHref(
+          this.resolveUrl('slr-' + page + '.html'),
+          cb, show404, true)
+      }
+
+      pageLoaded() {
+        this.ensureLazyLoaded()
+      }
+
+      ensureLazyLoaded() {
+        if (!this.loadComplete) {
+          Polymer.RenderStatus.afterNextRender(this, () => {
+            Polymer.importHref(this.resolveUrl('lazy-resources.html'), () => {
+              // Register service worker if supported.
+              // if ('serviceWorker' in navigator) {
+              //   navigator.serviceWorker.register('service-worker.js', {scope: '/'});
+              // }
+              this.loadComplete = true
+            })
+          })
+        }
+      }
+
+      show404() {
+        this.set('routeData.page', '404')
+      }
+
+      showError() {
+        this.set('routeData.page', 'error')
+      }
+
+      showAuth() {
+        this.set('routeData.page', 'auth')
+      }
+    }
+
+    window.customElements.define(SlrApp.is, SlrApp);
+  </script>
+</dom-module>

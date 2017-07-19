@@ -1,0 +1,89 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-styles/typography.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+
+<dom-module id="slr-card">
+  <template>
+    <style include="common-styles">
+      :host {
+        display: inline-block;
+        width: 400px;
+        margin: 20px;
+        text-align: left;
+      }
+
+      paper-card {
+        width: 100%;
+      }
+
+      iron-icon { cursor: pointer; }
+
+      iron-icon.star-border {
+        visibility: hidden;
+        color: var(--paper-grey-500);
+      }
+
+      paper-card:hover iron-icon.star-border {
+        visibility: visible;
+      }
+
+      iron-icon.star { color: var(--paper-amber-500); }
+
+      .header { @apply --paper-font-headline; }
+
+      .favorite {
+        font-size: 15px;
+        float: right;
+        vertical-align: middle;
+      }
+    </style>
+
+    <paper-card>
+      <div class="card-content">
+        <div class="header">[[title]]
+          <!-- <div class="-favorite">
+            <iron-icon  icon="star-border"
+                        class="star-border"
+                        hidden$="{{favorite}}"
+                        on-click="toggleFavorite"
+                        title="Add to Favorite"></iron-icon>
+            <iron-icon  icon="star"
+                        class="star"
+                        hidden$="{{!favorite}}"
+                        on-click="toggleFavorite"
+                        title="Remove from Favorites"></iron-icon>
+          </div> -->
+        </div>
+        <p>[[description]]</p>
+      </div>
+    </paper-card>
+
+  </template>
+  <script>
+    class SlrCard extends Polymer.Element {
+      static get is() { return 'slr-card' }
+
+      static get properties() {
+        return {
+          title: {
+            type: String
+          },
+          description: {
+            type: String
+          },
+          favorite: {
+            type: Boolean
+          }
+        }
+      }
+
+      toggleFavorite(e) {
+        e.stopPropagation();
+        this.set('favorite', !this.favorite)
+      }
+    }
+
+    window.customElements.define(SlrCard.is, SlrCard)
+  </script>
+</dom-module>
