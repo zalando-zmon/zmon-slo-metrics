@@ -1,7 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
-<dom-module id="slr-login">
+<dom-module id="slr-auth">
   <template>
     <style include="common-styles">
       :host {
@@ -17,13 +17,17 @@
 
     <h1>Not logged in yet?</h1>
     <p>Please follow the authentication process</p>
-    <paper-button raised><a href="/login">continue</a></paper-button>
+    <paper-button raised on-click="toLogin">continue</paper-button>
   </template>
   <script>
-    class SlrLogin extends Polymer.Element {
-      static get is() { return 'slr-login' }
+    class SlrAuth extends Polymer.Element {
+      static get is() { return 'slr-auth' }
+
+      toLogin() {
+        window.location.href = '/login'
+      }
     }
 
-    window.customElements.define(SlrLogin.is, SlrLogin)
+    window.customElements.define(SlrAuth.is, SlrAuth)
     </script>
   </dom-module>

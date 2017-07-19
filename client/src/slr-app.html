@@ -124,8 +124,7 @@
     <iron-pages
       selected="{{routeData.page}}"
       attr-for-selected="name"
-      selected-attribute="visible"
-      fallback-selection="404">
+      selected-attribute="visible">
 
       <slr-product-groups
         id="productGroups"
@@ -143,7 +142,7 @@
         product-groups="{{productGroups}}"
         search-str="{{searchStr}}"></slr-products>
 
-      <slr-login name="login"></slr-login>
+      <slr-auth name="auth"></slr-auth>
 
       <slr-404 name="404"></slr-404>
 
@@ -185,13 +184,12 @@
 
       ready() {
         super.ready()
-        this.addEventListener('slr-authenticate', (n) => this.showLogin())
+        this.addEventListener('slr-authenticate', (n) => this.showAuth())
         this.addEventListener('slr-notify', (n) => this.$.notif.open(n.detail))
         this.addEventListener('slr-error', () => this.showError())
       }
 
       routePageChanged(page) {
-
         if (page == null) {
           return
         }
@@ -206,7 +204,9 @@
 
         // lazy loading
         let cb = this.pageLoaded.bind(this)
-        let show404 = () => this.show404()
+        let show404 = () => {
+          this.show404()
+        }
         Polymer.importHref(
           this.resolveUrl('slr-' + page + '.html'),
           cb, show404, true)
@@ -230,7 +230,6 @@
         }
       }
 
-
       show404() {
         this.set('routeData.page', '404')
       }
@@ -239,8 +238,8 @@
         this.set('routeData.page', 'error')
       }
 
-      showLogin() {
-        this.set('routeData.page', 'login')
+      showAuth() {
+        this.set('routeData.page', 'auth')
       }
     }
 
