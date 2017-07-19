@@ -17,6 +17,10 @@ def title(s):
     return s.title().replace('_', ' ').replace('.', ' ')
 
 
+def maxOrZero(values):
+    return max(values or [0])  # return 0 in case of empty list
+
+
 def human_time(minutes):
     days = minutes // (60 * 24)
     remainder = minutes % (60 * 24)
@@ -150,8 +154,8 @@ def generate_weekly_report(base_url, product, output_dir):
             dt = datetime.datetime.strptime(day[:10], '%Y-%m-%d')
             dow = dt.strftime('%a')
             slo['data'].append({'caption': '{} {}'.format(dow, day[5:10]), 'slis': slis})
-        slo['breaches'] = max(breaches_by_sli.values())
-        slo['count'] = max(counts_by_sli.values())
+        slo['breaches'] = maxOrZero(breaches_by_sli.values())
+        slo['count'] = maxOrZero(counts_by_sli.values())
 
         fn = os.path.join(report_dir, 'chart-{}.png'.format(slo['id']))
         plot.plot(base_url, product, slo['id'], fn)
