@@ -114,31 +114,35 @@
 
       ready() {
         super.ready()
+        this.addEventListener('product-submit', (e) => this.onSubmit(e))
+        this.addEventListener('product-cancel', (e) => this.onCancel(e))
+        this.addEventListener('slr-dialog-opened', (e) => this.onOpen(e))
+        this.addEventListener('slr-dialog-closed', (e) => this.onClose(e))
+      }
 
-        this.addEventListener('slr-product-view-submitted', (e) => {
-          this.set('selectedProduct', null)
-          if (e.detail.item && e.detail.item.slug) {
-            this.set('selectedSlug', e.detail.item.slug)
-          } else {
-            this.set('selectedSlug', null)
-          }
-          this.$.productsData.fetch()
-        })
-
-        this.addEventListener('slr-product-view-cancelled', (e) => {
-          if (!e.detail.item.name) {
-            this.pop('products')
-          }
-        })
-
-        this.addEventListener('slr-dialog-opened', (e) => {
-          this.$.fab.hide()
-        })
-
-        this.addEventListener('slr-dialog-closed', (e) => {
+      onSubmit(e) {
+        this.set('selectedProduct', null)
+        if (e.detail.item && e.detail.item.slug) {
+          this.set('selectedSlug', e.detail.item.slug)
+        } else {
           this.set('selectedSlug', null)
-          this.$.fab.show()
-        })
+        }
+        this.$.productsData.fetch()
+      }
+
+      onCancel(e) {
+        if (!e.detail.item.name) {
+          this.pop('products')
+        }
+      }
+
+      onOpen(e) {
+        this.$.fab.hide()
+      }
+
+      onClose(e) {
+        this.set('selectedSlug', null)
+        this.$.fab.show()
       }
 
       addProduct() {

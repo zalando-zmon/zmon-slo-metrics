@@ -14,6 +14,7 @@
 <link rel="import" href="./slr-products.html">
 <link rel="import" href="./slr-notifications.html">
 <link rel="import" href="./slr-search.html">
+<link rel="import" href="./slr-items-data.html">
 <link rel="import" href="./common-styles.html">
 
 <dom-module id="slr-app">
@@ -96,6 +97,15 @@
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
+    <slr-items-data
+      id="productGroupsData"
+      items="{{productGroups}}"
+      filtered-items="{{filteredProductGroups}}"
+      url="/api/product-groups"
+      search="[[searchStr]]"
+      item-type="Product Group"
+      loading="{{loading}}"></slr-items-data>
+
     <app-header
       reveals
       class="main-header"
@@ -134,7 +144,7 @@
         name="product-groups"
         route="{{subroute}}"
         loading="{{loading}}"
-        product-groups="{{productGroups}}"
+        product-groups="{{filteredProductGroups}}"
         search-str="{{searchStr}}"></slr-product-groups>
 
       <slr-products
@@ -185,13 +195,6 @@
         'routePageChanged(routeData.page)'
       ]}
 
-      ready() {
-        super.ready()
-        this.addEventListener('slr-authenticate', (n) => this.showAuth())
-        this.addEventListener('slr-notify', (n) => this.$.notif.open(n.detail))
-        this.addEventListener('slr-error', () => this.showError())
-      }
-
       routePageChanged(page) {
         if (page == null) {
           return
@@ -213,6 +216,16 @@
         Polymer.importHref(
           this.resolveUrl('slr-' + page + '.html'),
           cb, show404, true)
+      }
+
+      ready() {
+        super.ready()
+        this.addEventListener('slr-authenticate', (n) => this.showAuth())
+        this.addEventListener('slr-notify', (n) => this.$.notif.open(n.detail))
+        this.addEventListener('slr-error', () => this.showError())
+        this.$.productGroups.addEventListener('product-groups-fetch', () => this.$.productGroupsData.fetch())
+
+        this.$.productGroupsData.fetch()
       }
 
       pageLoaded() {

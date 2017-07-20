@@ -4,7 +4,6 @@
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <link rel="import" href="./slr-fab.html">
-<link rel="import" href="./slr-items-data.html">
 <link rel="import" href="./slr-product-group-card.html">
 
 <dom-module id="slr-product-groups">
@@ -15,15 +14,6 @@
         @apply --slr-content;
       }
     </style>
-
-    <slr-items-data
-      id="productGroupsData"
-      items="{{productGroups}}"
-      filtered-items="{{filteredProductGroups}}"
-      url="/api/product-groups"
-      search="[[searchStr]]"
-      item-type="Product Group"
-      loading="{{loading}}"></slr-items-data>
 
     <iron-ajax
       id="ajax"
@@ -47,7 +37,7 @@
       </div></paper-dialog>
 
     <div class="layout horizontal wrap" id="list">
-      <template is="dom-repeat" items="[[filteredProductGroups]]">
+      <template is="dom-repeat" items="[[productGroups]]">
         <slr-product-group-card item="{{item}}"></slr-product-group-card>
       </template>
     </div>
@@ -91,14 +81,6 @@
             type: Array
           }
         }
-      }
-
-      static get observers() { return [
-        'routeChanged(route, visible)'
-      ]}
-
-      routeChanged(route, visible) {
-        this.$.productGroupsData.fetch()
       }
 
       ready() {
@@ -149,7 +131,7 @@
       handleResponse() {
         this.set('selectedProductGroup', null)
         this.notify('Deleted Product Group.')
-        this.$.productGroupsData.fetch()
+        this.dispatchEvent(new CustomEvent('product-groups-fetch'))
       }
 
       handleErrorResponse(e) {
