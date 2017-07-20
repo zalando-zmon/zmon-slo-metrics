@@ -15,14 +15,14 @@ from app.config import CACHE_TYPE, CACHE_THRESHOLD
 from app.libs.oauth import verify_oauth_with_session
 from app.utils import DecimalEncoder
 
-from app.extensions import db, migrate, cache, session, limiter, oauth  # noqa
+from app.extensions import db, migrate, cache, session, limiter, oauth
 
-from app.libs.resolver import get_resource_handler  # noqa
-from app.resources.sli.updater import update_all_indicators  # noqa
+from app.libs.resolver import get_resource_handler
+from app.resources.sli.updater import update_all_indicators
 
 # Models
 from app.resources import ProductGroup, Product, Target, Objective, Indicator, IndicatorValue  # noqa
-from app.routes import ROUTES, process_request, rate_limit_exceeded  # noqa
+from app.routes import ROUTES, process_request, rate_limit_exceeded
 
 import connexion.decorators.security
 import connexion.operation

@@ -42,7 +42,7 @@ services:
     environment:
       DATABASE_URI: postgresql://slr_user:slr-user-password@slr-db/slr
       KAIROSDB_URL: https://data-service.zmon.zalan.do/kairosdb-proxy
-      TOKENINFO_URL: https://info.services.auth.zalando.com/oauth2/tokeninfo
+      # TOKENINFO_URL: https://info.services.auth.zalando.com/oauth2/tokeninfo
       SLR_PRESHARED_TOKEN: 'SLR-TOKEN'
       SLR_LOCAL_ENV: "true"
       SLR_APP_URL: http://localhost:8000/
