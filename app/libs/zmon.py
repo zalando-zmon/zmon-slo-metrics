@@ -10,7 +10,7 @@ import zign.api
 from app.config import KAIROSDB_URL, KAIROS_QUERY_LIMIT
 
 
-AGG_TYPES = ('average', 'weighted', 'sum')
+AGG_TYPES = ('average', 'weighted', 'sum', 'min', 'max', 'minimum', 'maximum')
 
 logger = logging.getLogger('slo')
 
@@ -112,5 +112,9 @@ def query_sli(sli_name: str, sli_source: dict, start: int, end: Optional[int]) -
             for g, entry in values.items():
                 total_value += entry['value']
             result[minute] = total_value
+        elif aggregation_type in ('minimum', 'min'):
+            result[minute] = min([entry['value'] for g, entry in values.items()])
+        elif aggregation_type in ('maximum', 'max'):
+            result[minute] = max([entry['value'] for g, entry in values.items()])
 
     return result

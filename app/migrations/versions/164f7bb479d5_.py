@@ -55,6 +55,7 @@ def upgrade():
                     sa.Column('name', sa.String(length=120), nullable=False),
                     sa.Column('source', sa.JSON(), nullable=False),
                     sa.Column('unit', sa.String(length=20), nullable=False),
+                    sa.Column('aggregation', sa.String(length=80), nullable=True),
                     sa.Column('product_id', sa.Integer(), nullable=False),
                     sa.Column('slug', sa.String(length=120), nullable=False),
                     sa.Column('username', sa.String(

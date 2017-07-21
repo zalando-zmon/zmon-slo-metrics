@@ -17,7 +17,7 @@ from zmon_slr.client import Client, SLRClientError
 DEFAULT_CONFIG_FILE = '~/.zmon-slr.yaml'
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
-AGG_TYPES = ('average', 'weighted', 'sum')
+AGG_TYPES = ('average', 'weighted', 'sum', 'min', 'max', 'minimum', 'maximum')
 
 
 def get_config_data(config_file=DEFAULT_CONFIG_FILE):
@@ -375,26 +375,35 @@ def slo_create(obj, product_name, title, description, slo_file):
 
 
 @slo.command('update')
-@click.argument('slo_uri')
+@click.argument('product_name')
+@click.argument('slo_id')
 @click.option('--title', '-t', help='SLO title')
 @click.option('--description', '-d', default='', help='SLO description')
 @click.option('--slo-file', '-f', type=click.File('r'), help='SLO definition JSON file. Targets list will be ignored.')
 @click.pass_obj
-def slo_update(obj, slo_uri, title, description, slo_file):
+def slo_update(obj, product_name, slo_id, title, description, slo_file):
     """
     Update SLO for a product. All targets will be ignored if specified in SLO definitions.
     Updating targets can be achieved via "target" command.
     """
     client = get_client(obj)
 
-    slo = client.slo_get(slo_uri)
-    if not slo:
-        fatal_error('SLO {} does not exist'.format(slo_uri))
+    product = client.product_list(name=product_name)
+    if not product:
+        fatal_error('Product {} does not exist'.format(product_name))
 
-    with Action('Updating SLO {} for product {}'.format(slo_uri, slo['product_name']), nl=True) as act:
+    product = product[0]
+
+    slo = client.slo_list(product, id=slo_id)
+    if not slo:
+        fatal_error('SLO {} does not exist'.format(slo_id))
+
+    slo = slo[0]
+
+    with Action('Updating SLO {} for product {}'.format(slo_id, slo['product_name']), nl=True) as act:
         if slo_file:
             slo = json.load(slo_file)
-            slo['uri'] = slo_uri
+            slo['uri'] = slo['uri']
         else:
             if title:
                 slo['title'] = title
@@ -411,16 +420,26 @@ def slo_update(obj, slo_uri, title, description, slo_file):
 
 @slo.command('delete')
 @click.argument('product_name')
-@click.argument('slo_uri')
+@click.argument('slo_id')
 @click.pass_obj
-def slo_delete(obj, product_name, slo_uri):
+def slo_delete(obj, product_name, slo_id):
     """Delete SLO for certain product"""
     client = get_client(obj)
 
-    slo = client.slo_get(slo_uri)
+    product = client.product_list(name=product_name)
+    if not product:
+        fatal_error('Product {} does not exist'.format(product_name))
+
+    product = product[0]
+
+    slo = client.slo_list(product, id=slo_id)
+    if not slo:
+        fatal_error('SLO {} does not exist'.format(slo_id))
+
+    slo = slo[0]
 
     if product_name != slo['product_name']:
-        fatal_error('Cannot delete SLO {} as it does not belong to product {}'.format(slo_uri, product_name))
+        fatal_error('Cannot delete SLO {} as it does not belong to product {}'.format(slo_id, product_name))
 
     with Action('Deleting SLO: {}'.format(slo['uri']), nl=True):
         client.slo_delete(slo)
@@ -446,15 +465,24 @@ def target(obj):
 
 
 @target.command('list')
-@click.argument('slo_uri')
+@click.argument('product_name')
+@click.argument('slo_id')
 @click.pass_obj
-def target_list(obj, slo_uri):
+def target_list(obj, product_name, slo_id):
     """List all Targets for a SLO"""
     client = get_client(obj)
 
-    slo = client.slo_get(slo_uri)
+    product = client.product_list(name=product_name)
+    if not product:
+        fatal_error('Product {} does not exist'.format(product_name))
+
+    product = product[0]
+
+    slo = client.slo_list(product, id=slo_id)
     if not slo:
-        fatal_error('SLO {} does not exist'.format(slo_uri))
+        fatal_error('SLO {} does not exist'.format(slo_id))
+
+    slo = slo[0]
 
     res = client.target_list(slo)
 
@@ -462,21 +490,30 @@ def target_list(obj, slo_uri):
 
 
 @target.command('create')
-@click.argument('slo_uri')
+@click.argument('product_name')
+@click.argument('slo_id')
 @click.option('--sli-name', '-s', help='SLI name')
 @click.option('--target-from', '-r', type=float, default=float('-inf'), help='Target "from" value')
 @click.option('--target-to', '-t', type=float, default=float('inf'), help='Target "to" value')
 @click.option('--target-file', '-f', type=click.File('r'), help='Target definition JSON file.')
 @click.pass_obj
-def target_create(obj, slo_uri, sli_name, target_from, target_to, target_file):
+def target_create(obj, product_name, slo_id, sli_name, target_from, target_to, target_file):
     """
     Create Target. If target-file is used, then other options are ignored.
     """
     client = get_client(obj)
 
-    slo = client.slo_get(slo_uri)
+    product = client.product_list(name=product_name)
+    if not product:
+        fatal_error('Product {} does not exist'.format(product_name))
+
+    product = product[0]
+
+    slo = client.slo_list(product, id=slo_id)
     if not slo:
-        fatal_error('SLO {} does not exist'.format(slo_uri))
+        fatal_error('SLO {} does not exist'.format(slo_id))
+
+    slo = slo[0]
 
     product = client.product_list(name=slo['product_name'])[0]
 

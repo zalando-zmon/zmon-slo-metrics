@@ -11,6 +11,7 @@ class Indicator(db.Model):
     name = db.Column(db.String(120), nullable=False, index=True)
     source = db.Column(db.JSON(), nullable=False)
     unit = db.Column(db.String(20), nullable=False, default='')
+    aggregation = db.Column(db.String(80), default='average')
 
     product_id = db.Column(db.Integer(), db.ForeignKey('product.id'), nullable=False)
 

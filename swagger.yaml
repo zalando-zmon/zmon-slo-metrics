@@ -178,6 +178,10 @@ definitions:
       unit:
         type: string
         description: SLI unit (s, ms, %).
+      aggregation:
+        type: string
+        readOnly: true
+        description: Aggregation type (retrieved from source for convenience)
       product_name:
         type: string
         readOnly: true
@@ -332,8 +336,8 @@ definitions:
         description: |
           {
             "2017-02-16T00:00:00": {
-              "sli-name-1": {"min": 10, "max": 100, "avg": 88.9, "count": 19000, "breaches": 1, "unit": "ms"},
-              "sli-name-2": {"min": 19090, "max": 20110, "avg": 15558, "count": 19000, "breaches": 0, "unit": ""}
+              "sli-name-1": {"min": 10, "max": 100, "avg": 88.9, "count": 19000, "breaches": 1, "unit": "ms", "aggregation": "average"},
+              "sli-name-2": {"min": 19090, "max": 20110, "avg": 15558, "count": 19000, "breaches": 0, "unit": "", "aggregation": "max"}
             }
           }
       title:

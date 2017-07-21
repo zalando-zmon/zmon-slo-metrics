@@ -100,18 +100,16 @@ class Client:
 
         return res.json()
 
-    def slo_list(self, product: dict) -> List[dict]:
-        res = self.session.get(product['product_slo_uri'])
+    def slo_list(self, product: dict, id=None) -> List[dict]:
+        params = {}
+        if id:
+            params = {'id': id}
+
+        res = self.session.get(product['product_slo_uri'], params=params)
         res.raise_for_status()
 
         slo = res.json()
         return slo['data']
-
-    def slo_get(self, uri) -> dict:
-        res = self.session.get(uri)
-        res.raise_for_status()
-
-        return res.json()
 
     def slo_delete(self, slo: dict) -> requests.Response:
         res = self.session.delete(slo['uri'])

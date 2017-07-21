@@ -20,7 +20,7 @@ from .updater import update_indicator_values
 
 
 class SLIResource(ResourceHandler):
-    model_fields = ('name', 'source', 'unit', 'created', 'updated', 'username')
+    model_fields = ('name', 'source', 'unit', 'aggregation', 'created', 'updated', 'username')
 
     @staticmethod
     def get_uri_from_id(obj_id: Union[str, int], **kwargs) -> str:
@@ -88,6 +88,7 @@ class SLIResource(ResourceHandler):
 
     def save_object(self, obj: Indicator, **kwargs) -> Indicator:
         obj.slug = slugger(obj.name)
+        obj.aggregation = obj.source['aggregation']['type']
         db.session.add(obj)
         db.session.commit()
 
@@ -98,6 +99,8 @@ class SLIResource(ResourceHandler):
 
         for field, val in fields.items():
             setattr(obj, field, val)
+
+        obj.aggregation = obj.source['aggregation']['type']
 
         product_id = kwargs.get('product_id')
 

@@ -45,10 +45,14 @@ class ReportResource(ResourceHandler):
         for objective in objectives:
             days = collections.defaultdict(dict)
 
+            if not len(objective.targets):
+                continue
+
             q = text('''
                 SELECT
                     date_trunc(:unit, indicatorvalue.timestamp) AS day,
                     indicator.name AS name,
+                    indicator.aggregation AS aggregation,
                     MIN(indicatorvalue.value) AS min,
                     AVG(indicatorvalue.value) AS avg,
                     MAX(indicatorvalue.value) AS max,
@@ -60,16 +64,18 @@ class ReportResource(ResourceHandler):
                 JOIN target ON target.indicator_id = indicatorvalue.indicator_id AND target.objective_id = :objective_id
                 JOIN indicator ON indicator.id = indicatorvalue.indicator_id
                 WHERE indicatorvalue.timestamp >= :start AND indicatorvalue.timestamp < :now
-                GROUP BY day, name
+                GROUP BY day, name, aggregation
                 ''')  # noqa
 
             params = {
                 'unit': unit, 'objective_id': objective.id, 'start': start, 'now': now, 'lower': float('-inf'),
                 'upper': float('inf')
             }
+
             for obj in db.session.execute(q, params):
                 days[obj.day.isoformat()][obj.name] = {
-                    'max': obj.max, 'min': obj.min, 'avg': obj.avg, 'count': obj.count, 'breaches': obj.breaches
+                    'max': obj.max, 'min': obj.min, 'avg': obj.avg, 'count': obj.count, 'breaches': obj.breaches,
+                    'aggregation': obj.aggregation
                 }
 
             slo.append(
