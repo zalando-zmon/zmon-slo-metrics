@@ -1,0 +1,30 @@
+FROM registry.opensource.zalan.do/stups/node:7.7-cd47
+
+RUN \
+    apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository -y ppa:nginx/stable && \
+    apt-get update && \
+    apt-get install -y nginx git dnsutils && \
+    rm -rf /var/lib/apt/lists/* && \
+    echo "\ndaemon off;" >> /etc/nginx/nginx.conf && \
+    chown -R www-data:www-data /var/lib/nginx && \
+    chown -R www-data:www-data /var/www/
+
+COPY dockerfiles/nginx-default.conf /etc/nginx/sites-available/default
+
+COPY client /client
+
+WORKDIR /client
+
+RUN npm install
+
+RUN npm run-script build
+
+RUN cp -rf build/default /var/www/app
+
+# Define working directory.
+WORKDIR /etc/nginx
+
+# Define default command.
+CMD nginx
