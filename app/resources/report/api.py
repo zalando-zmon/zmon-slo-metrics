@@ -57,6 +57,7 @@ class ReportResource(ResourceHandler):
                     AVG(indicatorvalue.value) AS avg,
                     MAX(indicatorvalue.value) AS max,
                     COUNT(indicatorvalue.value) AS count,
+                    SUM(indicatorvalue.value) AS sum,
                     (SELECT SUM(CASE b WHEN TRUE THEN 0 ELSE 1 END) FROM UNNEST(array_agg(indicatorvalue.value BETWEEN
                         COALESCE(target.target_from, :lower) AND COALESCE(target.target_to, :upper))) AS dt(b)
                     ) AS breaches
@@ -75,17 +76,18 @@ class ReportResource(ResourceHandler):
             for obj in db.session.execute(q, params):
                 days[obj.day.isoformat()][obj.name] = {
                     'max': obj.max, 'min': obj.min, 'avg': obj.avg, 'count': obj.count, 'breaches': obj.breaches,
-                    'aggregation': obj.aggregation
+                    'sum': obj.sum, 'aggregation': obj.aggregation
                 }
 
             slo.append(
                 {
                     'title': objective.title,
                     'description': objective.description,
+                    'id': objective.id,
                     'targets': [
                         {
                             'from': t.target_from, 'to': t.target_to, 'sli_name': t.indicator.name,
-                            'unit': t.indicator.unit
+                            'unit': t.indicator.unit, 'aggregation': t.indicator.aggregation
                         }
                         for t in objective.targets
                     ],
@@ -95,7 +97,9 @@ class ReportResource(ResourceHandler):
 
         return {
             'product_name': product.name,
+            'product_slug': product.slug,
             'product_group_name': product.product_group.name,
+            'product_group_slug': product.product_group.slug,
             'department': product.product_group.department,
             'slo': slo,
         }

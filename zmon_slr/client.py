@@ -219,8 +219,12 @@ class Client:
 
         return res.json()
 
-    def sli_values(self, sli: dict, page_size=None) -> List[dict]:
-        params = {'page_size': page_size} if page_size else {}
+    def sli_values(self, sli: dict, page_size=None, sli_from=None) -> List[dict]:
+        params = {}
+        if sli_from:
+            params['from'] = sli_from
+        elif page_size:
+            params['page_size'] = page_size
         res = self.session.get(sli['sli_values_uri'], params=params)
         res.raise_for_status()
 
@@ -238,3 +242,10 @@ class Client:
         res.raise_for_status()
 
         return res.json()
+
+    def product_report(self, product: dict) -> dict:
+        resp = self.session.get(product['product_reports_weekly_uri'])
+
+        resp.raise_for_status()
+
+        return resp.json()

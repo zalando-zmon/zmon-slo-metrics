@@ -140,9 +140,10 @@ class ResourceHandler:
         next_query = request.args.copy()
         prev_query = request.args.copy()
 
-        next_query['page'] = paginated.next_num
-        prev_query['page'] = paginated.page - 1
-        next_query['page_size'] = prev_query['page_size'] = paginated.per_page
+        next_query['page'] = paginated.next_num if hasattr(paginated, 'next_num') else None
+        prev_query['page'] = paginated.page - 1 if hasattr(paginated, 'page') else None
+        next_query['page_size'] = prev_query['page_size'] = (
+            paginated.per_page if hasattr(paginated, 'per_page') else None)
 
         return {
             'data': resources,
