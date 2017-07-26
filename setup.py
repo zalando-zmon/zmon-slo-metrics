@@ -22,7 +22,7 @@ VERSION = read_version(MAIN_PACKAGE)
 DESCRIPTION = 'ZMON SLO reports.'
 
 CONSOLE_SCRIPTS = ['zmon-slr = zmon_slr.main:main']
-
+PACKAGE_DATA = {MAIN_PACKAGE: ['templates/*.*']}
 
 REQUIREMENTS = ['clickclick', 'stups-zign', 'zmon-cli']
 
@@ -33,6 +33,7 @@ setup(
     long_description=open('README.rst').read(),
     license=open('LICENSE').read(),
     packages=[MAIN_PACKAGE],
+    package_data=PACKAGE_DATA,
     install_requires=REQUIREMENTS,
     setup_requires=['pytest-runner'],
     test_suite='tests',
