@@ -132,8 +132,9 @@
       ]}
 
       routeChanged(route, visible) {
-        if (visible) {
+        if (visible && route.prefix === '/products') {
           this.$.productsData.fetch()
+          this.dispatchEvent(new CustomEvent('product-groups-fetch'))
         }
       }
 

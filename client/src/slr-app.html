@@ -234,8 +234,7 @@
         this.addEventListener('slr-notify', (n) => this.$.notif.open(n.detail))
         this.addEventListener('slr-error', () => this.showError())
         this.$.productGroups.addEventListener('product-groups-fetch', () => this.$.productGroupsData.fetch())
-
-        this.$.productGroupsData.fetch()
+        this.$.products.addEventListener('product-groups-fetch', () => this.$.productGroupsData.fetch())
       }
 
       pageLoaded() {

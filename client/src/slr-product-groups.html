@@ -111,6 +111,16 @@
         }
       }
 
+      static get observers() { return [
+        'routeChanged(route, visible)',
+      ]}
+
+      routeChanged(route, visible) {
+        if (visible && route.prefix === '/product-groups') {
+          this.dispatchEvent(new CustomEvent('product-groups-fetch'))
+        }
+      }
+
       ready() {
         super.ready()
         this.addEventListener('product-group-cancel', (e) => this.onCancel(e))
@@ -139,6 +149,7 @@
 
       onSubmit(e) {
         this.set('selectedProductGroup', null)
+        this.dispatchEvent(new CustomEvent('product-groups-fetch'))
         this.$.fab.show()
       }
 
