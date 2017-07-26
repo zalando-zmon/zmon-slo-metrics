@@ -8,6 +8,7 @@
 <link rel="import" href="../bower_components/paper-styles/typography.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="./slr-product-groups.html">
@@ -55,6 +56,10 @@
         margin-bottom: 20px;
       }
 
+      .main-header[small-layout] {
+        margin-bottom: 0;
+      }
+
       .main-title {
         --app-toolbar-font-size: var(--paper-font-title);
         text-align: left;
@@ -97,6 +102,10 @@
         data="{{routeData}}"
         tail="{{subroute}}"></app-route>
 
+    <iron-media-query
+      query="(max-width: 600px)"
+      query-matches="{{small}}"></iron-media-query>
+
     <slr-items-data
       id="productGroupsData"
       items="{{productGroups}}"
@@ -109,7 +118,8 @@
     <app-header
       reveals
       class="main-header"
-      slot="header">
+      slot="header"
+      small-layout$="{{small}}">
 
       <app-toolbar class="main-title flex-horizontal flex-equal-justified">
         <div>Service Levels</div>

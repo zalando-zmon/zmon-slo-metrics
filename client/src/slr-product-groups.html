@@ -1,7 +1,7 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <link rel="import" href="./slr-fab.html">
 <link rel="import" href="./slr-product-group-card.html">
@@ -13,7 +13,34 @@
         display: block;
         @apply --slr-content;
       }
+
+      .flex-grid-thirds {
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        margin: 0 10px;
+      }
+
+      .flex-grid-thirds .col {
+        width: 30%;
+        margin: 10px;
+      }
+
+      .flex-grid-thirds[small-layout] {
+          flex-flow: column;
+          margin: 0;
+      }
+
+      .flex-grid-thirds .col[small-layout] {
+        width: 100%;
+        margin: 0;
+      }
+
     </style>
+
+    <iron-media-query
+      query="(max-width: 600px)"
+      query-matches="{{small}}"></iron-media-query>
 
     <iron-ajax
       id="ajax"
@@ -25,7 +52,6 @@
       debounce-duration="300"
       loading={{loading}}></iron-ajax>
 
-
     <paper-dialog id="delete">
       <h2>Delete Product Group</h2>
       <p>Are you sure you want to delete "[[selectedProductGroup.name]]"?</p>
@@ -36,9 +62,11 @@
           on-click="deleteProductGroup">Delete</paper-button>
       </div></paper-dialog>
 
-    <div class="layout horizontal wrap" id="list">
+    <div class="flex-grid-thirds" small-layout$="{{small}}" id="list">
       <template is="dom-repeat" items="[[productGroups]]">
-        <slr-product-group-card item="{{item}}"></slr-product-group-card>
+        <div class="col" small-layout$="{{small}}">
+          <slr-product-group-card id="card{{index}}" item="{{item}}"></slr-product-group-card>
+        </div>
       </template>
     </div>
 
@@ -118,7 +146,9 @@
         this.push('productGroups', {})
         this.$.fab.hide()
         Polymer.RenderStatus.afterNextRender(this, () => {
-          this.$.list.scrollBottom = this.$.list.scrollHeight
+          let id = 'card' + (this.productGroups.length-1)
+          let el = Polymer.dom(this.root).querySelector('#'+ id)
+          el.scrollIntoView()
         })
       }
 

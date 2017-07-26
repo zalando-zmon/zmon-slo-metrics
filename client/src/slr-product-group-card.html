@@ -9,22 +9,22 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../bower_components/paper-item/paper-item-body.html">
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
 
 <dom-module id="slr-product-group-card">
   <template>
     <style include="common-styles">
       :host {
-        width: 400px;
-        margin: 15px;
+        display: block;
         text-align: left;
+      }
+
+      :host([edit-mode][small-layout]) {
+        margin: 10px;
       }
 
       paper-card {
         width: 100%;
-      }
-
-      paper-item-body {
-        max-width: 260px;
       }
 
       paper-icon-button {
@@ -40,6 +40,10 @@
       }
 
     </style>
+
+    <iron-media-query
+      query="(max-width: 600px)"
+      query-matches="{{smallLayout}}"></iron-media-query>
 
     <paper-card>
       <paper-icon-item class="card-header" hidden$="[[editMode]]">
@@ -115,7 +119,8 @@
           editMode: {
             type: Boolean,
             value: false,
-            notify: true
+            notify: true,
+            reflectToAttribute: true
           },
           headers: {
             type: Object,
@@ -135,6 +140,11 @@
           deleteModalIsOpen: {
             type: Boolean,
             value: false
+          },
+          smallLayout: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
           }
         }
       }
