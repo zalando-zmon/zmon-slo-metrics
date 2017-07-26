@@ -496,10 +496,14 @@
       }
 
       addObjective() {
+        this.set('selectedObjective', {})
+        this.set('selectedObjectiveId', null)
         this.$.objectiveView.new()
       }
 
       addIndicator() {
+        this.set('selectedIndicator', { "source": {} })
+        this.set('selectedIndicatorId', null)
         this.$.indicatorView.new()
       }
 

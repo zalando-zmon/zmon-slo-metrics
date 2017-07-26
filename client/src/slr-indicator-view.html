@@ -159,7 +159,10 @@
       }
 
       itemSourceChanged() {
-        this.set('source', JSON.stringify(this.item.source, null, '    '))
+        this.set('source', '')
+        if (this.item && this.item.source) {
+          this.set('source', JSON.stringify(this.item.source, null, '    '))
+        }
       }
 
       computeIsValidJson(source) {
@@ -266,7 +269,6 @@
       }
 
       new() {
-        this.set('item', {})
         this.set('opened', true)
         this.set('editMode', true)
       }
