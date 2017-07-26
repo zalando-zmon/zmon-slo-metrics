@@ -4,14 +4,15 @@ RUN apt-get update && apt-get install -y libssl-dev gnuplot
 
 RUN pip3 install clickclick jinja2 stups-zign
 
-COPY zmon_slr /
-
 COPY dockerfiles/reports.py /reports.py
-
 RUN chmod a+x /reports.py
 
-WORKDIR /zmon_slr
+COPY zmon_slr /zmon_slr
+COPY README.rst /
+COPY MANIFEST.in /
+COPY LICENSE /
+COPY setup.py /
 
-RUN python3 setup.py install
+RUN python setup.py install
 
 CMD python /reports.py

@@ -12,11 +12,6 @@ def read_version(package):
     return data['__version__']
 
 
-def get_requirements(path):
-    content = open(path).read()
-    return [req for req in content.split('\\n') if req != '']
-
-
 MAIN_PACKAGE = 'zmon_slr'
 VERSION = read_version(MAIN_PACKAGE)
 DESCRIPTION = 'ZMON SLO reports.'
