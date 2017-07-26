@@ -1,16 +1,26 @@
 #!/usr/bin/env python3
 
-import collections
 import datetime
 import os
 import sys
 
-import click
 import jinja2
-import requests
-import zign.api
 
-import plot
+from collections import defaultdict
+
+from zmon_slr.client import Client
+
+from zmon_slr.plot import plot
+
+
+AGGS_MAP = {
+    'average': 'avg',
+    'sum': 'sum',
+    'minimum': 'min',
+    'min': 'min',
+    'maximum': 'max',
+    'max': 'max',
+}
 
 
 def title(s):
@@ -61,16 +71,13 @@ def generate_directory_index(output_dir, path='/'):
     template.stream(**data).dump(os.path.join(output_dir, 'index.html'))
 
 
-def generate_weekly_report(base_url, product, output_dir):
-    url = '{}/service-level-objectives/{}/reports/weekly'.format(base_url, product)
-    resp = requests.get(url, headers={'Authorization': 'Bearer {}'.format(zign.api.get_token('zmon', ['uid']))})
-    resp.raise_for_status()
-    report_data = resp.json()
+def generate_weekly_report(client: Client, product: dict, output_dir: str) -> None:
+    report_data = client.product_report(product)
 
-    product_group = report_data['product']['product_group_slug']
+    product_group = report_data['product_group_slug']
 
     period_from = period_to = None
-    for slo in report_data['service_level_objectives']:
+    for slo in report_data['slo']:
         if slo['days']:
             period_from = min(slo['days'].keys())[:10]
             period_to = max(slo['days'].keys())[:10]
@@ -82,54 +89,51 @@ def generate_weekly_report(base_url, product, output_dir):
 
     period_id = '{}-{}'.format(period_from.replace('-', ''), period_to.replace('-', ''))
 
-    report_dir = os.path.join(output_dir, product_group, product, period_id)
+    report_dir = os.path.join(output_dir, product_group, product['slug'], period_id)
     os.makedirs(report_dir, exist_ok=True)
-
-    values_by_sli = collections.defaultdict(list)
-    for slo in report_data['service_level_objectives']:
-        for day, data in sorted(slo['days'].items()):
-            for sli_name, _sli_data in data.items():
-                values_by_sli[sli_name].append(_sli_data['avg'])
 
     loader = jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates'))
     env = jinja2.Environment(loader=loader)
 
     data = {
-        'product': report_data['product'],
+        'product': {
+            'name': report_data['product_name'],
+            'product_group_name': report_data['product_group_name'],
+        },
         'period': '{} - {}'.format(period_from, period_to),
-        'slos': []}
+        'slos': []
+    }
 
-    for slo in report_data['service_level_objectives']:
+    for slo in report_data['slo']:
         slo['slis'] = {}
-
-        for target in slo['targets']:
-            val = (sum(values_by_sli[target['sli_name']]) / len(values_by_sli[target['sli_name']]) if
-                   len(values_by_sli[target['sli_name']]) > 0 else None)
-            ok = True
-            if val is not None and target['to'] and val > target['to']:
-                ok = False
-            if val is not None and target['from'] and val < target['from']:
-                ok = False
-            slo['slis'][target['sli_name']] = {
-                'avg': '-' if val is None else '{:.2f} {}'.format(val, target['unit']),
-                'ok': ok,
-                'unit': target['unit'],
-            }
-
         slo['data'] = []
-        breaches_by_sli = collections.defaultdict(int)
-        counts_by_sli = collections.defaultdict(int)
+
+        breaches_by_sli = defaultdict(int)
+        counts_by_sli = defaultdict(int)
+        values_by_sli = defaultdict(lambda: defaultdict(list))
+
         for day, day_data in sorted(slo['days'].items()):
             slis = {}
+
             for sli, sli_data in day_data.items():
                 breaches_by_sli[sli] += sli_data['breaches']
                 counts_by_sli[sli] += sli_data['count']
+
+                values_by_sli[sli]['avg'].append(sli_data['avg'])
+                values_by_sli[sli]['min'].append(sli_data['min'])
+                values_by_sli[sli]['max'].append(sli_data['max'])
+                values_by_sli[sli]['sum'].append(sli_data['sum'])
+
                 classes = set()
+                unit = ''
+
                 if sli_data['breaches']:
                     classes.add('orange')
-                unit = ''
+
                 for target in slo['targets']:
-                    if target['sli_name'] == sli:
+                    sli_name = target['sli_name']
+
+                    if sli_name == sli:
                         unit = target['unit']
                         if target['to'] and sli_data['avg'] > target['to']:
                             classes.add('red')
@@ -145,17 +149,55 @@ def generate_weekly_report(base_url, product, output_dir):
                 if sli == 'requests':
                     # interpolate total number of requests per day from average per sec
                     sli_data['total'] = int(sli_data['avg'] * sli_data['count'] * 60)
+
                 slis[sli] = sli_data
                 slis[sli]['unit'] = unit
                 slis[sli]['classes'] = classes
+
             dt = datetime.datetime.strptime(day[:10], '%Y-%m-%d')
             dow = dt.strftime('%a')
+
             slo['data'].append({'caption': '{} {}'.format(dow, day[5:10]), 'slis': slis})
+
         slo['breaches'] = max(breaches_by_sli.values())
         slo['count'] = max(counts_by_sli.values())
 
+        for target in slo['targets']:
+            sli_name = target['sli_name']
+            aggregation = target['aggregation']
+
+            val = None
+
+            slo['slis'][sli_name] = {
+                'unit': target['unit'],
+            }
+
+            if aggregation == 'average':
+                values = values_by_sli[sli_name]['avg']
+                val = sum(values) / len(values) if len(values) > 0 else None
+            elif aggregation in ('max', 'maximum'):
+                values = values_by_sli[sli_name]['max']
+                val = max(values) if len(values) > 0 else None
+            elif aggregation in ('min', 'minimum'):
+                values = values_by_sli[sli_name]['min']
+                val = min(values) if len(values) > 0 else None
+            elif aggregation == 'sum':
+                values = values_by_sli[sli_name]['sum']
+                val = sum(values) if len(values) > 0 else None
+
+            ok = True
+            if val is not None and target['to'] and val > target['to']:
+                ok = False
+            if val is not None and target['from'] and val < target['from']:
+                ok = False
+
+            slo['slis'][sli_name]['aggregate'] = '-' if val is None else '{:.2f} {}'.format(val, target['unit'])
+            slo['slis'][sli_name]['ok'] = ok
+
         fn = os.path.join(report_dir, 'chart-{}.png'.format(slo['id']))
-        plot.plot(base_url, product, slo['id'], fn)
+
+        plot(client, product, slo['id'], fn)
+
         slo['chart'] = os.path.basename(fn)
         data['slos'].append(slo)
 
@@ -163,19 +205,8 @@ def generate_weekly_report(base_url, product, output_dir):
 
     env.filters['sli_title'] = title
     env.filters['human_time'] = human_time
+
     template = env.get_template('slr-weekly.html')
     template.stream(**data).dump(os.path.join(report_dir, 'index.html'))
 
     generate_directory_index(output_dir)
-
-
-@click.command()
-@click.argument('base_url')
-@click.argument('product')
-@click.option('--output-dir', '-o', help='Output directory', default='output')
-def cli(base_url, product, output_dir):
-    generate_weekly_report(base_url, product, output_dir)
-
-
-if __name__ == '__main__':
-    cli()

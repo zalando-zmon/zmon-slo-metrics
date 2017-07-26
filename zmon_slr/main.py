@@ -12,6 +12,7 @@ from clickclick import AliasedGroup, Action, error, warning, fatal_error
 from zmon_cli.client import Zmon
 
 from zmon_slr.client import Client, SLRClientError
+from zmon_slr.generate_slr import generate_weekly_report
 
 
 DEFAULT_CONFIG_FILE = '~/.zmon-slr.yaml'
@@ -859,6 +860,34 @@ def sli_query(obj, product_name, name, start, end):
     res = client.sli_query(slis[0], start, end)
 
     print(json.dumps(res, indent=4))
+
+
+########################################################################################################################
+# REPORTS
+########################################################################################################################
+@cli.group('report', cls=AliasedGroup)
+@click.pass_obj
+def report(obj):
+    """Service level reports"""
+    pass
+
+
+@report.command('create')
+@click.argument('product_name')
+@click.option('--output-dir', '-o', help='Output directory', default='output')
+@click.pass_obj
+def report_create(obj, product_name, output_dir):
+    """Create report for a product"""
+    client = get_client(obj)
+
+    product = client.product_list(name=product_name)
+    if not product:
+        fatal_error('Product {} does not exist'.format(product_name))
+
+    product = product[0]
+
+    with Action('Creating report for product: {}'.format(product_name), nl=True):
+        generate_weekly_report(client, product, output_dir)
 
 
 def main():

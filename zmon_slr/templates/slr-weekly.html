@@ -61,7 +61,7 @@
                         <tr>
                             {% for sli in slo.slis.keys() | sort %}
                                 {% if slo.slis[sli].unit %}
-                                    <td class="sli-large {{ 'red' if not slo.slis[sli].ok }}">{{ slo.slis[sli].avg }}</td>
+                                    <td class="sli-large {{ 'red' if not slo.slis[sli].ok }}">{{ slo.slis.get(sli).aggregate }}</td>
                                 {% endif %}
                             {% endfor %}
                         </tr>
@@ -81,7 +81,13 @@
                                 {% for data in slo.data %}
                                     {% if data.slis.get(sli) %}
                                         <td class="value {{ ' '.join(data.slis.get(sli).classes) }}"
-                                            title="min: {{ data.slis.get(sli).min }}, max: {{ data.slis.get(sli).max }}, breaches: {{ data.slis.get(sli).breaches }}, count: {{ data.slis.get(sli).count }}">{% if 'total' in data.slis.get(sli) %}{{ '{:,}'.format(data.slis.get(sli).total) }}{% else %}{{ '%.2f'|format(data.slis.get(sli).avg) }} {{ data.slis.get(sli).unit }}{% endif %}</td>
+                                            title="min: {{ data.slis.get(sli).min }}, max: {{ data.slis.get(sli).max }}, breaches: {{ data.slis.get(sli).breaches }}, count: {{ data.slis.get(sli).count }}">
+                                        {% if 'total' in data.slis.get(sli) %}
+                                            {{ '{:,}'.format(data.slis.get(sli).total) }}
+                                        {% else %}
+                                            {{ slo.slis.get(sli).aggregate }}
+                                        {% endif %}
+                                        </td>
                                     {% else %}
                                         <td></td>
                                     {% endif %}
