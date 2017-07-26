@@ -1,5 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
 
 <link rel="import" href="./slr-fab.html">
 <link rel="import" href="./slr-items-data.html">
@@ -14,7 +14,33 @@
         @apply --slr-content;
         text-align: left;
       }
+
+      .flex-grid-thirds {
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        margin: 0 10px;
+      }
+
+      .flex-grid-thirds .col {
+        width: 30%;
+        margin: 10px;
+      }
+
+      .flex-grid-thirds[small-layout] {
+          flex-flow: column;
+          margin: 0;
+      }
+
+      .flex-grid-thirds .col[small-layout] {
+        width: 100%;
+        margin: 0;
+      }
     </style>
+
+    <iron-media-query
+      query="(max-width: 600px)"
+      query-matches="{{small}}"></iron-media-query>
 
     <slr-items-data
       id="productsData"
@@ -38,19 +64,18 @@
       route="{{route}}"
       visible="{{visible}}"></slr-product-view>
 
-    <iron-list
-      grid
-      items="[[filteredProducts]]"
-      scroll-target="document">
-      <template>
-        <a href="/products/[[item.slug]]">
-          <slr-card
-            hidden$="[[!item.name]]"
-            title="[[item.name]]"
-            description="[[item.product_group_name]]"></slr-card>
-        </a>
+    <div class="flex-grid-thirds" small-layout$="{{small}}" id="list">
+      <template is="dom-repeat" items="[[filteredProducts]]">
+        <div class="col" small-layout$="{{small}}">
+          <a href="/products/[[item.slug]]">
+            <slr-card
+              hidden$="[[!item.name]]"
+              title="[[item.name]]"
+              description="[[item.product_group_name]]"></slr-card>
+          </a>
+        </div>
       </template>
-    </iron-list>
+    </div>
 
     <slr-fab
       id="fab"

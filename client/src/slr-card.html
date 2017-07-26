@@ -7,10 +7,12 @@
   <template>
     <style include="common-styles">
       :host {
-        display: inline-block;
-        width: 400px;
-        margin: 20px;
+        display: block;
         text-align: left;
+      }
+
+      :host([edit-mode][small-layout]) {
+        margin: 10px;
       }
 
       paper-card {
