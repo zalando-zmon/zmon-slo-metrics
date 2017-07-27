@@ -8,6 +8,7 @@
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-label/iron-label.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
 
 <link rel="import" href="./slr-items-data.html">
 <link rel="import" href="./slr-dialog.html">
@@ -27,23 +28,6 @@
         width: 100%;
         overflow: hidden;
         padding: 5px 10px;
-      }
-
-      .column {
-        display: inline-block;
-        min-width: 20vw;
-        max-height: 80vh;
-        min-height: 250px;
-        padding: 10px;
-        vertical-align: top;
-        overflow: hidden;
-        position: relative;
-      }
-
-      .column paper-button {
-        position: absolute;
-        bottom: 10px;
-        right: 15px;
       }
 
       paper-item {
@@ -68,6 +52,27 @@
         display: block;
       }
 
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .column {
+        width: 50%;
+      }
+
+      .inputs {
+        width: 100%;
+      }
+
+      .container[small-layout] {
+        flex-flow: column;
+      }
+
+      .column[small-layout] {
+        width: 100%;
+      }
+
     </style>
 
     <app-route
@@ -75,6 +80,10 @@
       pattern="/:slug"
       data="{{routeData}}"
       tail="{{subroute}}"></app-route>
+
+    <iron-media-query
+      query="(max-width: 600px)"
+      query-matches="{{small}}"></iron-media-query>
 
     <slr-items-data
       auto
@@ -160,7 +169,8 @@
 
       <iron-form id="productForm" headers="{{headers}}">
         <form class="form" method="{{method}}" action="{{action}}">
-            <div>
+          <div class="container" small-layout$="[[small]]">
+            <div class="inputs">
               <paper-input
                 id="name"
                 type="text"
@@ -195,7 +205,7 @@
                 hidden
                 value="[[item.product_group_uri]]"></input>
             </div>
-            <div class="column" hidden$="{{!item.uri}}">
+            <div class="column" hidden$="{{!item.uri}}" small-layout$="[[small]]">
               <iron-label>Objectives</iron-label>
               <paper-icon-button
                 icon="add"
@@ -216,7 +226,7 @@
                 <paper-item disabled class="no-items" hidden="{{objectives.length}}">No objectives...</paper-item>
               </paper-listbox>
             </div>
-            <div class="column" hidden$="{{!item.uri}}">
+            <div class="column" hidden$="{{!item.uri}}" small-layout$="[[small]]">
               <iron-label>Indicators</iron-label>
               <paper-icon-button
                 icon="add"
