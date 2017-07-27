@@ -59,7 +59,7 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile.frontend
-    command: ["sh", "-c", "until nslookup slr-backend; do echo waiting for backend; sleep 2; done; nginx"]
+    command: ["sh", "-c", "until nslookup slr-backend; do echo waiting for backend; sleep 2; done; nginx -c /usr/local/openresty/nginx/conf/default.conf"]
     restart: on-failure
     depends_on:
       - slr-backend

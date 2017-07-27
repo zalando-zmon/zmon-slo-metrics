@@ -2,16 +2,22 @@ FROM registry.opensource.zalan.do/stups/node:7.7-cd47
 
 RUN \
     apt-get update && \
+    apt-get install -y wget git dnsutils && \
+    wget -qO - https://openresty.org/package/pubkey.gpg | apt-key add - && \
     apt-get install -y software-properties-common && \
-    add-apt-repository -y ppa:nginx/stable && \
+    add-apt-repository -y "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main" && \
     apt-get update && \
-    apt-get install -y nginx git dnsutils && \
-    rm -rf /var/lib/apt/lists/* && \
-    echo "\ndaemon off;" >> /etc/nginx/nginx.conf && \
-    chown -R www-data:www-data /var/lib/nginx && \
-    chown -R www-data:www-data /var/www/
+    apt-get install -y --no-install-recommends openresty && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY dockerfiles/nginx-default.conf /etc/nginx/sites-available/default
+ENV PATH="/usr/local/openresty/nginx/sbin:${PATH}"
+
+RUN mkdir -p /var/log/nginx /var/www /var/www/reports && \
+    chown -R www-data:www-data /var/log/nginx && \
+    chown -R www-data:www-data /var/www/ && \
+    chown -R www-data:www-data /var/www/reports
+
+COPY dockerfiles/nginx-default.conf /usr/local/openresty/nginx/conf/default.conf
 
 COPY client /client
 
@@ -23,8 +29,5 @@ RUN npm run-script build
 
 RUN cp -rf build/default /var/www/app
 
-# Define working directory.
-WORKDIR /etc/nginx
-
 # Define default command.
-CMD nginx
+CMD nginx -c /usr/local/openresty/nginx/conf/default.conf
