@@ -232,7 +232,7 @@
             }
 
             this.notify()
-            this.dispatchEvent(`Can't ${m[method]} Target.`, () =>
+            this.dispatchEvent(new CustomEvent(`Can't ${m[method]} Target.`), () =>
                                                     this.$.targetForm.submit())
             this.initForm()
           })

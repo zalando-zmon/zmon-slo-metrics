@@ -203,6 +203,7 @@
                 on-click="addObjective"></paper-icon-button>
               <paper-listbox
                 id="objectivesList"
+                disabled$="[[!objectives.length]]"
                 slot="dropdown-content">
                 <template
                   is="dom-repeat"
@@ -223,6 +224,7 @@
                 on-click="addIndicator"></paper-icon-button>
               <paper-listbox
                 id="indicatorsList"
+                disabled$="[[!indicators.length]]"
                 slot="dropdown-content">
                 <template
                   is="dom-repeat"
