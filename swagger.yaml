@@ -406,7 +406,6 @@ paths:
       tags: [API Root]
       operationId: app.resources.APIRoot.get
       summary: Root API entry point
-      security: []
       responses:
         200:
           description: OK
@@ -418,7 +417,6 @@ paths:
       tags: [System]
       operationId: app.resources.APIRoot.health
       summary: Return health
-      security: []
       responses:
         200:
           description: Health is OK
