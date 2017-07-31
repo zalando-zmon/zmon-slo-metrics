@@ -3,6 +3,7 @@
 import os
 import json
 import numbers
+import subprocess
 
 import click
 import requests
@@ -885,6 +886,11 @@ def report_create(obj, product_name, output_dir):
         fatal_error('Product {} does not exist'.format(product_name))
 
     product = product[0]
+
+    try:
+        subprocess.check_output(['which', 'gnuplot'])
+    except subprocess.CalledProcessError:
+        fatal_error('Missing system dependency. Please install *gnuplot* system package!')
 
     with Action('Creating report for product: {}'.format(product_name), nl=True):
         generate_weekly_report(client, product, output_dir)

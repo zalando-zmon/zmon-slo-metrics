@@ -3,6 +3,8 @@ import math
 import logging
 import warnings
 
+from flask import Flask
+
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -23,7 +25,7 @@ logger = logging.getLogger(__name__)
 updater_pool = Pool(UPDATER_CONCURRENCY)
 
 
-def update_all_indicators():
+def update_all_indicators(app: Flask):
     """
     Update all indicators async!
     """
@@ -32,39 +34,40 @@ def update_all_indicators():
 
     for indicator in Indicator.query.all():
         try:
-            updater_pool.spawn(update_indicator, indicator)
+            updater_pool.spawn(update_indicator, app, indicator)
         except:
             logger.exception('Updater: Failed to spawn indicator updater')
 
     updater_pool.join()
 
 
-def update_indicator(indicator: Indicator):
+def update_indicator(app: Flask, indicator: Indicator):
     logger.info('Updater: Updating Indicator {} values for product {}'.format(indicator.name, indicator.product.name))
 
-    now = datetime.utcnow()
-    newest_dt = now - timedelta(minutes=MAX_QUERY_TIME_SLICE)
+    with app.app_context():
+        now = datetime.utcnow()
+        newest_dt = now - timedelta(minutes=MAX_QUERY_TIME_SLICE)
 
-    try:
-        newest_iv = (
-            IndicatorValue.query.
-            with_entities(db.func.max(IndicatorValue.timestamp).label('timestamp')).
-            filter(IndicatorValue.timestamp >= newest_dt,
-                   IndicatorValue.timestamp < now,
-                   IndicatorValue.indicator_id == indicator.id).
-            first()
-        )
+        try:
+            newest_iv = (
+                IndicatorValue.query.
+                with_entities(db.func.max(IndicatorValue.timestamp).label('timestamp')).
+                filter(IndicatorValue.timestamp >= newest_dt,
+                       IndicatorValue.timestamp < now,
+                       IndicatorValue.indicator_id == indicator.id).
+                first()
+            )
 
-        if newest_iv:
-            start = (now - newest_iv.timestamp).seconds // 60 + 5  # add some overlapping
-        else:
-            start = MAX_QUERY_TIME_SLICE
+            if newest_iv and newest_iv.timestamp:
+                start = (now - newest_iv.timestamp).seconds // 60 + 5  # add some overlapping
+            else:
+                start = MAX_QUERY_TIME_SLICE
 
-        count = update_indicator_values(indicator, start=start)
-        logger.info('Updater: Updated {} indicator values in indicator "{}" for product "{}"'.format(
-            count, indicator.name, indicator.product.name))
-    except:
-        logger.exception('Updater: Failed to update Indicator values for {}'.format(indicator.product.name))
+            count = update_indicator_values(indicator, start=start)
+            logger.info('Updater: Updated {} indicator values in indicator "{}" for product "{}"'.format(
+                count, indicator.name, indicator.product.name))
+        except:
+            logger.exception('Updater: Failed to update Indicator values for {}'.format(indicator.product.name))
 
 
 def update_indicator_values(indicator: Indicator, start: int, end: Optional[int]=None):

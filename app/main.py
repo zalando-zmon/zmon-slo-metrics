@@ -85,22 +85,26 @@ def register_errors(app: flask.Flask) -> None:
     app.errorhandler(429)(rate_limit_exceeded)
 
 
-def run_updater(once=False):
-    while True:
+def run_updater(app: flask.Flask, once=False):
+    with app.app_context():
         try:
-            logger.info('Updating all indicators ...')
+            while True:
+                try:
+                    logger.info('Updating all indicators ...')
 
-            update_all_indicators()
-        except:
-            logger.exception('Updater failed!')
+                    update_all_indicators(app)
+                except:
+                    logger.exception('Updater failed!')
 
-        if once:
-            logger.info('Completed running the updater once. Now terminating!')
-            return
+                if once:
+                    logger.info('Completed running the updater once. Now terminating!')
+                    return
 
-        logger.info('Completed running the updater. Sleeping for {} minutes!'.format(UPDATER_INTERVAL // 60))
+                logger.info('Completed running the updater. Sleeping for {} minutes!'.format(UPDATER_INTERVAL // 60))
 
-        time.sleep(UPDATER_INTERVAL)
+                time.sleep(UPDATER_INTERVAL)
+        except KeyboardInterrupt:
+            logger.info('Terminating updater in response to KeyboardInterrupt!')
 
 
 def run():
@@ -118,7 +122,7 @@ def run():
     if not args.updater:
         if args.with_updater or RUN_UPDATER:
             logger.info('Running SLI updater ...')
-            gevent.spawn(run_updater)
+            gevent.spawn(run_updater, connexion_app.app)
 
         # run our standalone gevent server
         logger.info('Service level reports starting application server')
@@ -126,10 +130,13 @@ def run():
         register_api(connexion_app)
 
         # Start the server
-        connexion_app.run(port=8080, server=SERVER)
+        try:
+            connexion_app.run(port=8080, server=SERVER)
+        except KeyboardInterrupt:
+            logger.info('KeyboardInterrupt ... terminating server!')
     else:
         logger.info('Running SLI updater ...')
-        run_updater(args.once)
+        run_updater(connexion_app.app, args.once)
 
 
 # set the WSGI application callable to allow using uWSGI:

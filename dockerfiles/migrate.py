@@ -37,7 +37,7 @@ def create_user(database_uri, user, password):
 
     try:
         conn.execute("CREATE USER {} WITH PASSWORD '{}';".format(user, password))
-    except ProgrammingError as e:
+    except ProgrammingError:
         logger.error('SQL error creating user')
     except:
         logger.exception('Error creating user')

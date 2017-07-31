@@ -44,6 +44,10 @@ build_steps:
     cmd: |
       docker build -f dockerfiles/Dockerfile.frontend -t registry-write.opensource.zalan.do/zmon/service-level-reports-frontend:refactor-#{CDP_BUILD_VERSION} .
 
+  - desc: "Build SLR generator"
+    cmd: |
+      docker build -f dockerfiles/Dockerfile.generator -t registry-write.opensource.zalan.do/zmon/service-level-reports-generator:refactor-#{CDP_BUILD_VERSION} .
+
   # BUILD TEST IMAGES FROM PR - uncomment if test deployment is needed.
   - desc: "Push Docker Image (test!)"
     cmd: |
@@ -52,6 +56,7 @@ build_steps:
       then
         docker push registry-write.opensource.zalan.do/zmon/service-level-reports:refactor-#{CDP_BUILD_VERSION}
         docker push registry-write.opensource.zalan.do/zmon/service-level-reports-frontend:refactor-#{CDP_BUILD_VERSION}
+        docker push registry-write.opensource.zalan.do/zmon/service-level-reports-generator:refactor-#{CDP_BUILD_VERSION}
       fi
 
   - desc: "Push Docker Image (if on master)"

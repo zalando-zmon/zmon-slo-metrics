@@ -17,6 +17,10 @@ auth = get_auth_app(oauth)
 oauth.remote_apps['auth'] = auth
 
 
+def health():
+    return 'OK'
+
+
 def login():
     redirect_uri = urljoin(APP_URL, '/login/authorized')
     if not OAUTH2_ENABLED:
@@ -48,7 +52,8 @@ def authorized():
 
 
 ROUTES = {
+    '/health': health,
     '/login': login,
+    '/login/authorized': authorized,
     '/logout': logout,
-    '/login/authorized': authorized
 }
