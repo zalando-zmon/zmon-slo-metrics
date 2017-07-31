@@ -3,7 +3,7 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 
-<dom-module id="slr-card">
+<dom-module id="slr-product-card">
   <template>
     <style include="common-styles">
       :host {
@@ -68,8 +68,8 @@
 
   </template>
   <script>
-    class SlrCard extends Polymer.Element {
-      static get is() { return 'slr-card' }
+    class SlrProductCard extends Polymer.Element {
+      static get is() { return 'slr-product-card' }
 
       static get properties() {
         return {
@@ -91,6 +91,6 @@
       }
     }
 
-    window.customElements.define(SlrCard.is, SlrCard)
+    window.customElements.define(SlrProductCard.is, SlrProductCard)
   </script>
 </dom-module>

@@ -3,7 +3,7 @@
 
 <link rel="import" href="./slr-fab.html">
 <link rel="import" href="./slr-items-data.html">
-<link rel="import" href="./slr-card.html">
+<link rel="import" href="./slr-product-card.html">
 <link rel="import" href="./slr-product-view.html">
 
 <dom-module id="slr-products">
@@ -68,10 +68,10 @@
       <template is="dom-repeat" items="[[filteredProducts]]">
         <div class="col" small-layout$="{{small}}">
           <a href="/products/[[item.slug]]">
-            <slr-card
+            <slr-product-card
               hidden$="[[!item.name]]"
               title="[[item.name]]"
-              description="[[item.product_group_name]]"></slr-card>
+              description="[[item.product_group_name]]"></slr-product-card>
           </a>
         </div>
       </template>
