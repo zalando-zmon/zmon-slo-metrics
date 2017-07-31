@@ -24,15 +24,29 @@
       }
 
       paper-dropdown-menu {
-        display: inline-block;
         vertical-align: bottom;
-        margin-right: 35px;
+        margin-right: 15px;
       }
 
-      paper-input {
-        display: inline-block;
-        width: 75px;
-        margin-right: 10px;
+      .container {
+        display: flex;
+        flex-flow: row;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+      }
+
+      .inputs {
+        display: flex;
+        flex-flow: row;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+      }
+
+      .to, .from {
+        display: inline-flex;
+        max-width: 80px;
+        min-width: 60px;
+        margin-right: 15px;
       }
 
       .detail {
@@ -40,12 +54,6 @@
         width: 100%;
       }
 
-      .action {
-        position: absolute;
-        right: 0;
-        top: 0;
-        opacity: 0.66;
-      }
     </style>
 
     <iron-ajax
@@ -59,24 +67,14 @@
 
     <paper-item>
       <paper-item-body two-line>
-        <div>
-          <paper-icon-button
-            icon="create"
-            class="action"
-            hidden$="{{!editIconIsVisible}}"
-            on-click="edit"></paper-icon-button>
-          <paper-icon-button
-            icon="delete"
-            class="action"
-            hidden$="{{!editMode}}"
-            on-click="delete"></paper-icon-button>
-          <iron-form id="targetForm" headers={{headers}}>
-            <form class="form" method="{{method}}" action="{{action}}">
-              <div class="detail">
+        <iron-form id="targetForm" headers="[[headers]]">
+          <form class="form" method="[[method]]" action="[[action]]">
+            <div class="container">
+              <div class="inputs">
                 <paper-dropdown-menu
                   label="Indicator"
                   always-float-label
-                  disabled="{{!editMode}}"
+                  disabled="[[!editMode]]"
                   required noink no-animations>
                   <paper-listbox
                     id="selectList"
@@ -85,9 +83,9 @@
                     attr-for-selected="uri">
                     <template
                       is="dom-repeat"
-                      items="{{indicators}}"
+                      items="[[indicators]]"
                       as="indicator">
-                      <paper-item uri="{{indicator.uri}}">{{indicator.name}}</paper-item>
+                      <paper-item uri="[[indicator.uri]]">[[indicator.name]]</paper-item>
                     </template>
                   </paper-listbox>
                 </paper-dropdown-menu>
@@ -101,7 +99,7 @@
                               class="from"
                               name="from"
                               label="From" always-float-label
-                              disabled="{{!editMode}}"
+                              disabled="[[!editMode]]"
                               value="{{item.from}}"
                               required></paper-input>
                 <paper-input  type="number"
@@ -109,17 +107,27 @@
                               class="to"
                               name="to"
                               label="To" always-float-label
-                              disabled="{{!editMode}}"
+                              disabled="[[!editMode]]"
                               value="{{item.to}}"
                               required></paper-input>
               </div>
-            </form>
-          </iron-form>
-        </div>
-        <div class="card-actions" hidden$="{{!editMode}}">
-          <paper-button hidden$="{{loading}}"
+              <div class="actions">
+                <paper-icon-button
+                  icon="create"
+                  hidden$="[[editMode]]"
+                  on-click="edit"></paper-icon-button>
+                <paper-icon-button
+                  icon="delete"
+                  hidden$="[[!editMode]]"
+                  on-click="delete"></paper-icon-button>
+              </div>
+            </div>
+          </form>
+        </iron-form>
+        <div class="card-actions" hidden$="[[!editMode]]">
+          <paper-button hidden$="[[loading]]"
                         on-click="cancel">Cancel</paper-button>
-          <paper-button hidden$="{{loading}}"
+          <paper-button hidden$="[[loading]]"
                         on-click="submit">Save</paper-button>
         </div>
       </paper-item-body>
