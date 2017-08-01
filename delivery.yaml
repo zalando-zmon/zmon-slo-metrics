@@ -66,6 +66,7 @@ build_steps:
       then
         docker push registry-write.opensource.zalan.do/zmon/service-level-reports:refactor-#{CDP_BUILD_VERSION}
         docker push registry-write.opensource.zalan.do/zmon/service-level-reports-frontend:refactor-#{CDP_BUILD_VERSION}
+        docker push registry-write.opensource.zalan.do/zmon/service-level-reports-generator:refactor-#{CDP_BUILD_VERSION}
       else
         echo "Image not pushed because the build is not a push to master"
       fi
