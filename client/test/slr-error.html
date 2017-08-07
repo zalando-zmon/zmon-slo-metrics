@@ -4,27 +4,27 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <title>slr-404 test</title>
+    <title>slr-error test</title>
 
     <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../bower_components/web-component-tester/browser.js"></script>
 
-    <link rel="import" href="../src/slr-404.html">
+    <link rel="import" href="../src/slr-error.html">
   </head>
   <body>
 
-    <test-fixture id="404">
+    <test-fixture id="error">
       <template>
-         <slr-404></slr-404>
+         <slr-error></slr-error>
       </template>
     </test-fixture>
 
     <script>
-      suite('slr-404', function() {
+      suite('slr-error', function() {
         var element;
 
         setup(function() {
-          element = fixture('404')
+          element = fixture('error')
         })
 
         test('paper-button is present and raised', function(done) {
@@ -33,9 +33,9 @@
           done()
         })
 
-        test('link to product-groups exists', function(done) {
+        test('link to reload exists', function(done) {
           var link = element.shadowRoot.querySelector('a')
-          assert.equal(link.href, 'http://localhost:8081/product-groups')
+          assert.equal(link.href, 'http://localhost:8081/')
           done()
         })
       })

@@ -4,38 +4,33 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <title>slr-404 test</title>
+    <title>slr-auth test</title>
 
     <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../bower_components/web-component-tester/browser.js"></script>
 
-    <link rel="import" href="../src/slr-404.html">
+    <link rel="import" href="../src/slr-auth.html">
   </head>
   <body>
 
-    <test-fixture id="404">
+    <test-fixture id="auth">
       <template>
-         <slr-404></slr-404>
+         <slr-auth></slr-auth>
       </template>
     </test-fixture>
 
     <script>
-      suite('slr-404', function() {
+      suite('slr-auth', function() {
         var element;
 
         setup(function() {
-          element = fixture('404')
+          element = fixture('auth')
         })
 
         test('paper-button is present and raised', function(done) {
           var btn = element.shadowRoot.querySelector('paper-button')
           assert.ok(btn.raised)
-          done()
-        })
-
-        test('link to product-groups exists', function(done) {
-          var link = element.shadowRoot.querySelector('a')
-          assert.equal(link.href, 'http://localhost:8081/product-groups')
+          assert.equal(btn.innerHTML, 'continue')
           done()
         })
       })

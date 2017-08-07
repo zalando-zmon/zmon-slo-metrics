@@ -4,38 +4,39 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <title>slr-404 test</title>
+    <title>slr-search test</title>
 
     <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../bower_components/web-component-tester/browser.js"></script>
 
-    <link rel="import" href="../src/slr-404.html">
+    <link rel="import" href="../src/slr-search.html">
   </head>
   <body>
 
-    <test-fixture id="404">
+    <test-fixture id="search">
       <template>
-         <slr-404></slr-404>
+         <slr-search></slr-search>
       </template>
     </test-fixture>
 
     <script>
-      suite('slr-404', function() {
+      suite('slr-search', function() {
         var element;
 
         setup(function() {
-          element = fixture('404')
+          element = fixture('search')
         })
 
-        test('paper-button is present and raised', function(done) {
-          var btn = element.shadowRoot.querySelector('paper-button')
-          assert.ok(btn.raised)
+        test('search is empty after closed', function(done) {
+          element.closeSearch()
+          assert.equal(element.searchStr, '')
+          assert.equal(element.searchMode, false)
           done()
         })
 
-        test('link to product-groups exists', function(done) {
-          var link = element.shadowRoot.querySelector('a')
-          assert.equal(link.href, 'http://localhost:8081/product-groups')
+        test('search mode is active on click', function(done) {
+          element.onSearchClick()
+          assert.equal(element.searchMode, true)
           done()
         })
       })
