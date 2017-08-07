@@ -2,6 +2,7 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <dom-module id="slr-404">
+
   <template>
     <style include="common-styles">
       :host {
@@ -14,13 +15,15 @@
     <img class="icecream" src="/assets/images/icecream.png" width="150px"></img>
     <h1>Woops! We got lost</h1>
     <p>Please follow the way back</p>
-    <paper-button raised><a href="/product-groups">home</a></paper-button>
+    <paper-button raised><a href="/product-groups" class="btn">home</a></paper-button>
   </template>
+
   <script>
     class Slr404 extends Polymer.Element {
       static get is() { return 'slr-404' }
     }
 
     window.customElements.define(Slr404.is, Slr404)
-    </script>
-  </dom-module>
+  </script>
+
+</dom-module>

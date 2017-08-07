@@ -89,7 +89,7 @@
           this.sort()
           this.set('filteredItems', this.filter())
         } catch(e) {
-          console.error('Error loading' + this.itemType, e)
+          console.error('Error loading ' + this.itemType, e)
           this.notify("Can't Load "+ this.itemType, () => this.fetch(), 0)
         }
       }
@@ -103,9 +103,7 @@
             return
           }
         } catch(e) {}
-
-        console.error('Error loading ' + this.itemType)
-        this.notify("Can't Load " + this.itemType, () => this.fetch(), 0)
+        this.notify("Can't load " + this.itemType, () => this.fetch(), 0)
       }
 
       fetch() {
