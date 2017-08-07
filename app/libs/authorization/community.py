@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 @cache.memoize(timeout=300)
 def get_user_groups(username):
     try:
-        token = zign.api.get_token('zmon', ['uid'])
+        token = zign.api.get_token('uid', ['uid'])
         headers = {'Authorization': 'Bearer {}'.format(token)}
 
         logger.info('Retrieving groups for user: {}'.format(username))

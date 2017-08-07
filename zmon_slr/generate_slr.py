@@ -2,7 +2,6 @@
 
 import datetime
 import os
-import sys
 
 import jinja2
 
@@ -84,8 +83,7 @@ def generate_weekly_report(client: Client, product: dict, output_dir: str) -> No
             break
 
     if not period_from or not period_to:
-        print('Can not determine "period_from" and "period_to" for the report. Terminating!')
-        sys.exit(1)
+        raise RuntimeError('Can not determine "period_from" and "period_to" for the report. Aborting!')
 
     period_id = '{}-{}'.format(period_from.replace('-', ''), period_to.replace('-', ''))
 

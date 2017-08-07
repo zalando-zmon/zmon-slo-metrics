@@ -38,7 +38,7 @@ services:
     ports:
       - "8080:8080"
     # wait until migration is done!
-    command: ["sh", "-c", "sleep 5 ; python -m app.main"]
+    command: ["sh", "-c", "sleep 8 ; python -m app.main"]
     environment:
       DATABASE_URI: postgresql://slr_user:slr-user-password@slr-db/slr
       KAIROSDB_URL: https://data-service.zmon.zalan.do/kairosdb-proxy
