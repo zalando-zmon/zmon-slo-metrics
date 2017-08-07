@@ -4,34 +4,39 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
 
-    <title>slr-app test</title>
+    <title>slr-404 test</title>
 
     <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
     <script src="../bower_components/web-component-tester/browser.js"></script>
 
-    <link rel="import" href="../src/slr-app.html">
+    <link rel="import" href="../src/slr-404.html">
   </head>
   <body>
 
-    <test-fixture id="basic">
+    <test-fixture id="404">
       <template>
-         <slr-app></slr-app>
+         <slr-404></slr-404>
       </template>
     </test-fixture>
 
     <script>
-      suite('slr-app', function() {
-        var app;
+      suite('slr-404', function() {
+        var element;
 
         setup(function() {
-          app = fixture('basic')
+          element = fixture('404')
         })
 
         test('test property is present and defined as Hello', function(done) {
-          flush(function() {
-            assert.equal(app.test, 'Hello')
-            done()
-          })
+          assert.equal(element.test, 'Hello')
+          done()
+        })
+
+        test('link to product-groups exists', function(done) {
+          var link = element.shadowRoot.querySelector('a')
+          console.log(link)
+          assert.equal(link.href, 'http://localhost:8081/product-groups')
+          done()
         })
       })
     </script>
