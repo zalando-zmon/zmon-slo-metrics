@@ -42,8 +42,8 @@
         this.$.toast.close()
 
         if (!message) {
-          return console.error('Error showing notification, no message given.')
-          return;
+          console.log('Error showing notification, no message given.')
+          return
         }
 
         this.$.toast.text = message
