@@ -64,8 +64,8 @@
 
     <div class="flex-grid-thirds" small-layout$="{{small}}" id="list">
       <template is="dom-repeat" items="[[productGroups]]">
-        <div class="col" small-layout$="{{small}}">
-          <slr-product-group-card id="card{{index}}" item="{{item}}" class="productGroup"></slr-product-group-card>
+        <div class="col productGroup" small-layout$="{{small}}">
+          <slr-product-group-card id="card{{index}}" item="{{item}}"></slr-product-group-card>
         </div>
       </template>
     </div>
