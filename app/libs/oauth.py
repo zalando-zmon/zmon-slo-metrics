@@ -12,8 +12,6 @@ from connexion.exceptions import OAuthProblem, OAuthResponseProblem, OAuthScopeP
 
 from app.config import CREDENTIALS_DIR, AUTHORIZE_URL, ACCESS_TOKEN_URL
 
-from app.extensions import cache
-
 
 logger = logging.getLogger('connexion.api.security')
 
@@ -125,7 +123,6 @@ def verify_oauth_with_session(token_info_url, allowed_scopes, function):
     return wrapper
 
 
-@cache.memoize(timeout=300)
 def fetch_token_info(token_info_url, token):
 
     logger.info("... Getting token from %s", token_info_url)
