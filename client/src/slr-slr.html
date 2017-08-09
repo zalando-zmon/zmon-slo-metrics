@@ -50,7 +50,7 @@
           iframeSrc: {
             type: String,
             value: '/reports/',
-            computed: 'computeIframeSrc(routeData.*)'
+            computed: 'computeIframeSrc(routeData.product, routeData.productGroup)'
           }
         }
       }
@@ -66,7 +66,7 @@
         }
       }
 
-      computeIframeSrc(productGroup, product) {
+      computeIframeSrc(product, productGroup) {
         if (productGroup && product) {
           return `/reports/${productGroup}/${product}/`
         }
