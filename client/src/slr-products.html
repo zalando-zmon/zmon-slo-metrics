@@ -70,8 +70,8 @@
           <a href="/products/[[item.slug]]">
             <slr-product-card
               hidden$="[[!item.name]]"
-              title="[[item.name]]"
-              description="[[item.product_group_name]]"></slr-product-card>
+              product-groups="[[productGroups]]"
+              item="[[item]]"></slr-product-card>
           </a>
         </div>
       </template>

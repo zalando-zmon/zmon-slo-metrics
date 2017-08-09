@@ -13,6 +13,7 @@
 
 <link rel="import" href="./slr-product-groups.html">
 <link rel="import" href="./slr-products.html">
+<link rel="import" href="./slr-slr.html">
 <link rel="import" href="./slr-notifications.html">
 <link rel="import" href="./slr-search.html">
 <link rel="import" href="./slr-items-data.html">
@@ -135,6 +136,9 @@
           <paper-tab name="products">
             <a href="/products">Products</a>
           </paper-tab>
+          <paper-tab name="slr">
+            <a href="/slr">Reports</a>
+          </paper-tab>
         </paper-tabs>
       </app-toolbar>
 
@@ -164,6 +168,8 @@
         loading="{{loading}}"
         product-groups="{{productGroups}}"
         search-str="{{searchStr}}"></slr-products>
+
+      <slr-slr name="slr" route="{{subroute}}"></slr-slr>
 
       <slr-auth name="auth"></slr-auth>
 

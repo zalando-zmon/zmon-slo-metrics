@@ -2,6 +2,7 @@
 <link rel="import" href="../bower_components/paper-styles/typography.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <dom-module id="slr-product-card">
   <template>
@@ -19,25 +20,23 @@
         width: 100%;
       }
 
-      iron-icon { cursor: pointer; }
-
-      iron-icon.star-border {
-        visibility: hidden;
-        color: var(--paper-grey-500);
-      }
-
-      paper-card:hover iron-icon.star-border {
+      paper-card:hover .report {
         visibility: visible;
       }
 
-      iron-icon.star { color: var(--paper-amber-500); }
+      iron-icon { cursor: pointer; }
 
-      .header { @apply --paper-font-headline; }
+      .header {
+        @apply --paper-font-headline;
+        display: flex;
+      }
 
-      .favorite {
-        font-size: 15px;
-        float: right;
-        vertical-align: middle;
+      .title {
+        flex: 2;
+      }
+
+      .report {
+        visibility: hidden;
       }
 
       p {
@@ -48,21 +47,13 @@
 
     <paper-card>
       <div class="card-content">
-        <div class="header">[[title]]
-          <!-- <div class="-favorite">
-            <iron-icon  icon="star-border"
-                        class="star-border"
-                        hidden$="{{favorite}}"
-                        on-click="toggleFavorite"
-                        title="Add to Favorite"></iron-icon>
-            <iron-icon  icon="star"
-                        class="star"
-                        hidden$="{{!favorite}}"
-                        on-click="toggleFavorite"
-                        title="Remove from Favorites"></iron-icon>
-          </div> -->
+        <div class="header">
+          <span class="title">[[item.name]]</span>
+          <a class="report" title="open report page" href="[[reportUrl]]">
+            <paper-icon-button icon="assignment"></paper-icon-button>
+          </a>
         </div>
-        <p>[[description]]</p>
+        <p>[[item.product_group_name]]</p>
       </div>
     </paper-card>
 
@@ -73,21 +64,37 @@
 
       static get properties() {
         return {
-          title: {
-            type: String
+          item: {
+            type: Object
           },
-          description: {
-            type: String
+          productGroups: {
+            type: Array,
           },
-          favorite: {
-            type: Boolean
+          productGroupSlug: {
+            type: String,
+          },
+          reportUrl: {
+            type: String,
+            value: '/slr/'
           }
         }
       }
 
-      toggleFavorite(e) {
-        e.stopPropagation();
-        this.set('favorite', !this.favorite)
+      static get observers() {
+        return [ 'slugsChanged(item.slug, productGroups.*)' ]
+      }
+
+      slugsChanged(slug, productGroups) {
+        let productGroupSlug = this.getProductGroupSlug(productGroups.value)
+        this.set('reportUrl', `/slr/${productGroupSlug}/${slug}`)
+      }
+
+      getProductGroupSlug(productGroups) {
+        if (productGroups) {
+          let ix = this.productGroups.findIndex( (pg) => pg.uri === this.item.product_group_uri )
+          return this.productGroups[ix].slug
+        }
+        return ''
       }
     }
 

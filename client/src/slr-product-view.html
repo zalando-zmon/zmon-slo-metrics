@@ -195,7 +195,7 @@
                     is="dom-repeat"
                     items="{{productGroups}}"
                     as="pg">
-                    <paper-item uri="{{pg.uri}}">{{pg.name}}</paper-item>
+                    <paper-item uri$="{{pg.uri}}">{{pg.name}}</paper-item>
                   </template>
                 </paper-listbox>
               </paper-dropdown-menu>
@@ -363,7 +363,7 @@
       }
 
       routeDataChanged(slug, visible) {
-        if (slug && visible) {
+        if (slug && visible && this.route.prefix === '/products' && this.route.path) {
           this.set('slug', slug)
         } else {
           this.set('slug', null)
