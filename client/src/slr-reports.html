@@ -1,5 +1,5 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
-<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
 
 <dom-module id="slr-reports">
   <template>
@@ -9,11 +9,16 @@
         text-align: center;
       }
     </style>
-    <h3>placeholder</h3>
-    <p>this page is only visible on dev mode</p>
-    <p>backend will redirect to reports page</p>
-  </template>
 
+    <app-location route="{{route}}"></app-location>
+
+    <br/><br/>
+    <h4>placeholder</h4>
+    <p>this page is only visible on dev mode</p>
+    <p>on production mode, backend redirects to reports page</p>
+    <p>{{route.path}}</p>
+
+  </template>
   <script>
     class SlrReports extends Polymer.Element {
       static get is() { return 'slr-reports' }
