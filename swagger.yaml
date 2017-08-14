@@ -279,10 +279,10 @@ definitions:
   Target:
     properties:
       from:
-        type: number
+        type: ["number", "null"]
         description: SLO target lower bound.
       to:
-        type: number
+        type: ["number", "null"]
         description: SLO target upper bound.
       sli_uri:
         type: string
@@ -982,13 +982,11 @@ paths:
                 type: string
                 description: Product SLI URI (e.g /products/3/sli/33)
               from:
-                type: number
+                type: ["number", "null"]
                 description: SLO target lower bound.
-                default: 0.0
               to:
-                type: number
+                type: ["number", "null"]
                 description: SLO target upper bound.
-                default: 0.0
             required:
               - sli_uri
       responses:
