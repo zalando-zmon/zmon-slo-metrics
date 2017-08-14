@@ -1,6 +1,7 @@
 from urllib.parse import urljoin, urlparse, urlunparse
 
 from flask import request
+from flask import session as flask_session
 
 from app.config import APP_URL, API_PREFIX
 
@@ -25,3 +26,5 @@ def process_request():
 
     # Used in building full URIs
     request.api_url = urljoin(base_url, API_PREFIX + '/')
+    request.user = flask_session.get('user')
+    request.realm = flask_session.get('realm', 'employees')
