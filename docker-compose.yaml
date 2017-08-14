@@ -49,6 +49,8 @@ services:
       # SESSION
       SLR_SESSION_TYPE: redis
       SLR_SESSION_REDIS_HOST: slr-redis
+      # SLR_API_AUTHORIZATION: admins
+
       # CACHE
       SLR_CACHE_TYPE: redis
       SLR_CACHE_REDIS_HOST: slr-redis
