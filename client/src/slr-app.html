@@ -312,6 +312,10 @@
       }
 
       handleErrorResponse(e) {
+        if (e.detail.status === 401) {
+          return window.location.href = '/login'
+        }
+
         this.dispatchEvent(new CustomEvent('slr-notify', {
           detail: {
             message: "Can't get server health",
