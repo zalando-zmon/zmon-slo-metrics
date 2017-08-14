@@ -1,0 +1,24 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+
+<dom-module id="slr-reports">
+  <template>
+    <style>
+      :host {
+        display: block;
+        text-align: center;
+      }
+    </style>
+    <h3>placeholder</h3>
+    <p>this page is only visible on dev mode</p>
+    <p>backend will redirect to reports page</p>
+  </template>
+
+  <script>
+    class SlrReports extends Polymer.Element {
+      static get is() { return 'slr-reports' }
+    }
+
+    window.customElements.define(SlrReports.is, SlrReports)
+  </script>
+</dom-module>
