@@ -217,6 +217,10 @@
 
         this.notify(`Can't ${m[method]} Indicator.`)
         this.initForm()
+
+        if (e.detail.request.xhr.response.status === 401) {
+          this.dispatchEvent(new CustomEvent('slr-authenticate', {bubbles: true, composed: true}))
+        }
       }
 
       onResponse(e) {
