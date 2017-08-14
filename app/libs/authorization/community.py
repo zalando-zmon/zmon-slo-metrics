@@ -42,8 +42,8 @@ def get_user_groups(username):
 def validate_tokeninfo(f) -> Callable:
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
-        realm = request.realm
-        if realm != '/employees':
+        token_info = request.token_info
+        if not token_info or token_info.get('realm') != '/employees':
             raise ProblemException(
                 status=401, title='UnAuthorized', detail='Only employees are allowed to modify/create resources.')
 
@@ -57,7 +57,7 @@ class CommunityAuthorization(Authorization):
 
     @property
     def current_user_communities(self):
-        uid = request.user
+        uid = request.token_info['uid']
 
         groups = get_user_groups(uid)
 
@@ -69,7 +69,7 @@ class CommunityAuthorization(Authorization):
         return communities
 
     def is_admin(self) -> bool:
-        uid = request.user
+        uid = request.token_info['uid']
         return uid in ADMINS
 
     def community_match(self, product_group: str, communities: List[str]) -> bool:

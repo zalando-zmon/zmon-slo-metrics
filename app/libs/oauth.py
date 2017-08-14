@@ -82,21 +82,17 @@ def verify_oauth_with_session(token_info_url, allowed_scopes, function):
         logger.debug("%s Oauth verification...", request.url)
 
         authorization = request.headers.get('Authorization')  # type: str
-        is_authenticated = flask_session.get('authenticated', False)
+        token = flask_session.get('access_token')
 
-        logger.info('User: {} | Authenticated: {}'.format(
-            flask_session.get('user'),
-            is_authenticated
-        ))
-
-        if not authorization and not is_authenticated:
+        if not authorization and not token:
             logger.info("... No auth provided. Aborting with 401.")
             raise OAuthProblem(description='No authorization token provided')
-        elif not is_authenticated:
-            try:
-                _, token = authorization.split()  # type: str, str
-            except ValueError:
-                raise OAuthProblem(description='Invalid authorization header')
+        else:
+            if not token:
+                try:
+                    _, token = authorization.split()  # type: str, str
+                except ValueError:
+                    raise OAuthProblem(description='Invalid authorization header')
 
             token_info = fetch_token_info(token_info_url, token)
 
