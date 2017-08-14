@@ -190,7 +190,7 @@
       id="ajax"
       url="/api/health"
       on-response="handleResponse"
-      on-error="handleResponse"
+      on-error="handleErrorResponse"
       handle-as="json"></iron-ajax>
 
   </template>
@@ -306,9 +306,21 @@
       }
 
       handleResponse(e) {
-        if (e.detail.xhr.status === 401) {
-          window.location.href = '/login'
+        if (e.detail.status === 401) {
+            window.location.href = '/login'
         }
+      }
+
+      handleErrorResponse(e) {
+        this.dispatchEvent(new CustomEvent('slr-notify', {
+          detail: {
+            message: "Can't get server health",
+            action: null,
+            duration: 0
+          },
+          bubbles: true,
+          composed: true
+        }))
       }
     }
 
