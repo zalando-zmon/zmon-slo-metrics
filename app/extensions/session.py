@@ -1,9 +1,14 @@
+import logging
+
 import dateutil.parser
 
 from datetime import datetime, timedelta
 
 from flask import session as flask_session
 from flask_session import Session
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_token_info():
@@ -23,6 +28,8 @@ def get_token_info():
 def set_token_info(token_info):
     if flask_session.get('user') == token_info.get('uid'):
         return
+
+    logger.info('Token info user: {}'.format(token_info.get('uid')))
 
     flask_session['user'] = token_info.get('uid', '')
     flask_session['realm'] = token_info.get('realm', 'employees')

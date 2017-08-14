@@ -84,6 +84,11 @@ def verify_oauth_with_session(token_info_url, allowed_scopes, function):
         authorization = request.headers.get('Authorization')  # type: str
         is_authenticated = flask_session.get('authenticated', False)
 
+        logger.info('User: {} | Authenticated: {}'.format(
+            flask_session.get('user'),
+            is_authenticated
+        ))
+
         if not authorization and not is_authenticated:
             logger.info("... No auth provided. Aborting with 401.")
             raise OAuthProblem(description='No authorization token provided')
