@@ -121,6 +121,7 @@
       reveals
       class="main-header"
       slot="header"
+      hidden$="{{headerIsHidden}}"
       small-layout$="{{small}}">
 
       <app-toolbar class="main-title flex-horizontal flex-equal-justified">
@@ -208,11 +209,16 @@
           productGroups: {
             type: Array
           },
-          test: {
-            type: String,
-            value: 'Hello'
+          headerIsHidden: {
+            type: Boolean,
+            value: false,
+            computed: 'computeHeaderIsHidden(routeData.page)'
           }
         }
+      }
+
+      computeHeaderIsHidden(page) {
+        return page === 'auth' ? true : false
       }
 
       static get observers() { return [
