@@ -94,7 +94,6 @@ def verify_oauth_with_session(token_info_url, allowed_scopes, function):
                 except ValueError:
                     raise OAuthProblem(description='Invalid authorization header')
 
-            # this could hit cache
             token_info = fetch_token_info(token_info_url, token)
 
             user_scopes = set(token_info['scope'])
