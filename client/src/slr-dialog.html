@@ -158,6 +158,11 @@
           loading: {
             type: Boolean,
             value: false
+          },
+          triggerEvents: {
+            type: Boolean,
+            value: false,
+            reflectToAttribute: true
           }
         }
       }
@@ -176,15 +181,19 @@
       whenOpened() {
         this.copyItem()
         this.reset()
-        this.dispatchEvent(new CustomEvent('slr-dialog-opened',
-          { bubble:true, composed: true }))
+        if (this.triggerEvents) {
+          this.dispatchEvent(new CustomEvent('slr-dialog-opened',
+            { bubble:true, composed: true }))
+        }
       }
 
       whenClosed() {
         this.reset()
         this.set('editMode', false)
-        this.dispatchEvent(new CustomEvent('slr-dialog-closed',
-          { bubble:true, composed: true }))
+        if (this.triggerEvents) {
+          this.dispatchEvent(new CustomEvent('slr-dialog-closed',
+            { bubble:true, composed: true }))
+        }
       }
 
       itemChanged() {
