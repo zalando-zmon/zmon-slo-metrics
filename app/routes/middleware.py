@@ -1,9 +1,13 @@
+import logging
+
 from urllib.parse import urljoin, urlparse, urlunparse
 
 from flask import request
 from flask import session as flask_session
 
 from app.config import APP_URL, API_PREFIX
+
+logger = logging.getLogger(__name__)
 
 
 def process_request():
@@ -26,5 +30,6 @@ def process_request():
 
     # Used in building full URIs
     request.api_url = urljoin(base_url, API_PREFIX + '/')
+    logger.info('Middleware: {}'.format(flask_session.get('user')))
     request.user = flask_session.get('user')
     request.realm = flask_session.get('realm', 'employees')
