@@ -453,9 +453,9 @@ def slo_delete(obj, product_name, slo_id):
 def validate_target(target, act):
     if 'sli_uri' not in target:
         act.error('Field "sli_uri" is missing in SLO target definition.')
-    if 'from' not in target or not isinstance(target['from'], numbers.Number):
+    if 'from' not in target or target['from'] is not None and not isinstance(target['from'], numbers.Number):
         act.error('Numeric field "from" is missing in SLO target definition.')
-    if 'to' not in target or not isinstance(target['to'], numbers.Number):
+    if 'to' not in target or target['to'] is not None and not isinstance(target['to'], numbers.Number):
         act.error('Numeric field "to" is missing in SLO target definition.')
 
 
@@ -495,8 +495,8 @@ def target_list(obj, product_name, slo_id):
 @click.argument('product_name')
 @click.argument('slo_id')
 @click.option('--sli-name', '-s', help='SLI name')
-@click.option('--target-from', '-r', type=float, default=float('-inf'), help='Target "from" value')
-@click.option('--target-to', '-t', type=float, default=float('inf'), help='Target "to" value')
+@click.option('--target-from', '-r', type=float, help='Target "from" value')
+@click.option('--target-to', '-t', type=float, help='Target "to" value')
 @click.option('--target-file', '-f', type=click.File('r'), help='Target definition JSON file.')
 @click.pass_obj
 def target_create(obj, product_name, slo_id, sli_name, target_from, target_to, target_file):
