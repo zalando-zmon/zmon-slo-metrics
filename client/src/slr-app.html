@@ -126,7 +126,7 @@
 
       <app-toolbar class="main-title flex-horizontal flex-equal-justified">
         <div>Service Levels Reporting</div>
-        <slr-search class="flexchild" search-str="{{searchStr}}"></slr-search>
+        <slr-search class="flexchild" search-str="{{searchStr}}" hidden$="{{searchIsHidden}}"></slr-search>
       </app-toolbar>
 
       <app-toolbar class="tabs-bar">
@@ -213,8 +213,17 @@
             type: Boolean,
             value: false,
             computed: 'computeHeaderIsHidden(routeData.page)'
+          },
+          searchIsHidden: {
+            type: Boolean,
+            value: false,
+            computed: 'computeSearchIsHidden(routeData.page)'
           }
         }
+      }
+
+      computeSearchIsHidden(page) {
+        return (page === 'product-groups' || page === 'products') ? false : true
       }
 
       computeHeaderIsHidden(page) {
