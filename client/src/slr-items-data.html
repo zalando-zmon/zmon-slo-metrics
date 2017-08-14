@@ -174,7 +174,7 @@
             if (item[key].toLowerCase)
             content.push(item[key].toLowerCase())
           }
-          return (content.join('').indexOf(this.search) != -1)
+          return (content.join('').indexOf(this.search.toLowerCase()) != -1)
         })
         return items
       }
