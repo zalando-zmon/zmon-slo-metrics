@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from urllib.parse import urljoin
+from datetime import datetime
 
 import zign.api
 
@@ -51,6 +52,7 @@ def authorized():
 
     set_token_info(token_info)
     flask_session['is_authenticated'] = True  # Session authenticated user
+    flask_session['last_login'] = datetime.now().isoformat()
 
     return redirect(urljoin(APP_URL, '/'))
 

@@ -47,6 +47,10 @@ definitions:
         type: string
         readOnly: true
         description: Health resource URI
+      session_uri:
+        type: string
+        readOnly: true
+        description: Session resource URI. Info about logged in user.
       product_groups_uri:
         type: string
         readOnly: true
@@ -420,6 +424,25 @@ paths:
       responses:
         200:
           description: Health is OK
+
+  /session:
+    get:
+      tags: [System]
+      operationId: app.resources.APIRoot.session
+      summary: Return session info
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              username:
+                type: string
+                readOnly: true
+                description: Current username
+              last_login:
+                type: string
+                readOnly: true
+                description: Login datetime
 
   /product-groups:
     get:
