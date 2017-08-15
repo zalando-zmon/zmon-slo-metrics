@@ -1,6 +1,7 @@
 import os
 import redis
 
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 DEBUG = os.getenv('DEBUG', False)
@@ -29,7 +30,8 @@ CACHE_REDIS_PORT = os.getenv('SLR_CACHE_REDIS_PORT', 6379)
 APP_SESSION_SECRET = os.getenv('SLR_APP_SESSION_SECRET', 'SWNUCOVM3Q7OJH3T')
 SESSION_KEY_PREFIX = 'SESSION_'
 SESSION_COOKIE_NAME = 'slr-session'
-PERMANENT_SESSION_LIFETIME = 86400
+SESSION_COOKIE_SECURE = True
+SESSION_PERMANENT = False
 SESSION_TYPE = os.getenv('SLR_SESSION_TYPE', 'filesystem')  # redis
 SESSION_FILE_DIR = '/tmp/slo-session'
 SESSION_REDIS_HOST = os.getenv('SLR_SESSION_REDIS_HOST', '127.0.0.1')
