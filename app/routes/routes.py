@@ -22,6 +22,7 @@ def health():
 
 
 def login():
+    # TODO: do not proceed to login if user has an authenticated session.
     redirect_uri = urljoin(APP_URL, '/login/authorized')
     if not OAUTH2_ENABLED:
         return redirect(redirect_uri)
@@ -29,7 +30,9 @@ def login():
 
 
 def logout():
-    flask_session.pop('auth_token', None)
+    # TODO: only using POST?!
+    flask_session.pop('access_token', None)
+    flask_session.pop('is_authenticated', None)
     return redirect(urljoin(APP_URL, '/'))
 
 
@@ -47,6 +50,7 @@ def authorized():
         token_info = resp
 
     set_token_info(token_info)
+    flask_session['is_authenticated'] = True  # Session authenticated user
 
     return redirect(urljoin(APP_URL, '/'))
 
