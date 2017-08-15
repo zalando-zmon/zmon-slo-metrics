@@ -11,6 +11,7 @@ from flask_oauthlib.client import OAuth, OAuthRemoteApp
 from connexion.exceptions import OAuthProblem, OAuthResponseProblem, OAuthScopeProblem
 
 from app.config import CREDENTIALS_DIR, AUTHORIZE_URL, ACCESS_TOKEN_URL
+from app.extensions import set_token_info
 
 
 logger = logging.getLogger('connexion.api.security')
@@ -82,12 +83,17 @@ def verify_oauth_with_session(token_info_url, allowed_scopes, function):
         logger.debug("%s Oauth verification...", request.url)
 
         authorization = request.headers.get('Authorization')  # type: str
+
+        # check if session authenticated user
+        is_authenticated = flask_session.get('is_authenticated')
+        user = flask_session.get('user')
         token = flask_session.get('access_token')
 
         if not authorization and not token:
             logger.info("... No auth provided. Aborting with 401.")
             raise OAuthProblem(description='No authorization token provided')
-        else:
+
+        if not all([user, is_authenticated, token]):
             if not token:
                 try:
                     _, token = authorization.split()  # type: str, str
@@ -116,6 +122,8 @@ def verify_oauth_with_session(token_info_url, allowed_scopes, function):
 
             request.user = token_info.get('uid')
             request.token_info = token_info
+
+            set_token_info(token_info)
 
         return function(*args, **kwargs)
 
