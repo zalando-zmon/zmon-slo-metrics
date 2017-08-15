@@ -306,15 +306,12 @@
       }
 
       handleResponse(e) {
-        console.log('health reponded with no error', e.detail.status)
         if (e.detail.status === 401) {
             window.location.href = '/login'
         }
       }
 
       handleErrorResponse(e) {
-        console.log('health respond with error:', e, e.detail, e.detail.request.xhr.response.status)
-
         if (e.detail.request.xhr.response.status === 401) {
           return window.location.href = '/login'
         }
