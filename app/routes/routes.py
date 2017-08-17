@@ -13,6 +13,8 @@ from app.config import APP_URL, OAUTH2_ENABLED, PRESHARED_TOKEN
 from app.extensions import set_token_info, oauth
 
 
+LOGIN_AUTHORIZATION = '/login/authorized'
+
 # OAUTH setup
 auth = get_auth_app(oauth)
 oauth.remote_apps['auth'] = auth
@@ -34,7 +36,8 @@ def health():
 def login():
     # TODO: do not proceed to login if user has an authenticated session.
     next_uri = request.args.get('next')
-    redirect_uri = get_safe_redirect_uri(next_uri, default='/login/authorized')
+    authorize_url = '{}?next={}'.format(LOGIN_AUTHORIZATION, next_uri) if next_uri else LOGIN_AUTHORIZATION
+    redirect_uri = urljoin(APP_URL, authorize_url)
 
     if not OAUTH2_ENABLED:
         return redirect(redirect_uri)
@@ -66,12 +69,15 @@ def authorized():
     flask_session['is_authenticated'] = True  # Session authenticated user
     flask_session['last_login'] = datetime.now().isoformat()
 
-    return redirect(urljoin(APP_URL, '/'))
+    next_uri = request.args.get('next')
+    redirect_uri = get_safe_redirect_uri(next_uri, default='/')
+
+    return redirect(redirect_uri)
 
 
 ROUTES = {
     '/health': health,
     '/login': login,
-    '/login/authorized': authorized,
+    LOGIN_AUTHORIZATION: authorized,
     '/logout': logout,
 }
