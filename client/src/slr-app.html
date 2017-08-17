@@ -305,15 +305,20 @@
         this.$.ajax.generateRequest()
       }
 
+      showLogin() {
+        let path = this.route.path ? `?next=${this.route.path}` : ''
+        window.location.href = `/login${path}`
+      }
+
       handleResponse(e) {
         if (e.detail.status === 401) {
-            window.location.href = '/login'
+          this.showLogin()
         }
       }
 
       handleErrorResponse(e) {
         if (e.detail.request.xhr.response.status === 401) {
-          return window.location.href = '/login'
+          return this.showLogin()
         }
 
         this.dispatchEvent(new CustomEvent('slr-notify', {
