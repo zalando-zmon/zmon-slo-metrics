@@ -105,6 +105,10 @@
         padding: 9px 5px;
       }
 
+      paper-avatar {
+        z-index: -1;
+      }
+
       slr-search[small-layout] {
         padding: 10px;
       }
@@ -148,9 +152,13 @@
             hidden$="[[searchIsHidden]]"></slr-search>
         </div>
         <paper-menu-button hidden$="[[small]]">
-          <paper-avatar label="[[session.username]]" hidden$="[[small]]" slot="dropdown-trigger"></paper-avatar>
+          <paper-avatar
+            label="[[session.username]]"
+            icon="social:person-outline"
+            hidden$="[[small]]"
+            slot="dropdown-trigger"></paper-avatar>
           <paper-listbox slot="dropdown-content">
-            <paper-item><a href="/logout">Logout</a></paper-item>
+            <paper-item><a on-click="logout">Logout</a></paper-item>
           </paper-listbox>
         </paper-menu-button>
         <paper-menu-button hidden$="[[!small]]">
@@ -370,6 +378,10 @@
       showLogin() {
         let path = this.route.path ? `?next=${this.route.path}` : ''
         window.location.href = `/login${path}`
+      }
+
+      logout() {
+        window.location.href = '/logout'
       }
 
       handleResponse(e) {
