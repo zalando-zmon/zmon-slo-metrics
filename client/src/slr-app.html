@@ -11,6 +11,12 @@
 <link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/paper-avatar/paper-avatar.html">
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button-animations.html">
+<link rel="import" href="../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
 
 <link rel="import" href="./slr-product-groups.html">
 <link rel="import" href="./slr-products.html">
@@ -55,6 +61,7 @@
       }
 
       .main-header {
+        background-color: var(--app-primary-color);
         box-shadow: 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
         margin-bottom: 20px;
       }
@@ -67,6 +74,7 @@
         --app-toolbar-font-size: var(--paper-font-title);
         text-align: left;
         padding-left: 30px;
+        z-index: 1;
       }
 
       paper-tabs {
@@ -96,6 +104,11 @@
         height: 20px;
         padding: 9px 5px;
       }
+
+      slr-search[small-layout] {
+        padding: 10px;
+      }
+
     </style>
 
     <app-location route="{{route}}"></app-location>
@@ -123,11 +136,39 @@
       class="main-header"
       slot="header"
       hidden$="{{headerIsHidden}}"
-      small-layout$="{{small}}">
+      small-layout$="[[small]]">
 
       <app-toolbar class="main-title flex-horizontal flex-equal-justified">
         <div>Service Levels Reporting</div>
-        <slr-search class="flexchild" search-str="{{searchStr}}" hidden$="{{searchIsHidden}}"></slr-search>
+        <div class="flexchild" hidden$="[[small]]">
+          <slr-search
+            class="flexchild"
+            search-str="{{searchStr}}"
+            small-layout$="[[small]]"
+            hidden$="[[searchIsHidden]]"></slr-search>
+        </div>
+        <paper-menu-button hidden$="[[small]]">
+          <paper-avatar label="[[session.username]]" hidden$="[[small]]" slot="dropdown-trigger"></paper-avatar>
+          <paper-listbox slot="dropdown-content">
+            <paper-item><a href="/logout">Logout</a></paper-item>
+          </paper-listbox>
+        </paper-menu-button>
+        <paper-menu-button hidden$="[[!small]]">
+          <paper-icon-button icon="more-vert" slot="dropdown-trigger" alt="menu"></paper-icon-button>
+          <paper-listbox slot="dropdown-content">
+            <paper-item on-click="openSearch">Search</paper-item>
+            <paper-item><a href="/logout">Logout</a></paper-item>
+          </paper-listbox>
+        </paper-menu-button>
+      </app-toolbar>
+
+      <app-toolbar id="searchBar" hidden>
+        <slr-search
+          id="searchSmall"
+          class="flexchild"
+          hidden$="[[!searchIsHidden]]"
+          search-mode="true"
+          search-str="{{searchStr}}"></slr-search>
       </app-toolbar>
 
       <app-toolbar class="tabs-bar">
@@ -193,6 +234,14 @@
       on-error="handleErrorResponse"
       handle-as="json"></iron-ajax>
 
+    <iron-ajax
+      auto
+      id="sessionAjax"
+      url="/api/session"
+      last-response="{{session}}"
+      on-error="handleErrorResponse"
+      handle-as="json"></iron-ajax>
+
   </template>
 
   <script>
@@ -225,13 +274,25 @@
           searchIsHidden: {
             type: Boolean,
             value: false,
-            computed: 'computeSearchIsHidden(routeData.page)'
+            computed: 'computeSearchIsHidden(routeData.page, small)'
+          },
+          session: {
+            type: Object
+          },
+          small: {
+            type: Boolean
           }
         }
       }
 
-      computeSearchIsHidden(page) {
-        return (page === 'product-groups' || page === 'products') ? false : true
+      computeSearchIsHidden(page, small) {
+        if (small) {
+          return true
+        }
+        if (page === 'product-groups' || page === 'products') {
+          return false
+        }
+        return true
       }
 
       computeHeaderIsHidden(page) {
@@ -272,6 +333,7 @@
         this.addEventListener('slr-error', () => this.showError())
         this.$.productGroups.addEventListener('product-groups-fetch', () => this.$.productGroupsData.fetch())
         this.$.products.addEventListener('product-groups-fetch', () => this.$.productGroupsData.fetch())
+        this.$.searchSmall.addEventListener('search-closed', () => this.$.searchBar.hidden = true)
       }
 
       pageLoaded() {
@@ -330,6 +392,11 @@
           bubbles: true,
           composed: true
         }))
+      }
+
+      openSearch() {
+        this.$.searchSmall.searchMode = true;
+        this.$.searchBar.hidden = false;
       }
     }
 

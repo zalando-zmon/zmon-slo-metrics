@@ -10,6 +10,12 @@
       :host {
         display: block;
         margin-right: 10px;
+      }
+
+      .search {
+        float: right;
+        width: 100%;
+        margin-top: -20px;
         max-width: 400px;
       }
 
@@ -72,7 +78,7 @@
           searchStr: {
             type: String,
             notify: true
-          }
+          },
         }
       }
 
@@ -83,11 +89,13 @@
       onSearchClick() {
         this.set('searchMode', true)
         this.$.input.focus()
+        this.dispatchEvent(new CustomEvent('search-opened'))
       }
 
       closeSearch() {
         this.set('searchStr', '')
         this.set('searchMode', false)
+        this.dispatchEvent(new CustomEvent('search-closed'))
       }
     }
 

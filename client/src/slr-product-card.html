@@ -92,7 +92,9 @@
       getProductGroupSlug(productGroups) {
         if (productGroups) {
           let ix = this.productGroups.findIndex( (pg) => pg.uri === this.item.product_group_uri )
-          return this.productGroups[ix].slug
+          if (ix > -1) {
+            return this.productGroups[ix].slug
+          }
         }
         return ''
       }
