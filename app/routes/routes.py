@@ -35,9 +35,10 @@ def health():
 
 def login():
     # TODO: do not proceed to login if user has an authenticated session.
-    next_uri = request.args.get('next')
-    authorize_url = '{}?next={}'.format(LOGIN_AUTHORIZATION, next_uri) if next_uri else LOGIN_AUTHORIZATION
-    redirect_uri = urljoin(APP_URL, authorize_url)
+    next_uri = request.args.get('next', '/')
+    flask_session['next_uri'] = next_uri
+
+    redirect_uri = urljoin(APP_URL, LOGIN_AUTHORIZATION)
 
     if not OAUTH2_ENABLED:
         return redirect(redirect_uri)
@@ -69,7 +70,7 @@ def authorized():
     flask_session['is_authenticated'] = True  # Session authenticated user
     flask_session['last_login'] = datetime.now().isoformat()
 
-    next_uri = request.args.get('next')
+    next_uri = flask_session.pop('next_uri', '/')
     redirect_uri = get_safe_redirect_uri(next_uri, default='/')
 
     return redirect(redirect_uri)
