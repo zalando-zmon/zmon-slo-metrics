@@ -14,6 +14,7 @@ from zmon_slr.plot import plot
 
 AGGS_MAP = {
     'average': 'avg',
+    'weighted': 'avg',
     'sum': 'sum',
     'minimum': 'min',
     'min': 'min',
@@ -170,7 +171,7 @@ def generate_weekly_report(client: Client, product: dict, output_dir: str) -> No
                 'unit': target['unit'],
             }
 
-            if aggregation == 'average':
+            if aggregation in ('average', 'weighted'):
                 values = values_by_sli[sli_name]['avg']
                 val = sum(values) / len(values) if len(values) > 0 else None
             elif aggregation in ('max', 'maximum'):
