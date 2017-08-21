@@ -85,7 +85,7 @@ class Client:
     def product_group_create(self, name, department) -> dict:
         data = {
             'name': name,
-            'department': department
+            'department': department or ''
         }
 
         res = self.session.post(self.PRODUCT_GROUPS, json=data)

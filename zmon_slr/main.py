@@ -18,6 +18,7 @@ from zmon_slr.generate_slr import generate_weekly_report
 
 DEFAULT_CONFIG_FILE = '~/.zmon-slr.yaml'
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+SLR_TOKEN = os.environ.get('SLR_TOKEN')
 
 AGG_TYPES = ('average', 'weighted', 'sum', 'min', 'max', 'minimum', 'maximum')
 
@@ -93,7 +94,8 @@ def flatten(structure, key='', path='', flattened=None):
 
 
 def get_client(config):
-    return Client(config['url'], zign.api.get_token('uid', ['uid']))
+    token = SLR_TOKEN if SLR_TOKEN else zign.api.get_token('uid', ['uid'])
+    return Client(config['url'], token)
 
 
 @click.group(cls=AliasedGroup, context_settings=CONTEXT_SETTINGS)
@@ -600,7 +602,7 @@ def target_delete(obj, product_name, target_uri):
 ########################################################################################################################
 # SLI
 ########################################################################################################################
-def validate_sli_source(config, source):
+def validate_sli_source(config, source, ignore_keys=False):
     if 'zmon_url' not in config:
         config = set_config_file()
 
@@ -621,7 +623,14 @@ def validate_sli_source(config, source):
                 zmon.check_definition_url(check))
         )
 
-    keys = source['keys']
+    if ignore_keys:
+        return
+
+    keys = [k for k in source['keys'] if '.*' not in k]
+    if not keys:
+        # Do not validate keys if we have wildcards
+        return
+
     sli_exists = False
     sample_data = set()
     for alert in filtered:
