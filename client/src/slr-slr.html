@@ -1,0 +1,89 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+
+<dom-module id="slr-slr">
+  <template>
+    <style>
+      :host {
+        display: block;
+        text-align: center;
+      }
+
+      iframe {
+        width: 90vw;
+        height: 80vh;
+        background: white;
+        border: none;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+
+    <app-route
+      route="{{route}}"
+      pattern="/:productGroup/:product"
+      data="{{routeData}}"
+      tail="{{subroute}}"></app-route>
+
+    <iframe id="iframe" src="[[iframeSrc]]"></iframe>
+  </template>
+
+  <script>
+    class SlrSlr extends Polymer.Element {
+      static get is() { return 'slr-slr' }
+
+      static get properties() {
+        return {
+          route: {
+            type: Object
+          },
+          routeData: {
+            type: Object
+          },
+          subroute: {
+            type: Object
+          },
+          slug: {
+            type: String,
+            observer: 'slugChanged'
+          },
+          iframeSrc: {
+            type: String,
+            value: '/reports/',
+            computed: 'computeIframeSrc(routeData.product, routeData.productGroup)'
+          }
+        }
+      }
+
+      static get observers() {
+        return [ 'routeChanged(route)' ]
+      }
+
+      routeChanged() {
+        if (this.route.path === '') {
+          this.set('routeData.product', null)
+          this.set('routeData.productGroup', null)
+        }
+      }
+
+      computeIframeSrc(product, productGroup) {
+        if (productGroup && product) {
+          return `/reports/${productGroup}/${product}/`
+        }
+        return '/reports/'
+      }
+
+      ready() {
+        super.ready()
+        this.$.iframe.onload = () => this.onIframeLoad()
+      }
+
+      onIframeLoad() {
+        console.log('load!', this.iframeSrc, this.$.iframe.contentWindow.location.pathname)
+        this.set('iframeSrc', this.$.iframe.contentWindow.location.pathname)
+      }
+    }
+
+    window.customElements.define(SlrSlr.is, SlrSlr)
+  </script>
+</dom-module>
