@@ -67,6 +67,7 @@
       }
 
       computeIframeSrc(product, productGroup) {
+        console.log('compute')
         if (productGroup && product) {
           return `/reports/${productGroup}/${product}/`
         }
