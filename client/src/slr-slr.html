@@ -25,7 +25,7 @@
       data="{{routeData}}"
       tail="{{subroute}}"></app-route>
 
-    <iframe src="[[iframeSrc]]"></iframe>
+    <iframe id="iframe" src="[[iframeSrc]]"></iframe>
   </template>
 
   <script>
@@ -71,6 +71,16 @@
           return `/reports/${productGroup}/${product}/`
         }
         return '/reports/'
+      }
+
+      ready() {
+        super.ready()
+        this.$.iframe.onload = () => this.onIframeLoad()
+      }
+
+      onIframeLoad() {
+        console.log('load!', this.iframeSrc, this.$.iframe.contentWindow.location.pathname)
+        this.set('iframeSrc', this.$.iframe.contentWindow.location.pathname)
       }
     }
 
