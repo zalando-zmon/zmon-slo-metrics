@@ -94,7 +94,7 @@
         console.log('onIframeLoad()', this.src, pathname)
         if (this.route.prefix === '/slr') {
           console.log('=>', page, path)
-          window.history.pushState({html: page}, '', '/slr'+path)
+          window.history.pushState({html: page}, '', '/slr/'+path)
         }
       }
     }
