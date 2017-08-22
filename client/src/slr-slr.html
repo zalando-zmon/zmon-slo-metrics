@@ -60,7 +60,7 @@
 
       routeChanged() {
         console.log('route changed', this.route)
-        if (this.route.path === '') {
+        if (this.route.path === '' || this.route.path === '/') {
           this.set('routeData.product', null)
           this.set('routeData.productGroup', null)
           this.set('src', '/reports/')
@@ -72,12 +72,13 @@
         console.log('routeDataChanged', product, productGroup)
         if (productGroup && product) {
           console.log('set reports')
-          return this.setIframeSrc(`/reports/${productGroup}/${product}/`)
+          return this.setIframeSrc(`/${productGroup}/${product}/`)
         }
         this.setIframeSrc('/reports/')
       }
 
       setIframeSrc(src) {
+        console.log('setIframeSrc', src)
         this.set('src', src)
         this.$.iframe.src = src
       }
@@ -94,7 +95,7 @@
         console.log('onIframeLoad()', this.src, pathname)
         if (this.route.prefix === '/slr') {
           console.log('=>', page, path)
-          window.history.pushState({html: page}, '', '/slr/'+path)
+          window.history.replaceState({html: page}, page, `/slr/${path}/${page}`)
         }
       }
     }
