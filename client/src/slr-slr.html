@@ -25,7 +25,7 @@
       data="{{routeData}}"
       tail="{{subroute}}"></app-route>
 
-    <iframe id="iframe" src="[[iframeSrc]]"></iframe>
+    <iframe id="iframe" src="{{iframeSrc}}"></iframe>
   </template>
 
   <script>
@@ -80,8 +80,9 @@
       }
 
       onIframeLoad() {
-        console.log('load!', this.iframeSrc, this.$.iframe.contentWindow.location.pathname)
+        console.log('onIframeLoad()', this.iframeSrc, this.$.iframe.contentWindow.location.pathname)
         this.set('iframeSrc', this.$.iframe.contentWindow.location.pathname)
+        console.log('iframe src is now=', this.iframeSrc)
       }
     }
 
