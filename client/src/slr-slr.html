@@ -49,14 +49,13 @@
           },
           iframeSrc: {
             type: String,
-            value: '/reports/',
-            computed: 'computeIframeSrc(routeData.product, routeData.productGroup)'
+            value: '/reports/'
           }
         }
       }
 
       static get observers() {
-        return [ 'routeChanged(route)' ]
+        return [ 'routeChanged(route)', 'routeDataChanged(routeData.product, routeData.productGroup)' ]
       }
 
       routeChanged() {
@@ -66,12 +65,12 @@
         }
       }
 
-      computeIframeSrc(product, productGroup) {
-        console.log('compute!!')
+      routeDataChanged(product, productGroup) {
+        console.log('routeDataChanged!!', product, productGroup)
         if (productGroup && product) {
-          return `/reports/${productGroup}/${product}/`
+          this.set('iframeSrc',`/reports/${productGroup}/${product}/`)
         }
-        return '/reports/'
+        this.set('iframeSrc', '/reports/')
       }
 
       ready() {
