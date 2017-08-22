@@ -1,0 +1,104 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+
+<dom-module id="slr-slr">
+  <template>
+    <style>
+      :host {
+        display: block;
+        text-align: center;
+      }
+
+      iframe {
+        width: 90vw;
+        height: 80vh;
+        background: white;
+        border: none;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+
+    <app-route
+      route="{{route}}"
+      pattern="/:productGroup/:product"
+      data="{{routeData}}"
+      tail="{{subroute}}"></app-route>
+
+    <iframe id="iframe" src="/reports/"></iframe>
+  </template>
+
+  <script>
+    class SlrSlr extends Polymer.Element {
+      static get is() { return 'slr-slr' }
+
+      static get properties() {
+        return {
+          route: {
+            type: Object
+          },
+          routeData: {
+            type: Object
+          },
+          subroute: {
+            type: Object
+          },
+          slug: {
+            type: String,
+            observer: 'slugChanged'
+          },
+          src: {
+            type: String,
+            value: '/reports/'
+          }
+        }
+      }
+
+      static get observers() {
+        return [ 'routeChanged(route)', 'routeDataChanged(routeData.product, routeData.productGroup)' ]
+      }
+
+      routeChanged() {
+        console.log('route changed', this.route)
+        if (this.route.path === '') {
+          this.set('routeData.product', null)
+          this.set('routeData.productGroup', null)
+          this.set('src', '/reports/')
+          this.$.iframe.src = this.src
+        }
+      }
+
+      routeDataChanged(product, productGroup) {
+        console.log('routeDataChanged', product, productGroup)
+        if (productGroup && product) {
+          console.log('set reports')
+          return this.setIframeSrc(`/reports/${productGroup}/${product}/`)
+        }
+        this.setIframeSrc('/reports/')
+      }
+
+      setIframeSrc(src) {
+        this.set('src', src)
+        this.$.iframe.src = src
+      }
+
+      ready() {
+        super.ready()
+        this.$.iframe.onload = () => this.onIframeLoad()
+      }
+
+      onIframeLoad() {
+        let pathname = this.$.iframe.contentWindow.location.pathname
+        let page = pathname.split('/').pop()
+        let path = pathname.split('/').slice(1, -1).join('/')
+        console.log('onIframeLoad()', this.src, pathname)
+        if (this.route.prefix === '/slr') {
+          console.log('=>', page, path)
+          window.history.pushState({html: page}, '', '/slr/'+path)
+        }
+      }
+    }
+
+    window.customElements.define(SlrSlr.is, SlrSlr)
+  </script>
+</dom-module>
