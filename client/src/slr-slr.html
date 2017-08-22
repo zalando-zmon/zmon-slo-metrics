@@ -90,7 +90,7 @@
       onIframeLoad() {
         let pathname = this.$.iframe.contentWindow.location.pathname
         let page = pathname.split('/').pop()
-        let path = pathname.split('/').slice(0, -1).join('/')
+        let path = pathname.split('/').slice(1, -1).join('/')
         console.log('onIframeLoad()', this.src, pathname)
         if (this.route.prefix === '/slr') {
           console.log('=>', page, path)
