@@ -91,11 +91,11 @@
       onIframeLoad() {
         let pathname = this.$.iframe.contentWindow.location.pathname.split('/')
         let page = pathname.slice(-1)
-        let path = pathname.slice(1, -1)
+        let path = pathname.slice(1, -1).join('/')
 
         // Remove '/reports/' from path, returned by navigating inside of iframe
         if (pathname.indexOf('reports') === 1) {
-          path = pathname.slice(2, -1)
+          path = pathname.slice(2, -1).join('/')
         }
 
         console.log('onIframeLoad()', this.src, pathname)
