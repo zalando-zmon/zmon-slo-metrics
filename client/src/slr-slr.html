@@ -74,10 +74,10 @@
           console.log('set reports')
           return this.setIframeSrc(`/${productGroup}/${product}/`)
         }
-        this.setIframeSrc('/reports/')
+        this.setIframeSrc()
       }
 
-      setIframeSrc(src) {
+      setIframeSrc(src = '') {
         console.log('setIframeSrc', src)
         this.set('src', src)
         this.$.iframe.src = '/reports/' + src
