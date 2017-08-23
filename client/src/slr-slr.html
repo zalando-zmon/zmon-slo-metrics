@@ -89,11 +89,17 @@
       }
 
       onIframeLoad() {
-        let pathname = this.$.iframe.contentWindow.location.pathname
-        let page = pathname.split('/').pop()
-        let path = pathname.split('/').slice(2, -1).join('/')
+        let pathname = this.$.iframe.contentWindow.location.pathname.split('/')
+        let page = pathname.slice(-1)
+        let path = pathname.slice(1, -1)
+
+        // Remove '/reports/' from path, returned by navigating inside of iframe
+        if (pathname.indexOf('reports') === 1) {
+          path = pathname.slice(2, -1)
+        }
+
         console.log('onIframeLoad()', this.src, pathname)
-        if (this.route.prefix === '/slr') {
+        if (this.route.prefix === '/slr' && path) {
           console.log('=>', page, path)
           window.history.replaceState({html: page}, page, `/slr/${path}/${page}`)
         }
