@@ -80,7 +80,7 @@
       setIframeSrc(src) {
         console.log('setIframeSrc', src)
         this.set('src', src)
-        this.$.iframe.src = src
+        this.$.iframe.src = '/reports/' + src
       }
 
       ready() {
