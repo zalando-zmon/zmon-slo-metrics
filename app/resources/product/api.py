@@ -16,7 +16,7 @@ from .models import Product
 
 
 class ProductResource(ResourceHandler):
-    model_fields = ('name', 'slug', 'username', 'created', 'updated')
+    model_fields = ('name', 'slug', 'email', 'username', 'created', 'updated')
 
     @staticmethod
     def get_uri_from_id(obj_id: Union[str, int], **kwargs) -> str:

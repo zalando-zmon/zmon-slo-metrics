@@ -112,6 +112,9 @@ definitions:
       name:
         type: string
         description: Product name.
+      email:
+        type: ["string", "null"]
+        description: Product owner email. This could be used in notifications.
       product_group_uri:
         type: string
         description: Product Group URI (e.g. /product-groups/110)
