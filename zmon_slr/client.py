@@ -45,8 +45,8 @@ class Client:
 
         return res
 
-    def product_create(self, name, product_group_uri) -> dict:
-        data = {'name': name, 'product_group_uri': product_group_uri}
+    def product_create(self, name, product_group_uri, email=None) -> dict:
+        data = {'name': name, 'product_group_uri': product_group_uri, 'email': email}
 
         res = self.session.post(self.PRODUCTS, json=data)
         res.raise_for_status()

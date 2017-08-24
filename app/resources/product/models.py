@@ -7,6 +7,7 @@ class Product(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    email = db.Column(db.String(120), nullable=True)
     slug = db.Column(db.String(120), unique=True, nullable=False, index=True)
 
     product_group_id = db.Column(db.Integer(), db.ForeignKey('product_group.id'), nullable=False)

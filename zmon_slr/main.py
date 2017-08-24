@@ -243,8 +243,9 @@ def product_get(obj, name):
 @product.command('create')
 @click.argument('name')
 @click.argument('product_group_name')
+@click.option('--email', '-e', required=False, help='Product email. Could be used in notifications.')
 @click.pass_obj
-def product_create(obj, name, product_group_name):
+def product_create(obj, name, product_group_name, email):
     """Create new product"""
     client = get_client(obj)
 
@@ -256,7 +257,7 @@ def product_create(obj, name, product_group_name):
 
             pg = pgs[0]
 
-            p = client.product_create(name, product_group_uri=pg['uri'])
+            p = client.product_create(name, product_group_uri=pg['uri'], email=email)
 
             print(json.dumps(p, indent=4))
         except SLRClientError as e:
@@ -266,9 +267,10 @@ def product_create(obj, name, product_group_name):
 @product.command('update')
 @click.argument('name')
 @click.option('--new-name', '-n', required=False, help='Product new name.')
+@click.option('--new-email', '-e', required=False, help='Product new email.')
 @click.option('--product-group-name', '-p', required=False, help='Product new product group name.')
 @click.pass_obj
-def product_update(obj, name, new_name, product_group_name):
+def product_update(obj, name, new_name, new_email, product_group_name):
     """Update product"""
     client = get_client(obj)
 
@@ -280,6 +282,9 @@ def product_update(obj, name, new_name, product_group_name):
         p = ps[0]
         if new_name:
             p['name'] = new_name
+
+        if new_email:
+            p['email'] = new_email
 
         if product_group_name:
             pgs = client.product_group_list(name=product_group_name)
