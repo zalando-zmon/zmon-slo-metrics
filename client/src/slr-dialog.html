@@ -8,6 +8,9 @@
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-spinner/paper-spinner-lite.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../bower_components/neon-animation/animations/scale-up-animation.html">
+<link rel="import" href="../bower_components/neon-animation/animations/fade-out-animation.html">
 
 <link rel="import" href="./common-styles.html">
 
@@ -88,6 +91,8 @@
       id="dialog"
       opened="{{opened}}"
       class="flex-vertical"
+      entry-animation="scale-up-animation"
+      exit-animation="fade-out-animation"
       no-cancel-on-outside-click="{{editMode}}"
       no-cancel-on-esc-key="{{editMode}}">
 
