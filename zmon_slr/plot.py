@@ -17,6 +17,9 @@ def plot(client: Client, product: dict, slo_id: int, output_file):
     targets_by_unit = collections.defaultdict(list)
 
     for i, target in enumerate(targets):
+        maxval = 0
+        minval = 0
+
         fn = '/tmp/data{}.tsv'.format(i)
         target['fn'] = fn
 
@@ -24,15 +27,15 @@ def plot(client: Client, product: dict, slo_id: int, output_file):
         slis = client.sli_list(product, name=sli_name)
         sli = slis[0]
 
-        data = client.sli_values(sli, sli_from=10080)
-
         target['unit'] = sli['unit']
         targets_by_unit[sli['unit']].append(target)
 
+        data = client.sli_values(sli, sli_from=10080)
+
         with open(fn, 'w') as fd:
             values = [row['value'] for row in data]
-            maxval = max(values)
-            minval = min(values)
+            maxval = max(values) if values else maxval
+            minval = min(values) if values else minval
             for row in data:
                 fd.write('{}\t{}\n'.format(row['timestamp'], row['value']))
 

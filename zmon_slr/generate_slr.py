@@ -27,6 +27,10 @@ def title(s):
     return s.title().replace('_', ' ').replace('.', ' ')
 
 
+def max_or_zero(values):
+    return max(values or [0])  # return 0 in case of empty list
+
+
 def human_time(minutes):
     days = minutes // (60 * 24)
     remainder = minutes % (60 * 24)
@@ -158,8 +162,8 @@ def generate_weekly_report(client: Client, product: dict, output_dir: str) -> No
 
             slo['data'].append({'caption': '{} {}'.format(dow, day[5:10]), 'slis': slis})
 
-        slo['breaches'] = max(breaches_by_sli.values())
-        slo['count'] = max(counts_by_sli.values())
+        slo['breaches'] = max_or_zero(breaches_by_sli.values())
+        slo['count'] = max_or_zero(counts_by_sli.values())
 
         for target in slo['targets']:
             sli_name = target['sli_name']
