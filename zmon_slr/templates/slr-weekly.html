@@ -85,7 +85,7 @@
                                         {% if 'total' in data.slis.get(sli) %}
                                             {{ '{:,}'.format(data.slis.get(sli).total) }}
                                         {% else %}
-                                            {{ slo.slis.get(sli).aggregate }}
+                                            {{ data.slis.get(sli).aggregate }}
                                         {% endif %}
                                         </td>
                                     {% else %}

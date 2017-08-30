@@ -27,6 +27,27 @@ def title(s):
     return s.title().replace('_', ' ').replace('.', ' ')
 
 
+def get_aggregate(aggregation: str, data: dict):
+    if aggregation in ('average', 'weighted'):
+        val = values = data['avg']
+        if type(values) is list:
+            val = sum(values) / len(values) if len(values) > 0 else None
+    elif aggregation in ('max', 'maximum'):
+        val = values = data['max']
+        if type(values) is list:
+            val = max(values) if len(values) > 0 else None
+    elif aggregation in ('min', 'minimum'):
+        val = values = data['min']
+        if type(values) is list:
+            val = min(values) if len(values) > 0 else None
+    elif aggregation == 'sum':
+        val = values = data['sum']
+        if type(values) is list:
+            val = sum(values) if len(values) > 0 else None
+
+    return round(val, 2) if val else 0.0
+
+
 def max_or_zero(values):
     return max(values or [0])  # return 0 in case of empty list
 
@@ -122,6 +143,8 @@ def generate_weekly_report(client: Client, product: dict, output_dir: str) -> No
                 breaches_by_sli[sli] += sli_data['breaches']
                 counts_by_sli[sli] += sli_data['count']
 
+                aggregation = sli_data['aggregation']
+
                 values_by_sli[sli]['avg'].append(sli_data['avg'])
                 values_by_sli[sli]['min'].append(sli_data['min'])
                 values_by_sli[sli]['max'].append(sli_data['max'])
@@ -156,6 +179,7 @@ def generate_weekly_report(client: Client, product: dict, output_dir: str) -> No
                 slis[sli] = sli_data
                 slis[sli]['unit'] = unit
                 slis[sli]['classes'] = classes
+                slis[sli]['aggregate'] = '{:.2f} {}'.format(get_aggregate(aggregation, sli_data), unit)
 
             dt = datetime.datetime.strptime(day[:10], '%Y-%m-%d')
             dow = dt.strftime('%a')
@@ -175,18 +199,7 @@ def generate_weekly_report(client: Client, product: dict, output_dir: str) -> No
                 'unit': target['unit'],
             }
 
-            if aggregation in ('average', 'weighted'):
-                values = values_by_sli[sli_name]['avg']
-                val = sum(values) / len(values) if len(values) > 0 else None
-            elif aggregation in ('max', 'maximum'):
-                values = values_by_sli[sli_name]['max']
-                val = max(values) if len(values) > 0 else None
-            elif aggregation in ('min', 'minimum'):
-                values = values_by_sli[sli_name]['min']
-                val = min(values) if len(values) > 0 else None
-            elif aggregation == 'sum':
-                values = values_by_sli[sli_name]['sum']
-                val = sum(values) if len(values) > 0 else None
+            val = get_aggregate(aggregation, values_by_sli[sli_name])
 
             ok = True
             if val is not None and target['to'] and val > target['to']:
