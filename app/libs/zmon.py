@@ -65,9 +65,15 @@ def query_sli(sli_name: str, sli_source: dict, start: int, end: Optional[int]) -
 
     res = {}
     for result in data['queries'][0]['results']:
+        if not result.get('values'):
+            logger.warning('ZMON query result has no values. sli: "{}"'.format(sli_name))
+            continue
+
         group = result['group_by'][0]['group']
         key = group['key']
+
         exclude = key_matches(key, exclude_keys)
+
         if not exclude:
             for ts, value in result['values']:
                 # truncate to full minutes
