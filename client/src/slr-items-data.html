@@ -164,14 +164,14 @@
 
         let items = this.items.filter( (item) => {
 
-          //add new items {}
+          // add new items {}
           if (!item.uri || !this.search) {
             return true
           }
 
           let content = []
           for (var key in item) {
-            if (item[key].toLowerCase)
+            if (item[key] && item[key].toLowerCase)
             content.push(item[key].toLowerCase())
           }
           return (content.join('').indexOf(this.search.toLowerCase()) != -1)
