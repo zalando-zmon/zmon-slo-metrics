@@ -207,12 +207,13 @@
                 value="[[item.product_group_uri]]"></input>
               <paper-input
                 id="email"
-                type="text"
+                type="email"
                 name="email"
                 label="Notifications Email"
                 always-float-label
                 disabled="{{!editMode}}"
-                value="{{item.email}}">
+                value="{{item.email}}"
+                auto-validate>
                   <iron-icon slot="prefix" icon="mail"></iron-icon>
               </paper-input>
             </div>
