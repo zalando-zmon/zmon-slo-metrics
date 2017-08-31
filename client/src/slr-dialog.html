@@ -228,7 +228,7 @@
       // <paper-dialog> fails to center after its content changed size
       // so we center() every time that may happen
       center() {
-        setTimeout(() => { this.$.dialog.center() })
+        setTimeout(() => { this.$.dialog.center() }, 500)
       }
     }
 
