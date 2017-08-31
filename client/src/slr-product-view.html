@@ -205,6 +205,16 @@
                 name="product_group_uri"
                 hidden
                 value="[[item.product_group_uri]]"></input>
+              <paper-input
+                id="email"
+                type="text"
+                name="email"
+                label="Notifications Email"
+                always-float-label
+                disabled="{{!editMode}}"
+                value="{{item.email}}">
+                  <iron-icon slot="prefix" icon="mail"></iron-icon>
+              </paper-input>
             </div>
             <div class="column" hidden$="{{!item.uri}}" small-layout$="[[small]]">
               <iron-label>Objectives</iron-label>
