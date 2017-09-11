@@ -55,7 +55,7 @@
       }
 
       routeChanged(route) {
-        console.log('routeChanged!!!, route=', route, 'routeData=', routeData)
+        console.log('routeChanged!!!, route=', route, 'routeData=', this.routeData)
         if (route.path === '' || route.path === '/') {
           this.set('routeData.product', null)
           this.set('routeData.productGroup', null)
