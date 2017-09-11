@@ -55,7 +55,7 @@
       }
 
       routeChanged(route) {
-        console.log('routeChanged!!!, route=', route, 'routeData=', rotueData)
+        console.log('routeChanged!!!, route=', route, 'routeData=', routeData)
         if (route.path === '' || route.path === '/') {
           this.set('routeData.product', null)
           this.set('routeData.productGroup', null)
@@ -64,7 +64,7 @@
       }
 
       routeDataChanged(product, productGroup) {
-        console.log('routeDataChanged!!!, route=', route, 'routeData=', rotueData, 'product=', product, 'productGroup', productGroup)
+        console.log('routeDataChanged!!!, route=', this.route, 'routeData=', this.rotueData, 'product=', product, 'productGroup', productGroup)
         if (productGroup && product) {
           return this.setIframeSrc(`/${productGroup}/${product}/`)
         }
