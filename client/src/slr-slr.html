@@ -51,26 +51,30 @@
       }
 
       static get observers() {
-        return [ 'routeChanged(route)', 'routeDataChanged(routeData.product, routeData.productGroup)' ]
+        return [
+          'routePathChanged(route.path)',
+          'routeDataChanged(routeData.product, routeData.productGroup)'
+        ]
       }
 
-      routeChanged() {
-        if (this.route.path === '' || this.route.path === '/') {
-          this.set('routeData.product', null)
-          this.set('routeData.productGroup', null)
+      routePathChanged(path) {
+        console.log('routePathChanged!!!, route.path=', path)
+        this.setIframeSrc(path)
+      }
+
+      routeDataChanged(product, productGroup) {
+        console.log('routeDataChanged!!!', product, productGroup)
+        if (!this.path && (!product || !productGroup)) {
           this.setIframeSrc()
         }
       }
 
-      routeDataChanged(product, productGroup) {
-        if (productGroup && product) {
-          return this.setIframeSrc(`/${productGroup}/${product}/`)
+      setIframeSrc(path = '') {
+        if (path[0] === '/') {
+          path = path.slice(1)
         }
-        this.setIframeSrc()
-      }
-
-      setIframeSrc(src = '') {
-        this.$.iframe.src = '/reports/' + src
+        console.log('setIframeSrc!!!', '/reports/' + path)
+        this.$.iframe.src = '/reports/' + path
       }
 
       ready() {
@@ -82,14 +86,16 @@
         let pathname = this.$.iframe.contentWindow.location.pathname.split('/')
         let page = pathname.slice(-1)
         let path = pathname.slice(1, -1).join('/')
-
+        console.log('onIframeLoad!!!', pathname, page, path)
         // Remove '/reports/' from path, returned by navigating inside of iframe
         if (pathname.indexOf('reports') === 1) {
           path = pathname.slice(2, -1).join('/')
+          console.log('onIframeLoad!!! (reports === 1)', path)
         }
 
         // set history only when slr view is visible
         if (this.route.prefix === '/slr' && path) {
+          console.log('onIframeLoad!!! (set history)', page, `/slr/${path}/${page}`)
           window.history.replaceState({html: page}, page, `/slr/${path}/${page}`)
         }
       }
