@@ -1,10 +1,8 @@
 from flask import request
 
-from app.extensions import tracer
-
 
 def extract_span():
-    try:
-        return tracer.get_span(request)
-    except:
+    if hasattr(request, 'current_span'):
+        return request.current_span
+    else:
         return None

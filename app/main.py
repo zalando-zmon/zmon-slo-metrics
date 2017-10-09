@@ -21,7 +21,7 @@ from app.config import OPENTRACING_TRACER
 from app.libs.oauth import verify_oauth_with_session
 from app.utils import DecimalEncoder
 
-from app.extensions import db, migrate, cache, session, limiter, oauth, tracer
+from app.extensions import db, migrate, cache, session, limiter, oauth, trace_flask
 
 from app.libs.resolver import get_resource_handler
 from app.resources.sli.updater import update_all_indicators
@@ -71,9 +71,11 @@ def register_extensions(app: flask.Flask) -> None:
     oauth.init_app(app)
 
     # initialize opentracing and hook middlewares
-    tracer.init_app(
-        app, tracer_name=OPENTRACING_TRACER, traced_attributes=['url'], service_name='slr-backend',
-        debug_level=DEBUG_LEVEL)
+    # tracer.init_app(
+    #     app, tracer_name=OPENTRACING_TRACER, traced_attributes=['url'], service_name='slr-backend',
+    #     debug_level=DEBUG_LEVEL)
+
+    trace_flask(app, tracer_name=OPENTRACING_TRACER, service_name='slr-backend', debug_level=DEBUG_LEVEL)
 
 
 def register_middleware(app: flask.Flask) -> None:
