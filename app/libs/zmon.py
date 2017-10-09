@@ -7,6 +7,8 @@ from typing import Optional, Dict
 
 import zign.api
 
+from opentracing_utils import trace, get_span_from_kwargs
+
 from app.config import KAIROSDB_URL, KAIROS_QUERY_LIMIT
 
 
@@ -22,7 +24,8 @@ def key_matches(key, key_patterns):
     return False
 
 
-def query_sli(sli_name: str, sli_source: dict, start: int, end: Optional[int]) -> Dict[datetime, float]:
+@trace(pass_span=True)
+def query_sli(sli_name: str, sli_source: dict, start: int, end: Optional[int], **kwargs) -> Dict[datetime, float]:
     check_id = sli_source['check_id']
     keys = sli_source['keys']
     exclude_keys = sli_source.get('exclude_keys', [])
@@ -56,9 +59,17 @@ def query_sli(sli_name: str, sli_source: dict, start: int, end: Optional[int]) -
     if end:
         q['end_relative'] = {'value': end, 'unit': 'minutes'}
 
+    current_span = get_span_from_kwargs(**kwargs)
+
     # TODO: make this part smarter.
     # If we fail with 500 then may be consider graceful retries with smaller intervals!
     response = session.post(KAIROSDB_URL + '/api/v1/datapoints/query', json=q)
+
+    if not response.ok:
+        (current_span
+            .set_tag('slr-query-status', 'Failed: {}'.format(response.status_code))
+            .log_kv({'zmon-query': q}))
+
     response.raise_for_status()
 
     data = response.json()
