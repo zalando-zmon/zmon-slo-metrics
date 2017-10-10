@@ -98,7 +98,7 @@ def run_updater(app: flask.Flask, once=False):
     with app.app_context():
         try:
             while True:
-                updater_span = opentracing.tracer.start_span(operation_name='run_sli_update')
+                updater_span = opentracing.tracer.start_span(operation_name='slr-updater')
 
                 with updater_span:
                     try:

@@ -132,7 +132,7 @@ def main():
             logger.info('Report generation interrupted. Terminating ...')
             return
         except Exception as e:
-            generator_span.set_tag('slr-report-satus', 'failed: {}'.format(str(e)))
+            generator_span.set_tag('slr-report-satus', 'Failed: {}'.format(str(e)))
             logger.exception('Failed in generating reports. Terminating ...')
             sys.exit(1)
 
@@ -145,7 +145,7 @@ def main():
         # Upload latest reports to s3
         sync_reports(to_local=False, parent_span=generator_span)
 
-        generator_span.set_tag('slr-report-satus', 'success')
+        generator_span.set_tag('slr-report-satus', 'Succeeded')
         generator_span.set_tag('products-succeeded', ','.join(successful_reports))
         generator_span.set_tag('products-failed', ','.join(failed_products))
 
