@@ -200,7 +200,7 @@ def product_group_delete(obj, name):
     with Action('Deleting product_group: {}'.format(name), nl=True):
         pgs = client.product_group_list(name)
 
-        client.product_group_delete(pgs[0]['uri'])
+        client.product_group_delete(pgs[0])
 
 
 ########################################################################################################################
