@@ -36,7 +36,7 @@ def update_all_indicators(app: Flask, **kwargs):
     if os.environ.get('SLR_LOCAL_ENV'):
         warnings.warn('Running on local env while not setting up gevent properly!')
 
-    current_span = get_span_from_kwargs(**kwargs)
+    _, current_span = get_span_from_kwargs(**kwargs)
 
     for indicator in Indicator.query.all():
         try:
@@ -51,7 +51,7 @@ def update_all_indicators(app: Flask, **kwargs):
 def update_indicator(app: Flask, indicator: Indicator, **kwargs):
     logger.info('Updater: Updating Indicator {} values for product {}'.format(indicator.name, indicator.product.name))
 
-    current_span = get_span_from_kwargs(**kwargs)
+    _, current_span = get_span_from_kwargs(**kwargs)
 
     with app.app_context():
         now = datetime.utcnow()
@@ -85,7 +85,7 @@ def update_indicator_values(indicator: Indicator, start: int, end: Optional[int]
     """Query and update indicator values"""
     session = db.session
 
-    current_span = get_span_from_kwargs(**kwargs)
+    _, current_span = get_span_from_kwargs(**kwargs)
 
     result = query_sli(indicator.name, indicator.source, start, end, parent_span=current_span)
 

@@ -59,7 +59,7 @@ def query_sli(sli_name: str, sli_source: dict, start: int, end: Optional[int], *
     if end:
         q['end_relative'] = {'value': end, 'unit': 'minutes'}
 
-    current_span = get_span_from_kwargs(**kwargs)
+    _, current_span = get_span_from_kwargs(**kwargs)
 
     # TODO: make this part smarter.
     # If we fail with 500 then may be consider graceful retries with smaller intervals!
