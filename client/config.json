@@ -1,0 +1,7 @@
+{
+  "opentracing": {
+    "enable": false,
+    "agent": "",
+    "apiKey": ""
+  }
+}
