@@ -1,9 +1,14 @@
+import logging
+
 from urllib.parse import urljoin, urlparse, urlunparse
 
 from flask import request
 from flask import session as flask_session
 
 from app.config import APP_URL, API_PREFIX
+
+
+logger = logging.getLogger(__name__)
 
 
 def process_request():
@@ -16,6 +21,9 @@ def process_request():
     base_url = request.base_url
 
     referrer = request.headers.get('referer')
+
+    logger.info('Request headers: {}'.format(
+        {k: v for k, v in request.headers.items() if not k.startswith('Authorization')}))
 
     if referrer:
         # we use referrer as base url

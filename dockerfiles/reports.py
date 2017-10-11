@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+from opentracing_utils import trace_requests
+trace_requests()  # noqa
+
 import os
 import sys
 import subprocess
@@ -9,6 +12,9 @@ import time
 from datetime import datetime
 
 import zign.api
+import opentracing
+
+from opentracing_utils import init_opentracing_tracer, trace
 
 from zmon_slr.client import Client
 from zmon_slr.generate_slr import generate_weekly_report
@@ -20,12 +26,15 @@ SLR_URI = os.environ.get('SLR_URI')
 SLR_TOKEN = os.environ.get('SLR_TOKEN')
 S3_BUCKET = os.environ.get('SLR_S3_BUCKET')
 
+OPENTRACING_TRACER = os.environ.get('SLR_OPENTRACING_TRACER')
+
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 logger.setLevel(logging.INFO)
 
 
+@trace()
 def sync_reports(to_local=True):
     if not S3_BUCKET:
         return
@@ -65,68 +74,94 @@ def main():
 
     t_start = datetime.now()
 
-    # Get last reports
-    sync_reports(to_local=True)
+    logger.info('Initializing OpenTracing tracer: {}'.format(OPENTRACING_TRACER))
+    init_opentracing_tracer(OPENTRACING_TRACER, service_name='slr-report-generator', debug_level=logging.INFO)
 
-    try:
-        token = SLR_TOKEN if SLR_TOKEN else zign.api.get_token('uid', ['uid'])
-        client = Client(SLR_URI, token)
+    # TODO: HACK! Remove when done.
+    seconds = 5
+    while seconds:
+        try:
+            if opentracing.tracer.sensor.agent.fsm.fsm.current == "good2go":
+                logger.info('Tracer is ready and announced!')
+                break
+            seconds -= 1
+            time.sleep(1)
+        except:
+            break
 
-        # 1. Get all products
-        logger.info('Starting reports generation ...')
-        products = client.product_list(limit=1000)
+    generator_span = opentracing.tracer.start_span(operation_name='slr-report-generator')
 
-        for product in products:
+    failed_products = []
 
-            # Token could expire if report generation takes a long time!
+    with generator_span:
+        # Get last reports
+        sync_reports(to_local=True, parent_span=generator_span)
+
+        try:
             token = SLR_TOKEN if SLR_TOKEN else zign.api.get_token('uid', ['uid'])
             client = Client(SLR_URI, token)
 
-            name = product['name']
-            try:
-                # Make sure the product has the minimum req for generating a report
-                slos = client.slo_list(product)
-                if not slos:
-                    logger.info('Skipping generating report for product "{}". Reason: No SLO defined!'.format(name))
-                    continue
+            # 1. Get all products
+            logger.info('Starting reports generation ...')
+            products = client.product_list(limit=1000)
 
-                slis = client.sli_list(product)
-                if not slis:
-                    logger.info('Skipping generating report for product "{}". Reason: No SLI defined!'.format(name))
-                    continue
+            for product in products:
 
-                # Finally, generate the report
-                logger.info('Generating report for product: {}'.format(name))
-                generate_weekly_report(client, product, OUTPUT_DIR)
-                logger.info('Finished generating report for product: {}'.format(name))
+                # Token could expire if report generation takes a long time!
+                token = SLR_TOKEN if SLR_TOKEN else zign.api.get_token('uid', ['uid'])
+                client = Client(SLR_URI, token)
 
-                successful_reports.append(name)
+                name = product['name']
+                try:
+                    # Make sure the product has the minimum req for generating a report
+                    slos = client.slo_list(product)
+                    if not slos:
+                        logger.info('Skipping generating report for product "{}". Reason: No SLO defined!'.format(name))
+                        continue
 
-                if not len(successful_reports) % 10:
-                    time.sleep(60)
+                    slis = client.sli_list(product)
+                    if not slis:
+                        logger.info('Skipping generating report for product "{}". Reason: No SLI defined!'.format(name))
+                        continue
 
-            except KeyboardInterrupt:
-                logger.info('Report generation interrupted. Terminating ...')
-                return
-            except:
-                logger.exception('Failed to generate report for product: {}'.format(name))
-    except KeyboardInterrupt:
-        logger.info('Report generation interrupted. Terminating ...')
-        return
-    except:
-        logger.exception('Failed in generating reports. Terminating ...')
-        sys.exit(1)
+                    # Finally, generate the report
+                    logger.info('Generating report for product: {}'.format(name))
+                    generate_weekly_report(client, product, OUTPUT_DIR)
+                    logger.info('Finished generating report for product: {}'.format(name))
 
-    duration = datetime.now() - t_start
+                    successful_reports.append(name)
 
-    logger.info('Finished generating reports for products: {}'.format(successful_reports))
-    logger.info('Finished generating reports for {} products successfully in {} minutes'.format(
-        len(successful_reports), duration.seconds / 60))
+                    if not len(successful_reports) % 10:
+                        time.sleep(60)
 
-    # Upload latest reports to s3
-    sync_reports(to_local=False)
+                except KeyboardInterrupt:
+                    logger.info('Report generation interrupted. Terminating ...')
+                    return
+                except:
+                    failed_products.append(name)
+                    logger.exception('Failed to generate report for product: {}'.format(name))
+        except KeyboardInterrupt:
+            logger.info('Report generation interrupted. Terminating ...')
+            return
+        except Exception as e:
+            generator_span.set_tag('slr-report-satus', 'Failed: {}'.format(str(e)))
+            logger.exception('Failed in generating reports. Terminating ...')
+            sys.exit(1)
 
-    logger.info('Done!')
+        duration = datetime.now() - t_start
+
+        logger.info('Finished generating reports for products: {}'.format(successful_reports))
+        logger.info('Finished generating reports for {} products successfully in {} minutes'.format(
+            len(successful_reports), duration.seconds / 60))
+
+        # Upload latest reports to s3
+        sync_reports(to_local=False, parent_span=generator_span)
+
+        generator_span.set_tag('slr-report-satus', 'Succeeded')
+        generator_span.set_tag('products-succeeded', ','.join(successful_reports))
+        generator_span.set_tag('products-failed', ','.join(failed_products))
+
+        logger.info('Done!')
 
 
 if __name__ == '__main__':
