@@ -77,6 +77,18 @@ def main():
     logger.info('Initializing OpenTracing tracer: {}'.format(OPENTRACING_TRACER))
     init_opentracing_tracer(OPENTRACING_TRACER, service_name='slr-report-generator', debug_level=logging.INFO)
 
+    # TODO: HACK! Remove when done.
+    seconds = 5
+    while seconds:
+        try:
+            if opentracing.tracer.sensor.agent.fsm.fsm.current == "good2go":
+                logger.info('Tracer is ready and announced!')
+                break
+            seconds -= 1
+            time.sleep(1)
+        except:
+            break
+
     generator_span = opentracing.tracer.start_span(operation_name='slr-report-generator')
 
     failed_products = []
