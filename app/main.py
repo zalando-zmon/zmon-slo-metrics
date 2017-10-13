@@ -99,15 +99,16 @@ def run_updater(app: flask.Flask, once=False):
         try:
             # TODO: HACK! remove when done!
             while True:
-                seconds = 5
+                seconds = 60
                 while seconds:
                     try:
                         if opentracing.tracer.sensor.agent.fsm.fsm.current == "good2go":
                             logger.info('Tracer is ready and announced!')
                             break
                         seconds -= 1
-                        time.sleep(1)
+                        time.sleep(2)
                     except:
+                        logger.exception('No tracer!')
                         break
 
                 updater_span = opentracing.tracer.start_span(operation_name='slr-updater')
