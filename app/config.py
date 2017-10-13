@@ -69,6 +69,7 @@ KAIROSDB_URL = os.getenv('KAIROSDB_URL')
 KAIROS_QUERY_LIMIT = os.getenv('KAIROSDB_QUERY_LIMIT', 10000)
 
 # UPDATER
+NO_WSGI = os.environ.get('SLR_NO_WSGI', False)  # do not expose application wsgi app
 RUN_UPDATER = os.environ.get('SLR_RUN_UPDATER', False)
 MAX_QUERY_TIME_SLICE = os.getenv('SLR_MAX_QUERY_TIME_SLICE', 1440)
 

@@ -14,7 +14,7 @@ import opentracing
 
 from app import SERVER
 from app import level as DEBUG_LEVEL
-from app.config import RUN_UPDATER, UPDATER_INTERVAL, APP_SESSION_SECRET
+from app.config import RUN_UPDATER, UPDATER_INTERVAL, APP_SESSION_SECRET, NO_WSGI
 from app.config import CACHE_TYPE, CACHE_THRESHOLD
 from app.config import OPENTRACING_TRACER, OPENTRACING_TRACER_SERVICE_NAME
 
@@ -105,6 +105,7 @@ def run_updater(app: flask.Flask, once=False):
                         if opentracing.tracer.sensor.agent.fsm.fsm.current == "good2go":
                             logger.info('Tracer is ready and announced!')
                             break
+                        logger.info('Waiting for instana agent to be ready!')
                         seconds -= 1
                         time.sleep(2)
                     except:
@@ -170,7 +171,10 @@ def run():
 
 # set the WSGI application callable to allow using uWSGI:
 # uwsgi --http :8080 -w app
-application = create_app()
+if NO_WSGI:
+    application = None
+else:
+    application = create_app()
 
 
 if __name__ == '__main__':
