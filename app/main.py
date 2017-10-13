@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+from opentracing_utils import trace_requests
+trace_requests()  # noqa
+
 import os
 import argparse
 import logging
@@ -7,15 +10,18 @@ import time
 import gevent
 import flask
 import connexion
+import opentracing
 
 from app import SERVER
+from app import level as DEBUG_LEVEL
 from app.config import RUN_UPDATER, UPDATER_INTERVAL, APP_SESSION_SECRET
 from app.config import CACHE_TYPE, CACHE_THRESHOLD
+from app.config import OPENTRACING_TRACER, OPENTRACING_TRACER_SERVICE_NAME
 
 from app.libs.oauth import verify_oauth_with_session
 from app.utils import DecimalEncoder
 
-from app.extensions import db, migrate, cache, session, limiter, oauth
+from app.extensions import db, migrate, cache, session, limiter, oauth, trace_flask
 
 from app.libs.resolver import get_resource_handler
 from app.resources.sli.updater import update_all_indicators
@@ -64,6 +70,9 @@ def register_extensions(app: flask.Flask) -> None:
     session.init_app(app)
     oauth.init_app(app)
 
+    trace_flask(
+        app, tracer_name=OPENTRACING_TRACER, service_name=OPENTRACING_TRACER_SERVICE_NAME, debug_level=DEBUG_LEVEL)
+
 
 def register_middleware(app: flask.Flask) -> None:
     # Add middleware processors
@@ -88,17 +97,37 @@ def register_errors(app: flask.Flask) -> None:
 def run_updater(app: flask.Flask, once=False):
     with app.app_context():
         try:
+            # TODO: HACK! remove when done!
             while True:
-                try:
-                    logger.info('Updating all indicators ...')
+                seconds = 60
+                while seconds:
+                    try:
+                        if opentracing.tracer.sensor.agent.fsm.fsm.current == "good2go":
+                            logger.info('Tracer is ready and announced!')
+                            break
+                        seconds -= 1
+                        time.sleep(2)
+                    except:
+                        logger.exception('No tracer!')
+                        break
 
-                    update_all_indicators(app)
-                except:
-                    logger.exception('Updater failed!')
+                updater_span = opentracing.tracer.start_span(operation_name='slr-updater')
 
-                if once:
-                    logger.info('Completed running the updater once. Now terminating!')
-                    return
+                with updater_span:
+                    try:
+                        logger.info('Updating all indicators ...')
+
+                        update_all_indicators(app, parent_span=updater_span)
+                    except:
+                        updater_span.set_tag('updater-status', 'Failed')
+                        logger.exception('Updater failed!')
+                    else:
+                        updater_span.set_tag('updater-status', 'Succeeded')
+
+                    if once:
+                        logger.info('Completed running the updater once. Now terminating!')
+                        updater_span.set_tag('updater-run-once', 'True')
+                        return
 
                 logger.info('Completed running the updater. Sleeping for {} minutes!'.format(UPDATER_INTERVAL // 60))
 
