@@ -65,6 +65,7 @@ build_steps:
       IS_PR_BUILD=${CDP_PULL_REQUEST_NUMBER+"true"}
       if [[ ${IS_PR_BUILD} != "true" ]]
       then
+
         docker push registry-write.opensource.zalan.do/zmon/service-level-reports:#{CDP_BUILD_VERSION}
         docker push registry-write.opensource.zalan.do/zmon/service-level-reports-frontend:#{CDP_BUILD_VERSION}
         docker push registry-write.opensource.zalan.do/zmon/service-level-reports-generator:#{CDP_BUILD_VERSION}
