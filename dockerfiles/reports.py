@@ -26,7 +26,8 @@ SLR_URI = os.environ.get('SLR_URI')
 SLR_TOKEN = os.environ.get('SLR_TOKEN')
 S3_BUCKET = os.environ.get('SLR_S3_BUCKET')
 
-OPENTRACING_TRACER = os.environ.get('SLR_OPENTRACING_TRACER')
+OPENTRACING_TRACER = os.environ.get('OPENTRACING_TRACER')
+OPENTRACING_TRACER_KEY = os.environ.get('OPENTRACING_TRACER_KEY')
 
 
 logger = logging.getLogger(__name__)
@@ -75,19 +76,8 @@ def main():
     t_start = datetime.now()
 
     logger.info('Initializing OpenTracing tracer: {}'.format(OPENTRACING_TRACER))
-    init_opentracing_tracer(OPENTRACING_TRACER, service_name='slr-report-generator', debug_level=logging.INFO)
-
-    # TODO: HACK! Remove when done.
-    seconds = 5
-    while seconds:
-        try:
-            if opentracing.tracer.sensor.agent.fsm.fsm.current == "good2go":
-                logger.info('Tracer is ready and announced!')
-                break
-            seconds -= 1
-            time.sleep(1)
-        except:
-            break
+    init_opentracing_tracer(
+        OPENTRACING_TRACER, component_name='slr-report-generator', access_token=OPENTRACING_TRACER_KEY)
 
     generator_span = opentracing.tracer.start_span(operation_name='slr-report-generator')
 
@@ -137,7 +127,7 @@ def main():
                 except KeyboardInterrupt:
                     logger.info('Report generation interrupted. Terminating ...')
                     return
-                except:
+                except Exception:
                     failed_products.append(name)
                     logger.exception('Failed to generate report for product: {}'.format(name))
         except KeyboardInterrupt:

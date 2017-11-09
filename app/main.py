@@ -12,11 +12,12 @@ import flask
 import connexion
 import opentracing
 
+from opentracing.ext import tags as ot_tags
+
 from app import SERVER
-from app import level as DEBUG_LEVEL
 from app.config import RUN_UPDATER, UPDATER_INTERVAL, APP_SESSION_SECRET, NO_WSGI
 from app.config import CACHE_TYPE, CACHE_THRESHOLD
-from app.config import OPENTRACING_TRACER, OPENTRACING_TRACER_SERVICE_NAME
+from app.config import OPENTRACING_TRACER, OPENTRACING_TRACER_SERVICE_NAME, OPENTRACING_TRACER_KEY
 
 from app.libs.oauth import verify_oauth_with_session
 from app.utils import DecimalEncoder
@@ -71,7 +72,8 @@ def register_extensions(app: flask.Flask) -> None:
     oauth.init_app(app)
 
     trace_flask(
-        app, tracer_name=OPENTRACING_TRACER, service_name=OPENTRACING_TRACER_SERVICE_NAME, debug_level=DEBUG_LEVEL)
+        app, tracer_name=OPENTRACING_TRACER, component_name=OPENTRACING_TRACER_SERVICE_NAME,
+        access_token=OPENTRACING_TRACER_KEY)
 
 
 def register_middleware(app: flask.Flask) -> None:
@@ -97,29 +99,18 @@ def register_errors(app: flask.Flask) -> None:
 def run_updater(app: flask.Flask, once=False):
     with app.app_context():
         try:
-            # TODO: HACK! remove when done!
             while True:
-                seconds = 60
-                while seconds:
-                    try:
-                        if opentracing.tracer.sensor.agent.fsm.fsm.current == "good2go":
-                            logger.info('Tracer is ready and announced!')
-                            break
-                        logger.info('Waiting for instana agent to be ready!')
-                        seconds -= 1
-                        time.sleep(2)
-                    except:
-                        logger.exception('No tracer!')
-                        break
-
                 updater_span = opentracing.tracer.start_span(operation_name='slr-updater')
+
+                updater_span.set_tag(ot_tags.SPAN_KIND, ot_tags.SPAN_KIND_RPC_CLIENT)
 
                 with updater_span:
                     try:
                         logger.info('Updating all indicators ...')
 
                         update_all_indicators(app, parent_span=updater_span)
-                    except:
+                    except Exception:
+                        updater_span.set_tag('error', True)
                         updater_span.set_tag('updater-status', 'Failed')
                         logger.exception('Updater failed!')
                     else:

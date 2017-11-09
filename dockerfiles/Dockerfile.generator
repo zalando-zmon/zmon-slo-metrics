@@ -13,7 +13,7 @@ COPY MANIFEST.in /
 COPY LICENSE /
 COPY setup.py /
 
-RUN pip3 install -U instana
+RUN pip3 install -U lightstep
 
 RUN pip3 install -U -e git+https://github.com/zalando-zmon/opentracing-utils.git#egg=opentracing-utils
 

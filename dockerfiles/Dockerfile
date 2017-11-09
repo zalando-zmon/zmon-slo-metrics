@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y git libpq-dev dnsutils
 COPY requirements.txt /
 RUN pip3 install -r /requirements.txt
 
-RUN pip3 install -U sqlalchemy-utils instana
+RUN pip3 install -U sqlalchemy-utils lightstep
 
 COPY dockerfiles/migrate.py /migrate.py
 

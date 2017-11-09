@@ -5,7 +5,7 @@ def extract_span():
     try:
         if hasattr(request, 'current_span'):
             return request.current_span
-    except:
+    except Exception:
         pass
 
     return None

@@ -4,6 +4,7 @@ import opentracing
 
 from flask import request
 
+from opentracing.ext import tags as ot_tags
 from opentracing_utils import init_opentracing_tracer
 
 
@@ -27,10 +28,6 @@ def trace_flask(app, tracer_name=None, before_request=None, after_request=None,
     def trace_request():
         operation_name = request.endpoint
 
-        # headers = {}
-        # for k, v in request.headers:
-        #     headers[k.lower()] = v
-
         span = None
 
         try:
@@ -44,9 +41,11 @@ def trace_flask(app, tracer_name=None, before_request=None, after_request=None,
 
         for attr in request_attr:
             if hasattr(request, attr):
-                payload = str(getattr(request, attr))
-                if payload:
-                    span.set_tag(attr, payload)
+                tag_value = str(getattr(request, attr))
+                if tag_value:
+                    span.set_tag(attr, tag_value)
+
+        span.set_tag(ot_tags.SPAN_KIND, ot_tags.SPAN_KIND_RPC_SERVER)
 
         request.current_span = span
 
@@ -56,7 +55,6 @@ def trace_flask(app, tracer_name=None, before_request=None, after_request=None,
             if hasattr(request, 'current_span'):
                 for attr in response_attr:
                     if hasattr(response, attr):
-                        print(response.status_code)
                         request.current_span.set_tag(attr, str(getattr(response, attr)))
 
                 request.current_span.finish()
