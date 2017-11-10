@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+from opentracing_utils import trace_requests
+trace_requests()  # noqa
+
 import os
 import argparse
 import logging
@@ -7,15 +10,19 @@ import time
 import gevent
 import flask
 import connexion
+import opentracing
+
+from opentracing.ext import tags as ot_tags
 
 from app import SERVER
-from app.config import RUN_UPDATER, UPDATER_INTERVAL, APP_SESSION_SECRET
+from app.config import RUN_UPDATER, UPDATER_INTERVAL, APP_SESSION_SECRET, NO_WSGI
 from app.config import CACHE_TYPE, CACHE_THRESHOLD
+from app.config import OPENTRACING_TRACER, OPENTRACING_TRACER_SERVICE_NAME, OPENTRACING_TRACER_KEY
 
 from app.libs.oauth import verify_oauth_with_session
 from app.utils import DecimalEncoder
 
-from app.extensions import db, migrate, cache, session, limiter, oauth
+from app.extensions import db, migrate, cache, session, limiter, oauth, trace_flask
 
 from app.libs.resolver import get_resource_handler
 from app.resources.sli.updater import update_all_indicators
@@ -64,6 +71,10 @@ def register_extensions(app: flask.Flask) -> None:
     session.init_app(app)
     oauth.init_app(app)
 
+    trace_flask(
+        app, tracer_name=OPENTRACING_TRACER, component_name=OPENTRACING_TRACER_SERVICE_NAME,
+        access_token=OPENTRACING_TRACER_KEY)
+
 
 def register_middleware(app: flask.Flask) -> None:
     # Add middleware processors
@@ -89,16 +100,26 @@ def run_updater(app: flask.Flask, once=False):
     with app.app_context():
         try:
             while True:
-                try:
-                    logger.info('Updating all indicators ...')
+                updater_span = opentracing.tracer.start_span(operation_name='slr-updater')
 
-                    update_all_indicators(app)
-                except:
-                    logger.exception('Updater failed!')
+                updater_span.set_tag(ot_tags.SPAN_KIND, ot_tags.SPAN_KIND_RPC_CLIENT)
 
-                if once:
-                    logger.info('Completed running the updater once. Now terminating!')
-                    return
+                with updater_span:
+                    try:
+                        logger.info('Updating all indicators ...')
+
+                        update_all_indicators(app, parent_span=updater_span)
+                    except Exception:
+                        updater_span.set_tag('error', True)
+                        updater_span.set_tag('updater-status', 'Failed')
+                        logger.exception('Updater failed!')
+                    else:
+                        updater_span.set_tag('updater-status', 'Succeeded')
+
+                    if once:
+                        logger.info('Completed running the updater once. Now terminating!')
+                        updater_span.set_tag('updater-run-once', 'True')
+                        return
 
                 logger.info('Completed running the updater. Sleeping for {} minutes!'.format(UPDATER_INTERVAL // 60))
 
@@ -141,7 +162,10 @@ def run():
 
 # set the WSGI application callable to allow using uWSGI:
 # uwsgi --http :8080 -w app
-application = create_app()
+if NO_WSGI:
+    application = None
+else:
+    application = create_app()
 
 
 if __name__ == '__main__':

@@ -76,8 +76,8 @@ class Client:
 
         return res.json()
 
-    def product_group_delete(self, uri) -> requests.Response:
-        res = self.session.delete(uri)
+    def product_group_delete(self, product_group: dict) -> requests.Response:
+        res = self.session.delete(product_group['uri'])
         res.raise_for_status()
 
         return res

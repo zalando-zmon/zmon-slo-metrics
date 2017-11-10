@@ -200,7 +200,7 @@ def product_group_delete(obj, name):
     with Action('Deleting product_group: {}'.format(name), nl=True):
         pgs = client.product_group_list(name)
 
-        client.product_group_delete(pgs[0]['uri'])
+        client.product_group_delete(pgs[0])
 
 
 ########################################################################################################################
@@ -623,7 +623,7 @@ def validate_sli_source(config, source, ignore_keys=False):
 
     try:
         check = zmon.get_check_definition(check_id)
-    except:
+    except Exception:
         raise SLRClientError('Check definition {} does not seem to exist!'.format(check_id))
 
     alerts = zmon.get_alert_definitions()
@@ -923,7 +923,7 @@ def main():
         detail = ''
         try:
             detail = e.response.json()['detail']
-        except:
+        except Exception:
             pass
 
         fatal_error('HTTP error: {} - {} - {}'.format(e.response.status_code, e.response.reason, detail))
