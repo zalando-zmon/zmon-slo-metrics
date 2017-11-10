@@ -35,8 +35,7 @@ def trace_flask(app, tracer_name=None, before_request=None, after_request=None,
             span_ctx = opentracing.tracer.extract(opentracing.Format.HTTP_HEADERS, headers_carrier)
             span = opentracing.tracer.start_span(operation_name=operation_name, child_of=span_ctx)
         except (opentracing.InvalidCarrierException, opentracing.SpanContextCorruptedException) as e:
-            logger.exception('EXCEPTION')
-            span = opentracing.tracer.start_span(operation_name=operation_name, tags={"Extract failed": str(e)})
+            span = opentracing.tracer.start_span(operation_name=operation_name, tags={'no-propagation': True})
 
         if span is None:
             span = opentracing.tracer.start_span(operation_name)

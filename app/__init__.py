@@ -14,7 +14,15 @@ if not os.environ.get('SLR_LOCAL_ENV'):  # noqa
     import psycogreen.gevent
     psycogreen.gevent.patch_psycopg()
 
+    try:
+        import gevent.socket
+        from thrift.transport import TSocket
+        TSocket.socket = gevent.socket
+    except ImportError:
+        pass
+
     SERVER = 'gevent'
+
 
 import logging
 import warnings
