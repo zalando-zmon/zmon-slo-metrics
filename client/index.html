@@ -24,6 +24,28 @@
         background-color: #f5f5f5;
       }
     </style>
+
+    <!-- Lightstep EUM -->
+    <script src="/lib/opentracing/opentracing-browser.min.js"></script>
+    <script src="/lib/lightstep/lightstep-tracer.min.js"></script>
+    <script>
+      let config = null
+      let xmlHttp = new XMLHttpRequest()
+      xmlHttp.open('GET', '/config.json', false)
+      xmlHttp.send(null)
+      config = JSON.parse(xmlHttp.responseText)
+
+      if (config.opentracing.enable) {
+        opentracing.initGlobalTracer(new lightstep.Tracer({
+          access_token: config.accessToken,
+          component_name: 'SLR UI',
+          xhr_instrumentation: true,
+          collector_host: config.collectorHost,
+          collector_port: config.collectorPort,
+          verbosity: 3
+        }));
+      }
+    </script>
   </head>
   <body>
     <slr-app></slr-app>
