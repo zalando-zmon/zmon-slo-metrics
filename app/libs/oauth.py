@@ -4,14 +4,18 @@ import logging
 import textwrap
 
 import requests
+
 from flask import request
 from flask import session as flask_session
 from flask_oauthlib.client import OAuth, OAuthRemoteApp
 
 from connexion.exceptions import OAuthProblem, OAuthResponseProblem, OAuthScopeProblem
 
+from opentracing_utils import trace
+
 from app.config import CREDENTIALS_DIR, AUTHORIZE_URL, ACCESS_TOKEN_URL
-from app.extensions import set_token_info
+from app.extensions import set_token_info, cache
+from app.libs.tracer import extract_span
 
 
 logger = logging.getLogger('connexion.api.security')
@@ -130,6 +134,8 @@ def verify_oauth_with_session(token_info_url, allowed_scopes, function):
     return wrapper
 
 
+@cache.memoize(600)
+@trace(span_extractor=extract_span, tags={'oauth2': True})
 def fetch_token_info(token_info_url, token):
 
     logger.info("... Getting token from %s", token_info_url)
