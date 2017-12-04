@@ -17,7 +17,10 @@ from opentracing.ext import tags as ot_tags
 from app import SERVER
 from app.config import RUN_UPDATER, UPDATER_INTERVAL, APP_SESSION_SECRET, NO_WSGI
 from app.config import CACHE_TYPE, CACHE_THRESHOLD
-from app.config import OPENTRACING_TRACER, OPENTRACING_TRACER_SERVICE_NAME, OPENTRACING_TRACER_KEY
+from app.config import (
+    OPENTRACING_TRACER, OPENTRACING_TRACER_SERVICE_NAME, OPENTRACING_TRACER_KEY, OPENTRACING_TRACER_HOST,
+    OPENTRACING_TRACER_PORT
+)
 
 from app.libs.oauth import verify_oauth_with_session
 from app.utils import DecimalEncoder
@@ -73,7 +76,8 @@ def register_extensions(app: flask.Flask) -> None:
 
     trace_flask(
         app, tracer_name=OPENTRACING_TRACER, component_name=OPENTRACING_TRACER_SERVICE_NAME,
-        access_token=OPENTRACING_TRACER_KEY)
+        access_token=OPENTRACING_TRACER_KEY, collector_host=OPENTRACING_TRACER_HOST,
+        collector_port=int(OPENTRACING_TRACER_PORT))
 
 
 def register_middleware(app: flask.Flask) -> None:
