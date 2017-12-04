@@ -1,7 +1,9 @@
 {
   "opentracing": {
     "enable": false,
-    "agent": "",
-    "apiKey": ""
+    "agent": "lightstep",
+    "accessToken": "",
+    "collectorHost": "",
+    "collectorPort": ""
   }
 }

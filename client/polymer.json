@@ -15,6 +15,7 @@
   "sources": [
     "src/*",
     "assets/images/*",
+    "lib/**",
     "bower.json",
     "config.json"
   ],
