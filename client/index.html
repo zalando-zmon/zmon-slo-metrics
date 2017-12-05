@@ -34,9 +34,11 @@
 
       function onLoad() {
         try {
-          config = JSON.parse(this.responseText).opentracing
+          config = JSON.parse(this.responseText, (k, v) => {
+              return (typeof v === "object" || isNaN(v)) ? v : parseInt(v, 10)
+            }).opentracing
         } catch(e) {
-          console.log('Failed loading OpenTracing configuration')
+          console.log('Failed loading OpenTracing configuration', e)
         }
 
         if (config.enable) {
