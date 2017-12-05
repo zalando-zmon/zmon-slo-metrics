@@ -11,7 +11,7 @@
         // Open Tracing instrumentation
         let OpenTracing = window.opentracing;
         let span = OpenTracing.globalTracer().startSpan('xhr/' + this.url.split('/').pop());
-        OpenTracing.globalTracer().inject(span.context(), OpenTracing.FORMAT_HTTP_HEADERS);
+        OpenTracing.globalTracer().inject(span.context(), OpenTracing.FORMAT_HTTP_HEADERS, {});
         span.logEvent('request', { payload: this.url });
 
         let ajax = super.generateRequest()
