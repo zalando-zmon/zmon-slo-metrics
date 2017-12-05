@@ -27,15 +27,24 @@
 
     <!-- Lightstep EUM -->
     <script src="/lib/opentracing/opentracing-browser.min.js"></script>
-    <script src="/lib/lightstep/lightstep-tracer.min.js"></script>
+    <script src="/lib/lightstep/lightstep-tracer.js"></script>
     <script>
       let config = null
       let xmlHttp = new XMLHttpRequest()
-      xmlHttp.open('GET', '/config.json', false)
-      xmlHttp.send(null)
-      config = JSON.parse(xmlHttp.responseText)
 
-      if (config.opentracing.enable) {
+      function onLoad() {
+        try {
+          config = JSON.parse(this.responseText).opentracing
+        } catch(e) {
+          console.log('Failed loading OpenTracing configuration')
+        }
+
+        if (config.enable) {
+          initOpenTracing()
+        }
+      }
+
+      let initOpenTracing = () => {
         opentracing.initGlobalTracer(new lightstep.Tracer({
           access_token: config.accessToken,
           component_name: 'SLR UI',
@@ -44,7 +53,12 @@
           collector_port: config.collectorPort,
           verbosity: 3
         }));
+        console.log('Initialized OpenTracing', opentracing, config)
       }
+
+      xmlHttp.addEventListener("load", onLoad)
+      xmlHttp.open('GET', '/config.json', false)
+      xmlHttp.send()
     </script>
   </head>
   <body>

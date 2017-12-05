@@ -5,6 +5,32 @@
   <script>
     class SlrAjax extends window.customElements.get('iron-ajax') {
       static get is() { return 'slr-ajax' }
+
+      generateRequest() {
+
+        // Open Tracing instrumentation
+        let OpenTracing = window.opentracing;
+        let span = OpenTracing.globalTracer().startSpan('xhr/' + this.url.split('/').pop());
+        OpenTracing.globalTracer().inject(span.context(), OpenTracing.FORMAT_HTTP_HEADERS);
+        span.logEvent('request', { payload: this.url });
+
+        let ajax = super.generateRequest()
+
+        Promise.all([ajax.completes])
+          .then( (reqs) => {
+            span.finish();
+          })
+          .catch((err) => {
+            console.log('Error', err.message)
+            span.setTag('error', true);
+            span.logEvent('response', { status: err.status, body: err.message });
+            span.finish();
+          })
+
+        return ajax
+      }
+
+
     }
 
     window.customElements.define(SlrAjax.is, SlrAjax)
