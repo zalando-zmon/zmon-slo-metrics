@@ -1,9 +1,5 @@
 {
   "opentracing": {
-    "enable": false,
-    "agent": "lightstep",
-    "accessToken": "",
-    "collectorHost": "",
-    "collectorPort": ""
+    "enable": false
   }
 }
