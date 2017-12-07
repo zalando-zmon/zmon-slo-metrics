@@ -58,6 +58,9 @@ def trace_flask(app, tracer_name=None, before_request=None, after_request=None,
                     if hasattr(response, attr):
                         request.current_span.set_tag(attr, str(getattr(response, attr)))
 
+                    if response.status_code >= 400:
+                        request.current_span.set_tag('error', True)
+
                 request.current_span.finish()
         finally:
             return response
