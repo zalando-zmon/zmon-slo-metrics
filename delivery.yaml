@@ -20,6 +20,7 @@ pipeline:
             libffi-dev \
             libssl-dev \
             libpq-dev \
+            libdpkg-perl \
             tox
           update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
           update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
