@@ -6,37 +6,6 @@ pipeline:
     overlay: ci/python
     commands:
 
-      - desc: "Update"
-        cmd: apt-get update
-
-      - desc: "Install build dependencies"
-        cmd: |
-          apt-get install -q -y --no-install-recommends \
-            virtualenv \
-            python3-virtualenv \
-            python3-setuptools \
-            python3-wheel \
-            gcc \
-            libffi-dev \
-            libssl-dev \
-            libpq-dev \
-            libdpkg-perl \
-            tox
-          update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
-          update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 1
-
-      - desc: "Install Python dependencies"
-        cmd: |
-          virtualenv -p python3 --no-site-packages venv
-          source venv/bin/activate
-          pip3 install --upgrade pip
-          pip3 install -r requirements.txt
-          pip3 install -U flake8
-
-      - desc: "Tox"
-        cmd: |
-          tox
-
       # BUILD TEST IMAGES FROM PR - uncomment if test deployment is needed.
       - desc: "Build and Push Docker Image (unstable)"
         cmd: |
