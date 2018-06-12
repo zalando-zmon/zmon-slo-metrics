@@ -4,8 +4,6 @@ RUN apt-get update && apt-get install -y libssl-dev gnuplot
 
 RUN pip3 install -U setuptools clickclick jinja2 stups-zign awscli
 
-RUN pip3 install -U -e git+https://github.com/zalando-zmon/opentracing-utils.git#egg=opentracing_utils
-
 COPY dockerfiles/reports.py /reports.py
 RUN chmod a+x /reports.py
 
