@@ -8,6 +8,8 @@ Flask-OAuthlib==0.9.4
 Flask-Session==0.3.1
 Flask-SQLAlchemy==2.2
 gevent==1.2.2
+opentracing-utils
+opentracing>=1.2.2,<2
 psycogreen
 psycopg2
 python-dateutil==2.6.0
