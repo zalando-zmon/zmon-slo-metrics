@@ -13,6 +13,7 @@ from opentracing_utils import extract_span_from_flask_request, trace, extract_sp
 from app.extensions import db
 from app.libs.zmon import AGG_TYPES
 from app.libs.resource import ResourceHandler
+from app.libs.authorization import Authorization
 from app.utils import slugger
 
 from app.resources.product.models import Product
@@ -24,6 +25,10 @@ from .updater import update_indicator_values
 
 class SLIResource(ResourceHandler):
     model_fields = ('name', 'slug', 'source', 'unit', 'aggregation', 'created', 'updated', 'username')
+
+    @property
+    def authorization(self):
+        return Authorization()
 
     @staticmethod
     def get_uri_from_id(obj_id: Union[str, int], **kwargs) -> str:

@@ -9,6 +9,7 @@ from opentracing_utils import trace, extract_span_from_kwargs
 
 from app.extensions import db
 from app.libs.resource import ResourceHandler
+from app.libs.authorization import Authorization
 
 from app.resources.slo.models import Objective
 from app.resources.sli.models import Indicator
@@ -19,6 +20,10 @@ from .models import Target
 
 class TargetResource(ResourceHandler):
     model_fields = ('username', 'created', 'updated')
+
+    @property
+    def authorization(self):
+        return Authorization()
 
     @staticmethod
     def get_uri_from_id(obj_id: Union[str, int], **kwargs) -> str:
