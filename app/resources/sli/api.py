@@ -31,7 +31,7 @@ class SLIResource(ResourceHandler):
         return urljoin(request.api_url, 'products/{}/sli/{}'.format(product_id, obj_id))
 
     def get_query(self, product_id: int, **kwargs) -> BaseQuery:
-        return Indicator.query.filter_by(product_id=product_id)
+        return Indicator.query.filter_by(product_id=product_id, is_deleted=False)
 
     def get_filter_kwargs(self, **kwargs) -> dict:
         """Return relevant filters"""
@@ -120,7 +120,7 @@ class SLIResource(ResourceHandler):
         if obj.targets.count():
             raise ProblemException(
                 status=403, title='Deleting SLI forbidden', detail='Some SLO targets reference this SLI.')
-        db.session.delete(obj)
+        obj.is_deleted = True
         db.session.commit()
 
     def build_resource(self, obj: Indicator, **kwargs) -> dict:
@@ -143,6 +143,7 @@ class SLIValueResource(ResourceHandler):
     model_fields = ('timestamp', 'value',)
 
     def get_query(self, id: int, **kwargs) -> BaseQuery:
+        Indicator.query.filter_by(id=id, is_deleted=False).first_or_404()
         return IndicatorValue.query.filter_by(indicator_id=id).order_by(IndicatorValue.timestamp)
 
     def get_filter_kwargs(self, **kwargs) -> dict:
@@ -213,7 +214,7 @@ class SLIQueryResource(ResourceHandler):
         return resource.build_resource(obj, count=count, **kwargs), 200
 
     def get_query(self, product_id: int, **kwargs) -> BaseQuery:
-        return Indicator.query.filter_by(product_id=product_id)
+        return Indicator.query.filter_by(product_id=product_id, is_deleted=False)
 
     def validate(self, duration: dict, **kwargs) -> None:
         start = duration.get('start')

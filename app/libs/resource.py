@@ -15,7 +15,7 @@ from app.utils import slugger
 from .authorization import get_authorization
 
 
-READ_ONLY_FIELDS = ('created', 'updated', 'username')
+READ_ONLY_FIELDS = ('created', 'updated', 'username', 'is_deleted')
 
 
 ########################################################################################################################

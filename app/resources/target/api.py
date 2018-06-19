@@ -46,7 +46,7 @@ class TargetResource(ResourceHandler):
         fields['objective_id'] = target_objective.id
 
         indicator_id = self.get_id_from_uri(target['sli_uri'])
-        indicator = Indicator.query.filter_by(product_id=product_id, id=indicator_id).first_or_404()
+        indicator = Indicator.query.filter_by(product_id=product_id, id=indicator_id, is_deleted=False).first_or_404()
         fields['indicator_id'] = indicator.id
 
         return Target(**fields)
@@ -90,7 +90,7 @@ class TargetResource(ResourceHandler):
         indicator_id = self.get_id_from_uri(target['sli_uri'])
         if obj.indicator_id != indicator_id:
             target_sli = (
-                Indicator.query.filter_by(product_id=product_id, id=indicator_id).first_or_404()
+                Indicator.query.filter_by(product_id=product_id, id=indicator_id, is_deleted=False).first_or_404()
             )
             obj.indicator_id = target_sli.id
 
