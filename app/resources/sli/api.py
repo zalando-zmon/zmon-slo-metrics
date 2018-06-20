@@ -125,6 +125,7 @@ class SLIResource(ResourceHandler):
         if obj.targets.count():
             raise ProblemException(
                 status=403, title='Deleting SLI forbidden', detail='Some SLO targets reference this SLI.')
+        obj.name = '{}-{}'.format(obj.name, datetime.utcnow())
         obj.is_deleted = True
         db.session.commit()
 

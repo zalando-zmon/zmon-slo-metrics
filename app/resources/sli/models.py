@@ -34,7 +34,7 @@ class Indicator(db.Model):
         return self.product.product_group.name
 
     def __repr__(self):
-        return '<SLI {} | {}>'.format(self.product.name, self.name)
+        return '<SLI {} | {} | {}>'.format(self.product.name, self.name, self.source)
 
 
 class IndicatorValue(db.Model):
