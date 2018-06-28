@@ -15,7 +15,7 @@ class Indicator(db.Model):
     aggregation = db.Column(db.String(80), default='average')
     is_deleted = db.Column(db.Boolean(), default=False, index=True, server_default=false())
 
-    product_id = db.Column(db.Integer(), db.ForeignKey('product.id'), nullable=False, index=True)
+    product_id = db.Column(db.Integer(), db.ForeignKey('product.id'), nullable=False)
 
     slug = db.Column(db.String(120), nullable=False, index=True)
 
