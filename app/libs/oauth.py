@@ -132,7 +132,6 @@ def verify_oauth_with_session(token_info_url, allowed_scopes, function):
     return wrapper
 
 
-@cache.memoize(60)
 @trace(span_extractor=extract_span_from_flask_request, tags={'oauth2': True})
 def fetch_token_info(token_info_url, token):
 
