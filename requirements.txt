@@ -10,6 +10,7 @@ Flask-Session==0.3.1
 Flask-SQLAlchemy==2.2
 flask==0.12.4
 gevent==1.2.2
+ItsDangerous==0.24
 opentracing-utils
 opentracing>=1.2.2,<2
 psycogreen
