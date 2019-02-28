@@ -11,6 +11,7 @@ Flask-SQLAlchemy==2.2
 flask==0.12.4
 gevent==1.2.2
 ItsDangerous==0.24
+jsonschema<3.0.0
 oauthlib<3.0.0
 opentracing-utils
 opentracing>=1.2.2,<2
