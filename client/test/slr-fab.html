@@ -6,10 +6,10 @@
 
     <title>slr-fab test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-fab.html">
+    <script type="module" src="../src/slr-fab.js"></script>
   </head>
   <body>
 
@@ -19,26 +19,27 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-fab', function() {
-        var element;
+    <script type="module">
+import '../src/slr-fab.js';
+suite('slr-fab', function() {
+  var element;
 
-        setup(function() {
-          element = fixture('fab')
-        })
+  setup(function() {
+    element = fixture('fab')
+  })
 
-        test('fab is visible after show()', function(done) {
-          element.show()
-          assert.ok(element.visible)
-          done()
-        })
+  test('fab is visible after show()', function(done) {
+    element.show()
+    assert.ok(element.visible)
+    done()
+  })
 
-        test('fab is hidden after hide()', function(done) {
-          element.hide()
-          assert.ok(!element.visible)
-          done()
-        })
-      })
-    </script>
+  test('fab is hidden after hide()', function(done) {
+    element.hide()
+    assert.ok(!element.visible)
+    done()
+  })
+})
+</script>
   </body>
 </html>

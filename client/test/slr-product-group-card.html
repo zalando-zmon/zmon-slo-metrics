@@ -6,10 +6,10 @@
 
     <title>slr-products test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-product-group-card.html">
+    <script type="module" src="../src/slr-product-group-card.js"></script>
   </head>
   <body>
 
@@ -19,30 +19,31 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-product-group-card', function() {
-        var element;
+    <script type="module">
+import '../src/slr-product-group-card.js';
+suite('slr-product-group-card', function() {
+  var element;
 
-        setup(function() {
-          element = fixture('productGroupCard')
-        })
+  setup(function() {
+    element = fixture('productGroupCard')
+  })
 
-        test('should save a copy of the original item', function(done) {
-          flush(function() {
-            assert.equal(element._item.name, element.item.name)
-            done()
-          })
-        })
+  test('should save a copy of the original item', function(done) {
+    flush(function() {
+      assert.equal(element._item.name, element.item.name)
+      done()
+    })
+  })
 
-        test('should restore item after cancelled', function(done) {
-          element.item.name = 'another name'
-          element.cancel()
-          flush(function() {
-            assert.equal(element.item.name, element._item.name)
-            done()
-          })
-        })
-      })
-    </script>
+  test('should restore item after cancelled', function(done) {
+    element.item.name = 'another name'
+    element.cancel()
+    flush(function() {
+      assert.equal(element.item.name, element._item.name)
+      done()
+    })
+  })
+})
+</script>
   </body>
 </html>

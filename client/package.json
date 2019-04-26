@@ -1,24 +1,5 @@
 {
-  "name": "slr",
-  "version": "1.0.0",
   "description": "Service Level Reports User Interface",
-  "main": "index.html",
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "start": "cd ./build/default && ../../node_modules/polymer-cli/bin/polymer.js serve --proxy-path '/api/' --proxy-target 'http://localhost:8080/api/'",
-    "dev": "./node_modules/polymer-cli/bin/polymer.js serve --proxy-path '/api/' --proxy-target 'http://localhost:8080/api/'",
-    "mock": "./node_modules/polymer-cli/bin/polymer.js serve --proxy-path '/api/' --proxy-target 'http://localhost:8000/'",
-    "build": "./node_modules/polymer-cli/bin/polymer.js build",
-    "test": "./node_modules/polymer-cli/bin/polymer.js test -l chrome",
-    "polymer": "./node_modules/polymer-cli/bin/polymer.js install",
-    "postinstall": "npm run-script polymer"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/zalando-zmon/service-level-reporting.git"
-  },
   "keywords": [
     "service",
     "level",
@@ -27,14 +8,71 @@
     "slo",
     "sli"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/zalando-zmon/service-level-reporting.git"
+  },
+  "homepage": "https://github.com/zalando-zmon/service-level-reporting#readme",
+  "name": "slr",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "start": "cd ./build/default && ../../node_modules/polymer-cli/bin/polymer.js serve --proxy-path '/api/' --proxy-target 'http://localhost:8080/api/'",
+    "dev": "polymer serve --proxy-path '/api/' --proxy-target 'http://localhost:8080/api/'",
+    "mock": "./node_modules/polymer-cli/bin/polymer.js serve --proxy-path '/api/' --proxy-target 'http://localhost:8000/'",
+    "build": "./node_modules/polymer-cli/bin/polymer.js build",
+    "test": "./node_modules/polymer-cli/bin/polymer.js test -l chrome",
+    "polymer": "./node_modules/polymer-cli/bin/polymer.js install",
+    "postinstall": "npm run-script polymer"
+  },
   "author": "Emanuel Lauria",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/zalando-zmon/service-level-reporting/issues"
   },
-  "homepage": "https://github.com/zalando-zmon/service-level-reporting#readme",
   "devDependencies": {
     "bower": "^1.8.4",
-    "polymer-cli": "^1.7.0"
+    "polymer-cli": "^1.7.0",
+    "wct-browser-legacy": "^1.0.1",
+    "@webcomponents/webcomponentsjs": "^2.0.0"
+  },
+  "resolutions": {
+    "inherits": "2.0.3",
+    "samsam": "1.1.3",
+    "supports-color": "3.1.2",
+    "type-detect": "1.0.0"
+  },
+  "dependencies": {
+    "@polymer/polymer": "^3.0.0",
+    "@polymer/app-layout": "^3.0.0",
+    "@polymer/paper-tabs": "^3.0.0",
+    "@polymer/iron-icons": "^3.0.0",
+    "@polymer/app-route": "^3.0.0",
+    "@polymer/iron-pages": "^3.0.0",
+    "@polymer/iron-ajax": "^3.0.0",
+    "@polymer/paper-card": "^3.0.0",
+    "@polymer/paper-progress": "^3.0.0",
+    "@polymer/paper-dialog-scrollable": "^3.0.0",
+    "@polymer/paper-button": "^3.0.0",
+    "@polymer/paper-dialog": "^3.0.0",
+    "@polymer/paper-input": "^3.0.0",
+    "@polymer/paper-toolbar": "^3.0.0",
+    "@polymer/iron-form": "^3.0.0",
+    "@polymer/paper-fab": "^3.0.0",
+    "@polymer/iron-label": "^3.0.0",
+    "@polymer/paper-toast": "^3.0.0",
+    "@polymer/paper-spinner": "^3.0.0",
+    "@polymer/paper-item": "^3.0.0",
+    "@polymer/paper-listbox": "^3.0.0",
+    "@polymer/paper-dropdown-menu": "^3.0.0",
+    "@polymer/iron-scroll-threshold": "^3.0.0",
+    "@polymer/iron-a11y-keys": "^3.0.0",
+    "@polymer/iron-flex-layout": "^3.0.0",
+    "@polymer/iron-media-query": "^3.0.0",
+    "web-animations-js": "^2.3.1",
+    "@polymer/iron-autogrow-textarea": "^3.0.0"
   }
 }

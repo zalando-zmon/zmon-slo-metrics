@@ -6,10 +6,10 @@
 
     <title>slr-app test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-app.html">
+    <script type="module" src="../src/slr-app.js"></script>
   </head>
   <body>
 
@@ -19,14 +19,15 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-app', function() {
-        var app;
+    <script type="module">
+import '../src/slr-app.js';
+suite('slr-app', function() {
+  var app;
 
-        setup(function() {
-          app = fixture('basic')
-        })
-      })
-    </script>
+  setup(function() {
+    app = fixture('basic')
+  })
+})
+</script>
   </body>
 </html>

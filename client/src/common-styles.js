@@ -1,6 +1,7 @@
-<link rel="import" href="../bower_components/polymer/polymer-element.html">
+import '@polymer/polymer/polymer-element.js';
+const $_documentContainer = document.createElement('template');
 
-<dom-module id="common-styles">
+$_documentContainer.innerHTML = `<dom-module id="common-styles">
   <template>
     <style is="common-styles">
       [hidden] {
@@ -61,4 +62,6 @@
       }
     </style>
   </template>
-</dom-module>
+</dom-module>`;
+
+document.head.appendChild($_documentContainer.content);

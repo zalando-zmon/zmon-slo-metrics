@@ -6,10 +6,10 @@
 
     <title>slr-products test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-dialog.html">
+    <script type="module" src="../src/slr-dialog.js"></script>
   </head>
   <body>
 
@@ -19,30 +19,31 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-dialog', function() {
-        var element;
+    <script type="module">
+import '../src/slr-dialog.js';
+suite('slr-dialog', function() {
+  var element;
 
-        setup(function() {
-          element = fixture('dialog')
-        })
+  setup(function() {
+    element = fixture('dialog')
+  })
 
-        test('should save a copy of the original item', function(done) {
-          flush(function() {
-            assert.equal(element._item.name, element.item.name)
-            done()
-          })
-        })
+  test('should save a copy of the original item', function(done) {
+    flush(function() {
+      assert.equal(element._item.name, element.item.name)
+      done()
+    })
+  })
 
-        test('should restore item after closed', function(done) {
-          element.item.name = 'another name'
-          element.whenClosed()
-          flush(function() {
-            assert.equal(element.item.name, element._item.name)
-            done()
-          })
-        })
-      })
-    </script>
+  test('should restore item after closed', function(done) {
+    element.item.name = 'another name'
+    element.whenClosed()
+    flush(function() {
+      assert.equal(element.item.name, element._item.name)
+      done()
+    })
+  })
+})
+</script>
   </body>
 </html>

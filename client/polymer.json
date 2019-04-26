@@ -1,24 +1,8 @@
 {
-  "entrypoint": "index.html",
-  "shell": "src/slr-app.html",
+  "npm": true,
   "lint": {
     "rules": [
-      "polymer-2"
+      "polymer-3"
     ]
-  },
-  "builds": [{
-    "bundle": false,
-    "js": {"compile": true, "minify": true},
-    "css": {"minify": true},
-    "html": {"minify": true}
-  }],
-  "sources": [
-    "src/*",
-    "assets/images/*",
-    "config.json",
-    "bower.json"
-  ],
-  "extraDependencies": [
-    "bower_components/webcomponentsjs/*"
-  ]
+  }
 }

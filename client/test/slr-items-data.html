@@ -6,10 +6,10 @@
 
     <title>slr-items-data test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-items-data.html">
+    <script type="module" src="../src/slr-items-data.js"></script>
   </head>
   <body>
 
@@ -20,59 +20,60 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-items-data', function() {
-        var element;
-        var server;
-        var responseHeaders = {
-          json: { 'Content-Type': 'application/json' }
-        };
+    <script type="module">
+import '../src/slr-items-data.js';
+suite('slr-items-data', function() {
+  var element;
+  var server;
+  var responseHeaders = {
+    json: { 'Content-Type': 'application/json' }
+  };
 
-        setup(function() {
-          server = sinon.fakeServer.create()
-          server.respondWith(
-            'GET',
-            /\/error.*/, [
-              500,
-              responseHeaders.json,
-              ''
-            ]
-          );
-          server.respondWith(
-            'GET',
-            /\/products.*/, [
-              200,
-              responseHeaders.json,
-              '{"data":[{"name":"product test 2", "uri":"/product2","slug":"product2"},{"name":"product test","slug":"product","uri":"/product"},{"name":"product test 3","slug":"product3","uri":"/product3"}],"_meta":{"count":3}}'
-            ]
-          );
-          element = fixture('itemsData')
-        })
+  setup(function() {
+    server = sinon.fakeServer.create()
+    server.respondWith(
+      'GET',
+      /\/error.*/, [
+        500,
+        responseHeaders.json,
+        ''
+      ]
+    );
+    server.respondWith(
+      'GET',
+      /\/products.*/, [
+        200,
+        responseHeaders.json,
+        '{"data":[{"name":"product test 2", "uri":"/product2","slug":"product2"},{"name":"product test","slug":"product","uri":"/product"},{"name":"product test 3","slug":"product3","uri":"/product3"}],"_meta":{"count":3}}'
+      ]
+    );
+    element = fixture('itemsData')
+  })
 
-        teardown(function() {
-          server.restore();
-        });
+  teardown(function() {
+    server.restore();
+  });
 
-        test('notified of server failure', function(done) {
-          element.addEventListener('items-data-error', function(event) {
-            assert.equal(event.detail.message, undefined)
-            done()
-          })
-          element.url = '/error'
-          element.fetch()
-          server.respond()
-        })
+  test('notified of server failure', function(done) {
+    element.addEventListener('items-data-error', function(event) {
+      assert.equal(event.detail.message, undefined)
+      done()
+    })
+    element.url = '/error'
+    element.fetch()
+    server.respond()
+  })
 
-        test('requested data successfully', function(done) {
-          element.fetch()
-          server.respond()
-          flush(function() {
-            assert.equal(element.items.length, 3)
-            done()
-          })
-        })
+  test('requested data successfully', function(done) {
+    element.fetch()
+    server.respond()
+    flush(function() {
+      assert.equal(element.items.length, 3)
+      done()
+    })
+  })
 
-      })
-    </script>
+})
+</script>
   </body>
 </html>

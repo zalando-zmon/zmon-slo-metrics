@@ -6,10 +6,10 @@
 
     <title>slr-search test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-search.html">
+    <script type="module" src="../src/slr-search.js"></script>
   </head>
   <body>
 
@@ -19,27 +19,28 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-search', function() {
-        var element;
+    <script type="module">
+import '../src/slr-search.js';
+suite('slr-search', function() {
+  var element;
 
-        setup(function() {
-          element = fixture('search')
-        })
+  setup(function() {
+    element = fixture('search')
+  })
 
-        test('search is empty after closed', function(done) {
-          element.closeSearch()
-          assert.equal(element._searchStr, '')
-          assert.equal(element.searchMode, false)
-          done()
-        })
+  test('search is empty after closed', function(done) {
+    element.closeSearch()
+    assert.equal(element._searchStr, '')
+    assert.equal(element.searchMode, false)
+    done()
+  })
 
-        test('search mode is active on click', function(done) {
-          element.onSearchClick()
-          assert.equal(element.searchMode, true)
-          done()
-        })
-      })
-    </script>
+  test('search mode is active on click', function(done) {
+    element.onSearchClick()
+    assert.equal(element.searchMode, true)
+    done()
+  })
+})
+</script>
   </body>
 </html>

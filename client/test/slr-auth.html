@@ -6,10 +6,10 @@
 
     <title>slr-auth test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-auth.html">
+    <script type="module" src="../src/slr-auth.js"></script>
   </head>
   <body>
 
@@ -19,21 +19,22 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-auth', function() {
-        var element;
+    <script type="module">
+import '../src/slr-auth.js';
+suite('slr-auth', function() {
+  var element;
 
-        setup(function() {
-          element = fixture('auth')
-        })
+  setup(function() {
+    element = fixture('auth')
+  })
 
-        test('paper-button is present and raised', function(done) {
-          var btn = element.shadowRoot.querySelector('paper-button')
-          assert.ok(btn.raised)
-          assert.equal(btn.innerHTML, 'continue')
-          done()
-        })
-      })
-    </script>
+  test('paper-button is present and raised', function(done) {
+    var btn = element.shadowRoot.querySelector('paper-button')
+    assert.ok(btn.raised)
+    assert.equal(btn.innerHTML, 'continue')
+    done()
+  })
+})
+</script>
   </body>
 </html>

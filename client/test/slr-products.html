@@ -6,10 +6,10 @@
 
     <title>slr-products test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-products.html">
+    <script type="module" src="../src/slr-products.js"></script>
   </head>
   <body>
 
@@ -19,62 +19,64 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-products', function() {
-        var element;
-        var server;
-        var responseHeaders = {
-          json: { 'Content-Type': 'application/json' }
-        };
+    <script type="module">
+import '../src/slr-products.js';
+import { dom } from '../../@polymer/polymer/lib/legacy/polymer.dom.js';
+suite('slr-products', function() {
+  var element;
+  var server;
+  var responseHeaders = {
+    json: { 'Content-Type': 'application/json' }
+  };
 
-        setup(function() {
-          server = sinon.fakeServer.create()
-          server.respondWith(
-            'GET',
-            /\/products.*/, [
-              200,
-              responseHeaders.json,
-              '{"data":[{"name":"product test 2", "uri":"/product2","slug":"product2"},{"name":"product test","slug":"product","uri":"/product"},{"name":"product test 3","slug":"product3","uri":"/product3"}],"_meta":{"count":3}}'
-            ]
-          );
-          server.respondWith(
-            'GET',
-            /\/product-groups.*/, [
-              200,
-              responseHeaders.json,
-              '{"data":[{"name":"product group 1", "uri":"/product-group/1","slug":"pg1"}],"_meta":{"count":1}}'
-            ]
-          );
+  setup(function() {
+    server = sinon.fakeServer.create()
+    server.respondWith(
+      'GET',
+      /\/products.*/, [
+        200,
+        responseHeaders.json,
+        '{"data":[{"name":"product test 2", "uri":"/product2","slug":"product2"},{"name":"product test","slug":"product","uri":"/product"},{"name":"product test 3","slug":"product3","uri":"/product3"}],"_meta":{"count":3}}'
+      ]
+    );
+    server.respondWith(
+      'GET',
+      /\/product-groups.*/, [
+        200,
+        responseHeaders.json,
+        '{"data":[{"name":"product group 1", "uri":"/product-group/1","slug":"pg1"}],"_meta":{"count":1}}'
+      ]
+    );
 
-          element = fixture('products')
-          element.products = [
-            { title: 'product 3', description: 'this is the 3rd product' },
-            { title: 'product 1', description: 'this is the 1st product' },
-            { title: 'product 2', description: 'this is the 2nd product' }
-          ]
-        })
+    element = fixture('products')
+    element.products = [
+      { title: 'product 3', description: 'this is the 3rd product' },
+      { title: 'product 1', description: 'this is the 1st product' },
+      { title: 'product 2', description: 'this is the 2nd product' }
+    ]
+  })
 
-        teardown(function() {
-          server.restore();
-        });
+  teardown(function() {
+    server.restore();
+  });
 
-        test('items should be displayed', function(done) {
-          flush(function() {
-            var items = Polymer.dom(element.root).querySelectorAll('.product')
-            assert.equal(element.products.length, items.length)
-            done()
-          })
-        })
+  test('items should be displayed', function(done) {
+    flush(function() {
+      var items = dom(element.root).querySelectorAll('.product')
+      assert.equal(element.products.length, items.length)
+      done()
+    })
+  })
 
-        test('should add a new item and open view', function(done) {
-          flush(function() {
-            var view = Polymer.dom(element.root).querySelectorAll('#view')
-            element.addProduct()
-            assert.equal(element.viewIsOpen, true)
-            done()
-          })
-        })
-      })
-    </script>
+  test('should add a new item and open view', function(done) {
+    flush(function() {
+      var view = dom(element.root).querySelectorAll('#view')
+      element.addProduct()
+      assert.equal(element.viewIsOpen, true)
+      done()
+    })
+  })
+})
+</script>
   </body>
 </html>

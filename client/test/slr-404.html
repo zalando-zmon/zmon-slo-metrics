@@ -6,10 +6,10 @@
 
     <title>slr-404 test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-404.html">
+    <script type="module" src="../src/slr-404.js"></script>
   </head>
   <body>
 
@@ -19,26 +19,27 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-404', function() {
-        var element;
+    <script type="module">
+import '../src/slr-404.js';
+suite('slr-404', function() {
+  var element;
 
-        setup(function() {
-          element = fixture('404')
-        })
+  setup(function() {
+    element = fixture('404')
+  })
 
-        test('paper-button is present and raised', function(done) {
-          var btn = element.shadowRoot.querySelector('paper-button')
-          assert.ok(btn.raised)
-          done()
-        })
+  test('paper-button is present and raised', function(done) {
+    var btn = element.shadowRoot.querySelector('paper-button')
+    assert.ok(btn.raised)
+    done()
+  })
 
-        test('link to product-groups exists', function(done) {
-          var link = element.shadowRoot.querySelector('a')
-          assert.equal(link.href, 'http://localhost:8081/product-groups')
-          done()
-        })
-      })
-    </script>
+  test('link to product-groups exists', function(done) {
+    var link = element.shadowRoot.querySelector('a')
+    assert.equal(link.href, 'http://localhost:8081/product-groups')
+    done()
+  })
+})
+</script>
   </body>
 </html>

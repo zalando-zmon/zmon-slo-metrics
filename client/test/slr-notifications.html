@@ -6,10 +6,10 @@
 
     <title>slr-notifications test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-notifications.html">
+    <script type="module" src="../src/slr-notifications.js"></script>
   </head>
   <body>
 
@@ -19,48 +19,49 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-notifications', function() {
-        var element;
+    <script type="module">
+import '../src/slr-notifications.js';
+suite('slr-notifications', function() {
+  var element;
 
-        setup(function() {
-          element = fixture('notifications')
-        })
+  setup(function() {
+    element = fixture('notifications')
+  })
 
-        test('opens with message "test" and closes after 1s', function(done) {
-          element.open({ message: 'test', duration: 1000 })
-          flush(function() {
-            var toast = element.shadowRoot.querySelector('paper-toast')
-            assert.equal(toast.text, 'test')
-            assert.ok(toast.visible)
-            setTimeout(function() {
-              assert.ok(!toast.visible)
-              done()
-            }, 1100)
-          })
-        })
+  test('opens with message "test" and closes after 1s', function(done) {
+    element.open({ message: 'test', duration: 1000 })
+    flush(function() {
+      var toast = element.shadowRoot.querySelector('paper-toast')
+      assert.equal(toast.text, 'test')
+      assert.ok(toast.visible)
+      setTimeout(function() {
+        assert.ok(!toast.visible)
+        done()
+      }, 1100)
+    })
+  })
 
-        test('opens indefinitely and closes with close()', function(done) {
-          element.open({ message: 'test', duration: 0 })
-          flush(function() {
-            var toast = element.shadowRoot.querySelector('paper-toast')
-            assert.equal(toast.text, 'test')
-            assert.ok(toast.visible)
-            element.close()
-            assert.ok(!toast.visible)
-            done()
-          })
-        })
+  test('opens indefinitely and closes with close()', function(done) {
+    element.open({ message: 'test', duration: 0 })
+    flush(function() {
+      var toast = element.shadowRoot.querySelector('paper-toast')
+      assert.equal(toast.text, 'test')
+      assert.ok(toast.visible)
+      element.close()
+      assert.ok(!toast.visible)
+      done()
+    })
+  })
 
-        test('does not open if no message is given', function(done) {
-          element.open({ duration: 1000 })
-          flush(function() {
-            var toast = element.shadowRoot.querySelector('paper-toast')
-            assert.ok(!toast.visible)
-            done()
-          })
-        })
-      })
-    </script>
+  test('does not open if no message is given', function(done) {
+    element.open({ duration: 1000 })
+    flush(function() {
+      var toast = element.shadowRoot.querySelector('paper-toast')
+      assert.ok(!toast.visible)
+      done()
+    })
+  })
+})
+</script>
   </body>
 </html>

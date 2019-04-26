@@ -3,25 +3,16 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <title>Service Level Reporting</title>
-    <meta name="description" content="Service Level reports tool to manage Objectives, Indicators and Reports">
 
+    <title>playground</title>
+    <meta name="description" content="playground description">
+
+    <!-- See https://goo.gl/OOhYW5 -->
     <link rel="manifest" href="/manifest.json">
 
-    <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 
-    <link rel="import" href="/src/slr-app.html">
-
-    <style>
-      body {
-        margin: 0;
-        font-family: 'Roboto', 'Noto', sans-serif;
-        font-size: 13px;
-        line-height: 1.5;
-        min-height: 100vh;
-        background-color: #f5f5f5;
-      }
-    </style>
+    <script type="module" src="/src/slr-app.js" crossorigin></script>
   </head>
   <body>
     <slr-app></slr-app>

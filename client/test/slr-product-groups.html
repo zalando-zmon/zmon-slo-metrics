@@ -6,10 +6,10 @@
 
     <title>slr-product-groups test</title>
 
-    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../bower_components/web-component-tester/browser.js"></script>
+    <script src="../../@webcomponents/webcomponentsjs/webcomponents-bundle.js"></script>
+    <script src="../../wct-browser-legacy/browser.js"></script>
 
-    <link rel="import" href="../src/slr-product-groups.html">
+    <script type="module" src="../src/slr-product-groups.js"></script>
   </head>
   <body>
 
@@ -19,37 +19,39 @@
       </template>
     </test-fixture>
 
-    <script>
-      suite('slr-product-groups', function() {
-        var element;
-        var server;
-        var responseHeaders = {
-          json: { 'Content-Type': 'application/json' }
-        };
+    <script type="module">
+import '../src/slr-product-groups.js';
+import { dom } from '../../@polymer/polymer/lib/legacy/polymer.dom.js';
+suite('slr-product-groups', function() {
+  var element;
+  var server;
+  var responseHeaders = {
+    json: { 'Content-Type': 'application/json' }
+  };
 
-        setup(function() {
-          server = sinon.fakeServer.create()
+  setup(function() {
+    server = sinon.fakeServer.create()
 
-          server.respondWith(
-            'GET',
-            /\/product-groups.*/, [
-              200,
-              responseHeaders.json,
-              '{"data":[{"name":"product group 1", "uri":"/product-group/1","slug":"pg1"},{"name":"product group 2", "uri":"/product-group/2","slug":"pg2"},{"name":"product group 3", "uri":"/product-group/3","slug":"pg3"}],"_meta":{"count":1}}'
-            ]
-          );
+    server.respondWith(
+      'GET',
+      /\/product-groups.*/, [
+        200,
+        responseHeaders.json,
+        '{"data":[{"name":"product group 1", "uri":"/product-group/1","slug":"pg1"},{"name":"product group 2", "uri":"/product-group/2","slug":"pg2"},{"name":"product group 3", "uri":"/product-group/3","slug":"pg3"}],"_meta":{"count":1}}'
+      ]
+    );
 
-          element = fixture('productGroups')
-        })
+    element = fixture('productGroups')
+  })
 
-        test('items should be displayed', function(done) {
-          flush(function() {
-            var items = Polymer.dom(element.root).querySelectorAll('.productGroup');
-            assert.equal(element.productGroups.length, items.length)
-            done()
-          })
-        })
-      })
-    </script>
+  test('items should be displayed', function(done) {
+    flush(function() {
+      var items = dom(element.root).querySelectorAll('.productGroup');
+      assert.equal(element.productGroups.length, items.length)
+      done()
+    })
+  })
+})
+</script>
   </body>
 </html>

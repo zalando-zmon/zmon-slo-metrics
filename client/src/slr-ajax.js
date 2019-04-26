@@ -1,0 +1,106 @@
+import '@polymer/polymer/polymer-element.js';
+import '@polymer/iron-ajax/iron-ajax.js';
+import { Base } from '@polymer/polymer/polymer-legacy.js';
+class SlrAjax extends window.customElements.get('iron-ajax') {
+  static get is() { return 'slr-ajax' }
+
+  static get properties() {
+    return {
+      _boundHandleSuccess: {
+        type: Function,
+        value: function() {
+          return this.handleSuccess.bind(this)
+        }
+      },
+      _boundHandleError: {
+        type: Function,
+        value: function() {
+          return this.handleError.bind(this)
+        }
+      },
+      lastResponse: {
+        type: Object
+      },
+      name: {
+        type: String
+      },
+      loading: {
+        type: Boolean
+      },
+      auto: {
+        type: Boolean
+      },
+      url: {
+        type: String
+      },
+      params: {
+        type: Object
+      }
+    }
+  }
+
+  // intercept unauthorized requests
+  generateRequest() {
+    // Opentracing headers ingestion
+    // let tracer = opentracing.globalTracer()
+    // this.span = tracer.startSpan('http_request')
+    // this.span
+    //   .setTag(opentracing.Tags.HTTP_URL, this.url)
+    //   .setTag(opentracing.Tags.HTTP_METHOD, this.method)
+    //   .setTag(opentracing.Tags.SPAN_KIND, opentracing.Tags.SPAN_KIND_RPC_CLIENT)
+    //   .setTag(opentracing.Tags.COMPONENT, 'slr-ajax')
+    //   .setTag('browser', true)
+
+    // Inject OT headers
+    let headersCarrier = {}
+    // tracer.inject(this.span.context(), opentracing.FORMAT_TEXT_MAP, headersCarrier)
+    Object.assign(this.headers, headersCarrier)
+
+    let request = super.generateRequest()
+
+    request.completes.then(
+      this._boundHandleSuccess.bind(this, request),
+      this._boundHandleError.bind(this, request)
+    )
+    return request
+  }
+
+  handleSuccess(request) {
+    // this.span
+    //   .setTag(opentracing.Tags.HTTP_STATUS_CODE, request.status)
+    //   .finish()
+  }
+
+  handleError(request, error) {
+    if (this.verbose) {
+      Base._error(error);
+    }
+    //
+    // this.span
+    //   .setTag(opentracing.Tags.HTTP_STATUS_CODE, request.status)
+    //   .setTag(opentracing.Tags.ERROR, true)
+    //   .log({'message': error.message, 'error.kind': error})
+    //   .finish()
+
+    if (request.xhr.status === 401) {
+      this.fire('slr-authenticate', {
+        bubbles: this.bubbles,
+        composed: true
+      })
+    }
+
+    if (request === this.lastRequest) {
+      this._setLastError({
+        request: request,
+        error: error,
+        status: request.xhr.status,
+        statusText: request.xhr.statusText,
+        response: request.xhr.response
+      });
+      this._setLastResponse(null);
+      this._setLoading(false);
+    }
+  }
+}
+
+window.customElements.define(SlrAjax.is, SlrAjax)
