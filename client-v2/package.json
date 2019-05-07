@@ -3,6 +3,12 @@
   "version": "2.0.0",
   "description": "Service Level Reports User Interface",
   "main": "index.html",
+  "author": "Loïc Froment",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/zalando-zmon/service-level-reporting/issues"
+  },
+  "homepage": "https://github.com/zalando-zmon/service-level-reporting#readme",
   "dependencies": {
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
@@ -12,7 +18,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint src/**/*.js src/**/*.jsx"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -28,5 +35,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-react": "^7.13.0"
   }
 }
