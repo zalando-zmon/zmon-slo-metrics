@@ -68,12 +68,13 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
     "eject": "react-scripts eject",
-    "pre-push": "yarn test && yarn lint",
+    "pre-commit": "CI=true yarn test",
+    "pre-push": "CI=true yarn test && yarn lint",
     "lint": "eslint src/**/*.js src/**/*.jsx"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn test",
+      "pre-commit": "yarn pre-commit",
       "pre-push": "yarn pre-push"
     }
   },
