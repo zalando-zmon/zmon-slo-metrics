@@ -10,9 +10,9 @@ pipeline:
       - desc: Install dependencies
         cmd: apt-get install -y gnuplot
       - desc: Lint
-        cmd: make lint
+        cmd: cd cli && make lint
       - desc: Test
-        cmd: make test
+        cmd: cd cli && make test
       # - desc: "Update"
       #   cmd: apt-get update
 
